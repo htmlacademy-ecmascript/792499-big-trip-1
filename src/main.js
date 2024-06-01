@@ -1,4 +1,3 @@
-import {render} from './render.js';
 import Presenter from './presenter/presenter.js';
 
 const siteBody = document.querySelector('.page-body');

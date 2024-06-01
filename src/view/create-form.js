@@ -160,7 +160,7 @@ function createForm() {
                 </div>
               </section>
             </section>
-          </form>`
+          </form>`;
 }
 
 export default class NewForm {
@@ -169,10 +169,10 @@ export default class NewForm {
   }
 
   getElement() {
-  	if (!this.element) {
-  		this.element = createElement(this.getTemplate());
-  	}
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
+    }
 
-  	return this.element;
+    return this.element;
   }
 }

@@ -35,7 +35,7 @@ function newPoint() {
             <button class="event__rollup-btn" type="button">
               <span class="visually-hidden">Open event</span>
             </button>
-          </div>`
+          </div>`;
 }
 
 export default class Point {
@@ -44,10 +44,10 @@ export default class Point {
   }
 
   getElement() {
-  	if (!this.element) {
-  		this.element = createElement(this.getTemplate());
-  	}
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
+    }
 
-  	return this.element;
+    return this.element;
   }
 }

@@ -1,6 +1,6 @@
 import {createElement} from './../render.js';
 
-function editPoint() {
+const createEditPoint = () => {
   return `<form class="event event--edit" action="#" method="post">
             <header class="event__header">
               <div class="event__type-wrapper">
@@ -165,7 +165,7 @@ function editPoint() {
 
 export default class EditForm {
   getTemplate() {
-    return editPoint();
+    return createEditPoint();
   }
 
   getElement() {

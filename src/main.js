@@ -6,9 +6,9 @@ const siteFilters = siteBody.querySelector('.trip-controls__filters');
 const siteContainer = siteBody.querySelector('.trip-events');
 const pointModels = new PointModel();
 const pagePresenter = new Presenter({
-	mainContainer: siteContainer, 
-	filtersContainer: siteFilters,
-	pointModels,
+  mainContainer: siteContainer,
+  filtersContainer: siteFilters,
+  pointModels,
 });
 
 pagePresenter.init();

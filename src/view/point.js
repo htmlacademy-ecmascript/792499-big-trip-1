@@ -5,9 +5,7 @@ const createNewPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
   const {offers} = offer;
 
-  const offerElement = offers.find((item) => {
-    return item;
-  });
+  const offerElement = offers.find((item) => item);
 
   return `<div class="event">
             <time class="event__date" datetime="2019-03-18">${humanizePointDueDate(dateFrom).date}</time>

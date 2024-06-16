@@ -1,4 +1,5 @@
 import {TimeNames, TimeFormat} from './const.js';
+import dayjs from 'dayjs';
 
 const checkingValues = (timeValue) => {
   if (timeValue < 10) {
@@ -8,7 +9,6 @@ const checkingValues = (timeValue) => {
   }
 };
 
-const dayjs = require('dayjs');
 const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
 const humanizePointDueDate = (firstParam, secondParam) => {
 
@@ -21,7 +21,6 @@ const humanizePointDueDate = (firstParam, secondParam) => {
       const minuteValue = dayjs(secondParam).diff(dayjs(firstParam), TimeNames.MINUTE);
 
       const daysInHours = dayValue * TimeFormat.HOUR_IN_DAY;
-      const totalHours = dayjs(secondParam).diff(dayjs(firstParam), TimeNames.HOUR) - TimeFormat.HOUR_IN_DAY;
       const totalMinutes = hourValue * TimeFormat.MINUTE_IN_HOUR;
 
       const currentHours = hourValue - daysInHours;
@@ -30,10 +29,10 @@ const humanizePointDueDate = (firstParam, secondParam) => {
       if (hourValue < 1) {
         return checkingValues(minuteValue) + TimeNames.ABBR_MINUTE;
       } else if (hourValue >= 1 && hourValue < 24) {
-          return (checkingValues(hourValue) + TimeNames.ABBR_HOUR + ' ' + checkingValues(currentMinutes) + TimeNames.ABBR_MINUTE);
+        return `${checkingValues(hourValue)}${TimeNames.ABBR_HOUR} ${checkingValues(currentMinutes)}${TimeNames.ABBR_MINUTE}`;
       }
 
-      return checkingValues(dayValue) + TimeNames.ABBR_DAY + ' ' + checkingValues(currentHours) + TimeNames.ABBR_HOUR + ' ' + checkingValues(currentMinutes) + TimeNames.ABBR_MINUTE;
+      return `${checkingValues(dayValue)}${TimeNames.ABBR_DAY} ${checkingValues(currentHours)}${TimeNames.ABBR_HOUR} ${checkingValues(currentMinutes)}${TimeNames.ABBR_MINUTE}`;
     },
   };
 

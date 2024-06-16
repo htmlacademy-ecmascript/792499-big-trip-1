@@ -1,4 +1,3 @@
-import count from './../data/const.js';
 import Filters from './../view/filters.js';
 import Sorting from './../view/sorting.js';
 import NewForm from './../view/create-form.js';
@@ -8,14 +7,22 @@ import {RenderPosition, render} from './../render.js';
 
 export default class Presenter {
 
-  init(filters, container) {
-    render(new Filters(), filters, RenderPosition.BEFOREEND);
-    render(new Sorting(), container, RenderPosition.BEFOREEND);
-    render(new NewForm(), container, RenderPosition.BEFOREEND);
-    render(new EditForm(), container, RenderPosition.BEFOREEND);
+  constructor({mainContainer, filtersContainer, pointModels}) {
+    this.mainContainer = mainContainer;
+    this.filtersContainer = filtersContainer;
+    this.pointModels = pointModels;
+  }
 
-    for (let i = 0; i < count.COUNT_RENDER_POINT; i++) {
-      render(new Point(), container, RenderPosition.BEFOREEND);
+  init() {
+    this.presenterPoints = [...this.pointModels.getPoints()];
+
+    render(new Filters(), this.filtersContainer, RenderPosition.BEFOREEND);
+    render(new Sorting(), this.mainContainer, RenderPosition.BEFOREEND);
+    render(new NewForm(), this.mainContainer, RenderPosition.BEFOREEND);
+    render(new EditForm(), this.mainContainer, RenderPosition.BEFOREEND);
+
+    for (let i = 0; i < this.presenterPoints.length; i++) {
+      render(new Point({point: this.presenterPoints[i]}), this.mainContainer, RenderPosition.BEFOREEND);
     }
   }
 }

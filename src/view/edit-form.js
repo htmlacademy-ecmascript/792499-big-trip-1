@@ -161,7 +161,7 @@ const createEditPoint = () => {
               </section>
             </section>
           </form>`;
-}
+};
 
 export default class EditForm {
   getTemplate() {

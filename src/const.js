@@ -1,8 +1,26 @@
-const Count = {
-  COUNT_RENDER_POINT: 3,
+const COUNT_POINTS = 3;
+
+const TimeNames = {
+  DAY: 'day',
+  HOUR: 'hour',
+  MINUTE: 'minute',
+  ABBR_DAY: 'D',
+  ABBR_HOUR: 'H',
+  ABBR_MINUTE: 'M',
+
 };
 
-const DATE_FORMAT = 'DD MMM';
+const TimeFormat = {
+  DATE: 'DD MMM',
+  DAY: 'DD',
+  HOUR_MINUTE: 'HH:mm',
+  HOUR: 'HH',
+  MINUTE: 'mm',
+  HOUR_IN_DAY: 24,
+  MINUTE_IN_HOUR: 60,
+  ZERO: '0',
+
+};
 
 const Offers = [
   {
@@ -57,4 +75,4 @@ const Offers = [
   },
 ];
 
-export {Count, Offers, DATE_FORMAT};
+export {TimeNames, TimeFormat, Offers, COUNT_POINTS};

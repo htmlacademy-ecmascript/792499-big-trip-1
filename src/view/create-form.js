@@ -161,7 +161,7 @@ const createForm = () => {
               </section>
             </section>
           </form>`;
-}
+};
 
 export default class NewForm {
   getTemplate() {

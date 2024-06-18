@@ -11,6 +11,7 @@ const TimeNames = {
 };
 
 const TimeFormat = {
+  ALL: 'YY/MM/DD HH:mm',
   DATE: 'DD MMM',
   DAY: 'DD',
   HOUR_MINUTE: 'HH:mm',

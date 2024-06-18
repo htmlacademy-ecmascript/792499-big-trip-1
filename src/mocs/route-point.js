@@ -75,6 +75,7 @@ const offerTypes = [
     type: eventTypes[6],
     offers: [
       Offers[4],
+      Offers[1]
     ],
   },
   {
@@ -105,7 +106,7 @@ const points = [
     basePrice: 600,
     destination: destinationCities[1],
     event: eventTypes[4],
-    offer: offerTypes[3],
+    offer: offerTypes[1],
     dateFrom: '2024-08-11T08:11',
     dateTo: '2024-08-15T08:11',
   },

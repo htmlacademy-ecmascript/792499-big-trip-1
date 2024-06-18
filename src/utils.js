@@ -15,6 +15,7 @@ const humanizePointDueDate = (firstParam, secondParam) => {
   const format = {
     date: dayjs(firstParam).format(TimeFormat.DATE),
     time: dayjs(firstParam).format(TimeFormat.HOUR_MINUTE),
+    allDate: dayjs(firstParam).format(TimeFormat.ALL),
     difference: () => {
       const dayValue = dayjs(secondParam).diff(dayjs(firstParam), TimeNames.DAY);
       const hourValue = dayjs(secondParam).diff(dayjs(firstParam), TimeNames.HOUR);

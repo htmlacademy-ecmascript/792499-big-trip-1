@@ -19,7 +19,7 @@ export default class Presenter {
     render(new Filters(), this.filtersContainer, RenderPosition.BEFOREEND);
     render(new Sorting(), this.mainContainer, RenderPosition.BEFOREEND);
     render(new NewForm(), this.mainContainer, RenderPosition.BEFOREEND);
-    render(new EditForm(), this.mainContainer, RenderPosition.BEFOREEND);
+    render(new EditForm({point: this.presenterPoints[0]}), this.mainContainer, RenderPosition.BEFOREEND);
 
     for (let i = 0; i < this.presenterPoints.length; i++) {
       render(new Point({point: this.presenterPoints[i]}), this.mainContainer, RenderPosition.BEFOREEND);

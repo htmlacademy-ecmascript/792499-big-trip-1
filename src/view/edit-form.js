@@ -4,7 +4,6 @@ import {humanizePointDueDate} from './../utils.js';
 const createEditPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
   const {offers} = offer;
-  //const offersElement = offers.find((item) => item);
 
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">

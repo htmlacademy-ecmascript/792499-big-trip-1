@@ -9,11 +9,11 @@ const createEditPoint = (point) => {
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${value.ID}" type="checkbox" name="${value.TITLE}" checked>
-        <label class="event__offer-label" for="event-offer-luggage-${value.ID}">
-          <span class="event__offer-title">${value.TITLE}</span>
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${value.id}" type="checkbox" name="${value.title}" checked>
+        <label class="event__offer-label" for="event-offer-luggage-${value.id}">
+          <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${value.PRICE}</span>
+          <span class="event__offer-price">${value.price}</span>
         </label>
       </div>`).join('');
 

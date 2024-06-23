@@ -1,5 +1,6 @@
 import {createElement} from './../render.js';
 import {humanizePointDueDate} from './../utils.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createNewPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
@@ -44,21 +45,15 @@ const createNewPoint = (point) => {
           </div>`;
 };
 
-export default class Point {
+export default class Point extends AbstractView {
+  #point = null;
 
   constructor({point}) {
-    this.point = point;
+    super();
+    this.#point = point;
   }
 
-  getTemplate() {
-    return createNewPoint(this.point);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  get template() {
+    return createNewPoint(this.#point);
   }
 }

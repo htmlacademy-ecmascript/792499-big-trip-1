@@ -1,5 +1,6 @@
 import {createElement} from './../render.js';
 import {humanizePointDueDate} from './../utils.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createEditPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
@@ -132,21 +133,15 @@ const createEditPoint = (point) => {
           </form>`;
 };
 
-export default class EditForm {
+export default class EditForm extends AbstractView {
+  #point = null;
 
   constructor({point}) {
-    this.point = point;
+    super();
+    this.#point = point;
   }
 
-  getTemplate() {
-    return createEditPoint(this.point);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  get template() {
+    return createEditPoint(this.#point);
   }
 }

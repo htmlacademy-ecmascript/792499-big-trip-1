@@ -1,4 +1,4 @@
-import {createElement} from './../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createForm = (point) => {
   const {event, img} = point;
@@ -114,21 +114,15 @@ const createForm = (point) => {
           </form>`;
 };
 
-export default class NewForm {
+export default class NewForm extends AbstractView {
+  #point = null;
 
   constructor({point}) {
-    this.point = point;
+    super();
+    this.#point = point;
   }
 
-  getTemplate() {
-    return createForm(this.point);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  get template() {
+    return createForm(this.#point);
   }
 }

@@ -1,5 +1,5 @@
-import {createElement} from './../render.js';
-import {humanizePointDueDate} from './../utils.js';
+import {humanizePointDueDate} from './../utils/points.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createEditPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
@@ -9,11 +9,11 @@ const createEditPoint = (point) => {
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${value.ID}" type="checkbox" name="${value.TITLE}" checked>
-        <label class="event__offer-label" for="event-offer-luggage-${value.ID}">
-          <span class="event__offer-title">${value.TITLE}</span>
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${value.id}" type="checkbox" name="${value.title}" checked>
+        <label class="event__offer-label" for="event-offer-luggage-${value.id}">
+          <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${value.PRICE}</span>
+          <span class="event__offer-price">${value.price}</span>
         </label>
       </div>`).join('');
 
@@ -132,21 +132,27 @@ const createEditPoint = (point) => {
           </form>`;
 };
 
-export default class EditForm {
+export default class EditForm extends AbstractView {
+  #point = null;
+  #handleFormClick = null;
 
-  constructor({point}) {
-    this.point = point;
+  constructor({point, onFormSubmit}) {
+    super();
+    this.#point = point;
+    this.#handleFormClick = onFormSubmit;
+    this.currentForm.addEventListener('submit', this.#handlerSubmit);
   }
 
-  getTemplate() {
-    return createEditPoint(this.point);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
+  get currentForm() {
     return this.element;
   }
+
+  get template() {
+    return createEditPoint(this.#point);
+  }
+
+  #handlerSubmit = (evt) => {
+    evt.preventDefault();
+    this.#handleFormClick();
+  };
 }

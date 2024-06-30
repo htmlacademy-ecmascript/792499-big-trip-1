@@ -1,15 +1,14 @@
-import {TimeNames, TimeFormat} from './const.js';
+import {BasicValues, TimeNames, TimeFormat} from './../const.js';
 import dayjs from 'dayjs';
 
-const checkingValues = (timeValue) => {
-  if (timeValue < 10) {
+const getTimeValues = (timeValue) => {
+  if (timeValue < BasicValues.TIME_STAMP) {
     return TimeFormat.ZERO + timeValue;
-  } else {
-    return timeValue;
   }
+
+  return timeValue;
 };
 
-const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
 const humanizePointDueDate = (firstParam, secondParam) => {
 
   const format = {
@@ -27,17 +26,19 @@ const humanizePointDueDate = (firstParam, secondParam) => {
       const currentHours = hourValue - daysInHours;
       const currentMinutes = minuteValue - totalMinutes;
 
-      if (hourValue < 1) {
-        return checkingValues(minuteValue) + TimeNames.ABBR_MINUTE;
-      } else if (hourValue >= 1 && hourValue < 24) {
-        return `${checkingValues(hourValue)}${TimeNames.ABBR_HOUR} ${checkingValues(currentMinutes)}${TimeNames.ABBR_MINUTE}`;
+      if (hourValue < TimeFormat.ONE_HOUR) {
+        return getTimeValues(minuteValue) + TimeNames.SHORT_MINUTE;
       }
 
-      return `${checkingValues(dayValue)}${TimeNames.ABBR_DAY} ${checkingValues(currentHours)}${TimeNames.ABBR_HOUR} ${checkingValues(currentMinutes)}${TimeNames.ABBR_MINUTE}`;
+      if (hourValue >= TimeFormat.ONE_HOUR && hourValue < TimeFormat.HOUR_IN_DAY) {
+        return `${getTimeValues(hourValue)}${TimeNames.SHORT_HOUR} ${getTimeValues(currentMinutes)}${TimeNames.SHORT_MINUTE}`;
+      }
+
+      return `${getTimeValues(dayValue)}${TimeNames.SHORT_DAY} ${getTimeValues(currentHours)}${TimeNames.SHORT_HOUR} ${getTimeValues(currentMinutes)}${TimeNames.SHORT_MINUTE}`;
     },
   };
 
   return format;
 };
 
-export {getRandomArrayElement, humanizePointDueDate};
+export {humanizePointDueDate};

@@ -1,11 +1,16 @@
-import {createElement} from './../render.js';
-import {humanizePointDueDate} from './../utils.js';
+import {humanizePointDueDate} from './../utils/points.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createNewPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
   const {offers} = offer;
 
-  const offerElement = offers.find((item) => item);
+  const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
+      <li class="event__offer">
+        <span class="event__offer-title">${value.title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${value.price}</span>
+      </li>`).join('');
 
   return `<div class="event">
             <time class="event__date" datetime="2019-03-18">${humanizePointDueDate(dateFrom).date}</time>
@@ -26,11 +31,7 @@ const createNewPoint = (point) => {
             </p>
             <h4 class="visually-hidden">Offers:</h4>
             <ul class="event__selected-offers">
-              <li class="event__offer">
-                <span class="event__offer-title">${offerElement.TITLE}</span>
-                &plus;&euro;&nbsp;
-                <span class="event__offer-price">${offerElement.PRICE}</span>
-              </li>
+              ${createMarkup(offers)}
             </ul>
             <button class="event__favorite-btn event__favorite-btn--active" type="button">
               <span class="visually-hidden">Add to favorite</span>
@@ -44,21 +45,27 @@ const createNewPoint = (point) => {
           </div>`;
 };
 
-export default class Point {
+export default class Point extends AbstractView {
+  #point = null;
+  #handleClick = null;
 
-  constructor({point}) {
-    this.point = point;
+  constructor({point, onRollupClick}) {
+    super();
+    this.#point = point;
+    this.#handleClick = onRollupClick;
+    this.buttonRollup.addEventListener('click', this.#clickHandler);
   }
 
-  getTemplate() {
-    return createNewPoint(this.point);
+  get buttonRollup() {
+    return this.element.querySelector('.event__rollup-btn');
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  get template() {
+    return createNewPoint(this.#point);
   }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleClick();
+  };
 }

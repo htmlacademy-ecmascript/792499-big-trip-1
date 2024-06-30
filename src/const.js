@@ -1,7 +1,7 @@
 const BasicValues = {
   COUNT_POINTS: 3,
   TIME_STAMP: 10,
-}
+};
 
 const OFFERS = [
   {

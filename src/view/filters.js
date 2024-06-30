@@ -1,4 +1,3 @@
-import {createElement} from './../render.js';
 import AbstractView from './../framework/view/abstract-view.js';
 
 const createFilters = () => `<form class="trip-filters" action="#" method="get">

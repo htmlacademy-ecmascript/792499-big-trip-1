@@ -200,4 +200,11 @@ const POINTS = [
   },
 ];
 
-export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS};
+const NoPointsFilter = {
+  EVERYTHING: 'Click New Event to create your first point',
+  PAST: 'There are no past events now',
+  PRESENT: 'There are no present events now',
+  FUTURE: 'There are no future events now',
+};
+
+export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, NoPointsFilter};

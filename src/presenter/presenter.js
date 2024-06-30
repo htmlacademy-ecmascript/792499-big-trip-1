@@ -1,9 +1,9 @@
 import Filters from './../view/filters.js';
 import Sorting from './../view/sorting.js';
-/*import NewForm from './../view/create-form.js';*/
 import EditForm from './../view/edit-form.js';
 import Point from './../view/point.js';
-import {RenderPosition, render} from './../render.js';
+import createNoPoints from './../view/no-points.js';
+import {render} from './../render.js';
 import {isEscapeKey} from './../utils.js';
 import {replace} from './../framework/render.js';
 
@@ -20,15 +20,23 @@ export default class Presenter {
     this.#pointModels = pointModels;
   }
 
-  init() {
-    this.presenterPoints = [...this.#pointModels.getPoints()];
-
-    render(new Filters(), this.#filtersContainer, RenderPosition.BEFOREEND);
-    render(new Sorting(), this.#mainContainer, RenderPosition.BEFOREEND);
-
-    for (let i = 0; i < this.presenterPoints.length; i++) {
-      this.#renderElements(this.presenterPoints[i]);
+  #renderBoard() {
+    if (this.#presenterPoints.length === 0) {
+      render(new createNoPoints(), this.#mainContainer);
+      return;
     }
+
+    render(new Filters(), this.#filtersContainer);
+    render(new Sorting(), this.#mainContainer);
+
+    for (let i = 0; i < this.#presenterPoints.length; i++) {
+      this.#renderElements(this.#presenterPoints[i]);
+    }
+  }
+
+  init() {
+    this.#presenterPoints = [...this.#pointModels.getPoints()];
+    this.#renderBoard();
   }
 
   #renderElements(point) {
@@ -58,6 +66,6 @@ export default class Presenter {
       replace(currentPoint, currentForm);
     }
 
-    render(currentPoint, this.#mainContainer, RenderPosition.BEFOREEND);
+    render(currentPoint, this.#mainContainer);
   }
 }

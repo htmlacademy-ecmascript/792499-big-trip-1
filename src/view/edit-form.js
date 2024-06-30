@@ -1,4 +1,4 @@
-import {humanizePointDueDate} from './../utils.js';
+import {humanizePointDueDate} from './../utils/points.js';
 import AbstractView from './../framework/view/abstract-view.js';
 
 const createEditPoint = (point) => {

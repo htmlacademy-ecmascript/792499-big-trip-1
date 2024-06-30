@@ -4,7 +4,7 @@ import EditForm from './../view/edit-form.js';
 import Point from './../view/point.js';
 import createNoPoints from './../view/no-points.js';
 import {render} from './../render.js';
-import {isEscapeKey} from './../utils.js';
+import {isEscapeKey} from './../utils/common.js';
 import {replace} from './../framework/render.js';
 
 export default class Presenter {

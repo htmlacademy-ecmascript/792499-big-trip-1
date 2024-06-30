@@ -1,7 +1,5 @@
-import {BasicValues, TimeNames, TimeFormat} from './const.js';
+import {BasicValues, TimeNames, TimeFormat} from './../const.js';
 import dayjs from 'dayjs';
-
-const isEscapeKey = (evt) => evt.keyCode === 27;
 
 const getTimeValues = (timeValue) => {
   if (timeValue < BasicValues.TIME_STAMP) {
@@ -11,7 +9,6 @@ const getTimeValues = (timeValue) => {
   return timeValue;
 };
 
-const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
 const humanizePointDueDate = (firstParam, secondParam) => {
 
   const format = {
@@ -44,4 +41,4 @@ const humanizePointDueDate = (firstParam, secondParam) => {
   return format;
 };
 
-export {isEscapeKey, getRandomArrayElement, humanizePointDueDate};
+export {humanizePointDueDate};

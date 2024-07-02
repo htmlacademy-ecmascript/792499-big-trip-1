@@ -132,7 +132,7 @@ const createEditPoint = (point) => {
         </div>
       </section>
     </section>
-  </form>`
+  </form>`;
 };
 
 export default class EditForm extends AbstractView {

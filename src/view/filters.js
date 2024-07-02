@@ -30,13 +30,11 @@ export default class Filters extends AbstractView {
   constructor({onTabClick}) {
     super();
     this.#tabClick = onTabClick;
-    this.tabBtn.forEach(btn => {
-      btn.addEventListener('change', this.#handlerTabClick);
-    })
+    this.tabBtn.forEach((btn) => btn.addEventListener('change', this.#handlerTabClick));
   }
 
   get tabBtn() {
-    return  this.element.querySelectorAll('.trip-filters__filter-input');
+    return this.element.querySelectorAll('.trip-filters__filter-input');
   }
 
   get template() {
@@ -45,5 +43,5 @@ export default class Filters extends AbstractView {
 
   #handlerTabClick = () => {
     this.#tabClick();
-  }
+  };
 }

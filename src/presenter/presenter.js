@@ -1,12 +1,9 @@
-import Filters from './../view/filters.js';
 import Sorting from './../view/sorting.js';
 import EditForm from './../view/edit-form.js';
 import Point from './../view/point.js';
-import createNoPoints from './../view/no-points.js';
 import {render} from './../render.js';
 import {isEscapeKey} from './../utils/common.js';
 import {replace} from './../framework/render.js';
-import {NoPointsFilter} from './../const.js';
 
 export default class Presenter {
   #mainContainer = null;
@@ -15,27 +12,13 @@ export default class Presenter {
 
   #presenterPoints = [];
 
-  constructor({mainContainer, filtersContainer, pointModels}) {
+  constructor({mainContainer, pointModels}) {
     this.#mainContainer = mainContainer;
-    this.#filtersContainer = filtersContainer;
     this.#pointModels = pointModels;
   }
 
   #renderBoard() {
-    if (this.#presenterPoints.length === 0) {
-      render(new createNoPoints(), this.#mainContainer);
-    }
-
-    render(new Filters({onTabClick: () => {
-      const checkedBtn = this.#filtersContainer.querySelector('input[name=trip-filter]:checked');
-      const eventsMessage = this.#mainContainer.querySelector('.trip-events__msg');
-
-      if (eventsMessage) {
-        const checkedBtnValue = checkedBtn.value.toUpperCase();
-        eventsMessage.textContent = NoPointsFilter[checkedBtnValue];
-      }
-    }}), this.#filtersContainer);
-
+    render(new Sorting(), this.#mainContainer);
     for (let i = 0; i < this.#presenterPoints.length; i++) {
       this.#renderElements(this.#presenterPoints[i]);
     }
@@ -64,8 +47,6 @@ export default class Presenter {
       replaceFormToPoint();
       document.removeEventListener('keydown', onDocumentKeydown);
     }});
-
-    const sorting = new Sorting();
 
     function replacePointToForm() {
       replace(currentForm, currentPoint);

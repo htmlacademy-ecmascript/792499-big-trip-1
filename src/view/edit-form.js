@@ -143,7 +143,12 @@ export default class EditForm extends AbstractView {
     super();
     this.#point = point;
     this.#handleFormClick = onFormSubmit;
-    this.currentForm.addEventListener('submit', this.#handlerSubmit);
+    this.currentForm.addEventListener('submit', this.#handlerClick);
+    this.rollupBtn.addEventListener('click', this.#handlerClick);
+  }
+
+  get rollupBtn() {
+    return this.element.querySelector('.event__rollup-btn');
   }
 
   get currentForm() {
@@ -154,7 +159,7 @@ export default class EditForm extends AbstractView {
     return createEditPoint(this.#point);
   }
 
-  #handlerSubmit = (evt) => {
+  #handlerClick = (evt) => {
     evt.preventDefault();
     this.#handleFormClick();
   };

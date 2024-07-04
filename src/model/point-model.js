@@ -1,10 +1,10 @@
 import {getRandomPoint} from './../mocs/route-point.js';
-import {COUNT_POINTS} from './../const.js';
+import {BasicValues} from './../const.js';
 
 export default class PointModel {
-  points = Array.from({length: COUNT_POINTS}, getRandomPoint);
+  #points = Array.from({length: BasicValues.COUNT_POINTS}, getRandomPoint);
 
   getPoints() {
-    return this.points;
+    return this.#points;
   }
 }

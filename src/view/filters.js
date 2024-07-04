@@ -1,8 +1,8 @@
-import {createElement} from './../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createFilters = () => `<form class="trip-filters" action="#" method="get">
 				    <div class="trip-filters__filter">
-				      <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything">
+				      <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" checked>
 				      <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
 				    </div>
 
@@ -17,23 +17,31 @@ const createFilters = () => `<form class="trip-filters" action="#" method="get">
 				    </div>
 
 				    <div class="trip-filters__filter">
-				      <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" checked>
+				      <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past">
 				      <label class="trip-filters__filter-label" for="filter-past">Past</label>
 				    </div>
 
 				    <button class="visually-hidden" type="submit">Accept filter</button>
 				  </form>`;
 
-export default class Filters {
-  getTemplate() {
+export default class Filters extends AbstractView {
+  #tabClick = null;
+
+  constructor({onTabClick}) {
+    super();
+    this.#tabClick = onTabClick;
+    this.tabBtn.forEach((btn) => btn.addEventListener('change', this.#handlerTabClick));
+  }
+
+  get tabBtn() {
+    return this.element.querySelectorAll('.trip-filters__filter-input');
+  }
+
+  get template() {
     return createFilters();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
+  #handlerTabClick = () => {
+    this.#tabClick();
+  };
 }

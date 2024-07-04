@@ -1,28 +1,61 @@
-import Filters from './../view/filters.js';
 import Sorting from './../view/sorting.js';
-import NewForm from './../view/create-form.js';
 import EditForm from './../view/edit-form.js';
 import Point from './../view/point.js';
-import {RenderPosition, render} from './../render.js';
+import {render} from './../render.js';
+import {isEscapeKey} from './../utils/common.js';
+import {replace} from './../framework/render.js';
 
 export default class Presenter {
+  #mainContainer = null;
+  #filtersContainer = null;
+  #pointModels = null;
 
-  constructor({mainContainer, filtersContainer, pointModels}) {
-    this.mainContainer = mainContainer;
-    this.filtersContainer = filtersContainer;
-    this.pointModels = pointModels;
+  #presenterPoints = [];
+
+  constructor({mainContainer, pointModels}) {
+    this.#mainContainer = mainContainer;
+    this.#pointModels = pointModels;
+  }
+
+  #renderBoard() {
+    render(new Sorting(), this.#mainContainer);
+    for (let i = 0; i < this.#presenterPoints.length; i++) {
+      this.#renderElements(this.#presenterPoints[i]);
+    }
   }
 
   init() {
-    this.presenterPoints = [...this.pointModels.getPoints()];
+    this.#presenterPoints = [...this.#pointModels.getPoints()];
+    this.#renderBoard();
+  }
 
-    render(new Filters(), this.filtersContainer, RenderPosition.BEFOREEND);
-    render(new Sorting(), this.mainContainer, RenderPosition.BEFOREEND);
-    render(new NewForm({point: this.presenterPoints[0]}), this.mainContainer, RenderPosition.BEFOREEND);
-    render(new EditForm({point: this.presenterPoints[0]}), this.mainContainer, RenderPosition.BEFOREEND);
+  #renderElements(point) {
+    const onDocumentKeydown = (evt) => {
+      if (isEscapeKey(evt)) {
+        evt.preventDefault();
+        replaceFormToPoint();
+        document.removeEventListener('keydown', onDocumentKeydown);
+      }
+    };
 
-    for (let i = 0; i < this.presenterPoints.length; i++) {
-      render(new Point({point: this.presenterPoints[i]}), this.mainContainer, RenderPosition.BEFOREEND);
+    const currentPoint = new Point({point: point, onRollupClick: () => {
+      replacePointToForm();
+      document.addEventListener('keydown', onDocumentKeydown);
+    }});
+
+    const currentForm = new EditForm({point: point, onFormSubmit: () => {
+      replaceFormToPoint();
+      document.removeEventListener('keydown', onDocumentKeydown);
+    }});
+
+    function replacePointToForm() {
+      replace(currentForm, currentPoint);
     }
+
+    function replaceFormToPoint() {
+      replace(currentPoint, currentForm);
+    }
+
+    render(currentPoint, this.#mainContainer);
   }
 }

@@ -1,13 +1,12 @@
 import Sorting from './../view/sorting.js';
 import EditForm from './../view/edit-form.js';
 import Point from './../view/point.js';
-import {render} from './../render.js';
+import NoPoints from './../view/no-points.js';
+import {replace, render} from './../framework/render.js';
 import {isEscapeKey} from './../utils/common.js';
-import {replace} from './../framework/render.js';
 
 export default class Presenter {
   #mainContainer = null;
-  #filtersContainer = null;
   #pointModels = null;
 
   #presenterPoints = [];
@@ -27,6 +26,10 @@ export default class Presenter {
   init() {
     this.#presenterPoints = [...this.#pointModels.getPoints()];
     this.#renderBoard();
+
+    if (this.#presenterPoints.length === 0) {
+      render(new NoPoints(), this.#mainContainer);
+    }
   }
 
   #renderElements(point) {

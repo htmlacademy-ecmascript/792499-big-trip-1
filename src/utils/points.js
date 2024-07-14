@@ -1,5 +1,7 @@
 import {BasicValues, TimeNames, TimeFormat} from './../const.js';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 const getTimeValues = (timeValue) => {
   if (timeValue < BasicValues.TIME_STAMP) {
@@ -8,6 +10,10 @@ const getTimeValues = (timeValue) => {
 
   return timeValue;
 };
+
+const isFuture = (point) => dayjs().isBefore(point.dateFrom);
+const isPresent = (point) => dayjs().isBefore(point.dateTo) && dayjs().isAfter(point.dateFrom);
+const isPast = (point) => dayjs().isAfter(point.dateTo);
 
 const humanizePointDueDate = (firstParam, secondParam) => {
 
@@ -41,4 +47,4 @@ const humanizePointDueDate = (firstParam, secondParam) => {
   return format;
 };
 
-export {humanizePointDueDate};
+export {humanizePointDueDate, isFuture, isPresent, isPast};

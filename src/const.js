@@ -1,6 +1,7 @@
 const BasicValues = {
   COUNT_POINTS: 3,
   TIME_STAMP: 10,
+  ESCAPE_KEY: 27,
 };
 
 const OFFERS = [
@@ -174,7 +175,7 @@ const POINTS = [
     event: EVENT_TYPES[0],
     offer: OFFER_TYPES[0],
     dateFrom: '2024-07-10T21:39',
-    dateTo: '2024-07-10T21:44',
+    dateTo: '2024-07-18T21:44',
   },
   {
     id: 1,
@@ -195,16 +196,23 @@ const POINTS = [
     destination: DESTINATION_CITIES[2],
     event: EVENT_TYPES[5],
     offer: OFFER_TYPES[2],
-    dateFrom: '2024-09-09T07:44',
-    dateTo: '2024-09-09T18:44',
+    dateFrom: '2024-05-09T07:44',
+    dateTo: '2024-05-09T18:44',
   },
 ];
 
-const NoPointsFilter = {
+const FilterMessage = {
   EVERYTHING: 'Click New Event to create your first point',
   PAST: 'There are no past events now',
   PRESENT: 'There are no present events now',
   FUTURE: 'There are no future events now',
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, NoPointsFilter};
+const FilterType = {
+  EVERYTHING: 'everything',
+  PAST: 'past',
+  PRESENT: 'present',
+  FUTURE: 'future',
+};
+
+export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage};

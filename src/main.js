@@ -12,7 +12,6 @@ const pagePresenter = new Presenter({
 });
 
 const filterPresenter = new FilterPresenter({
-  mainContainer: siteContainer,
   filtersContainer: siteFilters,
   pointModels,
 });

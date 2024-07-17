@@ -4,7 +4,6 @@ import AbstractView from './../framework/view/abstract-view.js';
 const createNewPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
   const {offers} = offer;
-
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <li class="event__offer">
         <span class="event__offer-title">${value.title}</span>

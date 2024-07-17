@@ -1,33 +1,19 @@
-import {render} from './../render.js';
-import {NoPointsFilter} from './../const.js';
-import createNoPoints from './../view/no-points.js';
+import {render} from './../framework/render.js';
+//import {FilterType} from './../const.js';
+//import createNoPoints from './../view/no-points.js';
 import Filters from './../view/filters.js';
+import {generateFilters} from './../mocs/filters.js';
 
 export default class FilterPresenter {
-  #mainContainer = null;
   #filtersContainer = null;
-  #pointModels = null;
+  #filters = null;
 
-  constructor({mainContainer, filtersContainer, pointModels}) {
-    this.#mainContainer = mainContainer;
+  constructor({filtersContainer, pointModels}) {
     this.#filtersContainer = filtersContainer;
-    this.#pointModels = pointModels;
+    this.#filters = generateFilters(pointModels.getPoints());
   }
 
   init() {
-    const pointCollection = this.#mainContainer.querySelectorAll('.event');
-    if (pointCollection.length === 0) {
-      render(new createNoPoints(), this.#mainContainer);
-    }
-
-    render(new Filters({onTabClick: () => {
-      const checkedBtn = this.#filtersContainer.querySelector('input[name=trip-filter]:checked');
-      const eventsMessage = this.#mainContainer.querySelector('.trip-events__msg');
-
-      if (eventsMessage) {
-        const checkedBtnValue = checkedBtn.value.toUpperCase();
-        eventsMessage.textContent = NoPointsFilter[checkedBtnValue];
-      }
-    }}), this.#filtersContainer);
+    render(new Filters({filters: this.#filters,}), this.#filtersContainer);
   }
 }

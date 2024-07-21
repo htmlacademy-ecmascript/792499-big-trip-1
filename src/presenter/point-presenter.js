@@ -1,7 +1,7 @@
 import Point from './../view/point.js';
 import EditForm from './../view/edit-form.js';
 import {isEscapeKey} from './../utils/common.js';
-import {replace, render} from './../framework/render.js';
+import {replace, render, remove} from './../framework/render.js';
 
 export default class PointPresenter {
   #currentPoint = null;
@@ -21,6 +21,10 @@ export default class PointPresenter {
   };
 
   init(point) {
+
+    const prevCurrentPoint = this.#currentPoint;
+    const prevCurrentForm = this.#currentForm;
+
     this.#currentPoint = new Point({point: point, onRollupClick: () => {
       this.#replacePointToForm();
       document.addEventListener('keydown', this.#onDocumentKeydown);
@@ -31,7 +35,26 @@ export default class PointPresenter {
       document.removeEventListener('keydown', this.#onDocumentKeydown);
     }});
 
-    render(this.#currentPoint, this.#mainContainer);
+    if (prevCurrentPoint === null || prevCurrentForm === null) {
+      render(this.#currentPoint, this.#mainContainer);
+      return;
+    };
+
+    if (this.#mainContainer.contains(prevCurrentPoint.element)) {
+      replace(this.#currentPoint, prevCurrentPoint);
+    };
+
+    if (this.#mainContainer.contains(prevCurrentForm.element)) {
+      replace(this.#currentForm, prevCurrentForm);
+    };
+
+    remove(prevCurrentPoint);
+    remove(prevCurrentForm);
+  }
+
+  destroy() {
+    remove(this.#currentPoint);
+    remove(this.#currentForm);
   }
   
   #replacePointToForm() {

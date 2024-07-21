@@ -24,8 +24,8 @@ export default class Presenter {
 
   init() {
     this.#presenterPoints = [...this.#pointModels.getPoints()];
-    this.#renderBoard();
     this.#renderSorting();
+    this.#renderBoard();
 
     if (this.#presenterPoints.length === 0) {
       render(new NoPoints(), this.#mainContainer);

@@ -1,6 +1,4 @@
 import Sorting from './../view/sorting.js';
-//import EditForm from './../view/edit-form.js';
-//import Point from './../view/point.js';
 import NoPoints from './../view/no-points.js';
 import {render} from './../framework/render.js';
 import PointPresenter from './point-presenter.js';
@@ -10,6 +8,7 @@ export default class Presenter {
   #pointModels = null;
 
   #presenterPoints = [];
+  #pointsCollection = new Map();
 
   constructor({mainContainer, pointModels}) {
     this.#mainContainer = mainContainer;
@@ -39,5 +38,6 @@ export default class Presenter {
   #renderPoints(point) {
     const pointPresenter = new PointPresenter({container: this.#mainContainer});
     pointPresenter.init(point);
+    this.#pointsCollection.set(point.id, pointPresenter);
   }
 }

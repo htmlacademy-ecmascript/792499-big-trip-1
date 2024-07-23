@@ -167,7 +167,6 @@ const TimeFormat = {
 
 const POINTS = [
   {
-    id: 0,
     isFavorite: true,
     basePrice: 160,
     img: EVENT_TYPES[0],
@@ -178,7 +177,6 @@ const POINTS = [
     dateTo: '2024-07-18T21:44',
   },
   {
-    id: 1,
     isFavorite: false,
     img: EVENT_TYPES[4],
     basePrice: 600,
@@ -189,7 +187,6 @@ const POINTS = [
     dateTo: '2024-08-15T08:11',
   },
   {
-    id: 2,
     isFavorite: false,
     basePrice: 20,
     img: EVENT_TYPES[5],

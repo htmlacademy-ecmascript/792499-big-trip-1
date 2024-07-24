@@ -1,6 +1,7 @@
 import Sorting from './../view/sorting.js';
 import NoPoints from './../view/no-points.js';
 import {render} from './../framework/render.js';
+import {updateItem} from './../utils/common.js';
 import PointPresenter from './point-presenter.js';
 
 export default class Presenter {
@@ -36,8 +37,17 @@ export default class Presenter {
   }
 
   #renderPoints(point) {
-    const pointPresenter = new PointPresenter({container: this.#mainContainer});
+    const pointPresenter = new PointPresenter({
+      container: this.#mainContainer,
+      onDataChange: this.#handlePointChange,
+    });
+
     pointPresenter.init(point);
     this.#pointsCollection.set(point.id, pointPresenter);
+  }
+
+  #handlePointChange = (updatedPoint) => {
+    this.#presenterPoints = updateItem(this.#presenterPoints, updatedPoint);
+    this.#pointsCollection.get(updatedPoint.id).init(updatedPoint);
   }
 }

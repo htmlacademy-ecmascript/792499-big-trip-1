@@ -161,6 +161,6 @@ export default class EditForm extends AbstractView {
 
   #handlerClick = (evt) => {
     evt.preventDefault();
-    this.#handleFormClick();
+    this.#handleFormClick(this.#point);
   };
 }

@@ -50,11 +50,11 @@ export default class Presenter {
   #handlePointChange = (updatedPoint) => {
     this.#presenterPoints = updateItem(this.#presenterPoints, updatedPoint);
     this.#pointsCollection.get(updatedPoint.id).init(updatedPoint);
-  }
+  };
 
   #handleModeChange = () => {
     this.#pointsCollection.forEach((point) => {
       point.resetView();
     });
-  }
+  };
 }

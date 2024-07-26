@@ -50,15 +50,15 @@ export default class PointPresenter {
     if (prevCurrentPoint === null || prevCurrentForm === null) {
       render(this.#currentPoint, this.#mainContainer);
       return;
-    };
+    }
 
     if (this.#mode === Mode.DEFAULT) {
       replace(this.#currentPoint, prevCurrentPoint);
-    };
+    }
 
     if (this.#mode === Mode.EDITING) {
       replace(this.#currentForm, prevCurrentForm);
-    };
+    }
 
     remove(prevCurrentPoint);
     remove(prevCurrentForm);
@@ -70,12 +70,11 @@ export default class PointPresenter {
   }
 
   resetView() {
-    console.log(this.#mode);
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToPoint();
     }
   }
-  
+
   #replacePointToForm() {
     replace(this.#currentForm, this.#currentPoint);
     this.#handleModeChange();

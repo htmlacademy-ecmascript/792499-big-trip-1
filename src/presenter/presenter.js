@@ -40,6 +40,7 @@ export default class Presenter {
     const pointPresenter = new PointPresenter({
       container: this.#mainContainer,
       onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange,
     });
 
     pointPresenter.init(point);
@@ -49,5 +50,11 @@ export default class Presenter {
   #handlePointChange = (updatedPoint) => {
     this.#presenterPoints = updateItem(this.#presenterPoints, updatedPoint);
     this.#pointsCollection.get(updatedPoint.id).init(updatedPoint);
+  }
+
+  #handleModeChange = () => {
+    this.#pointsCollection.forEach((point) => {
+      point.resetView();
+    });
   }
 }

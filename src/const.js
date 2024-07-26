@@ -212,4 +212,9 @@ const FilterType = {
   FUTURE: 'future',
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage};
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+}
+
+export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode};

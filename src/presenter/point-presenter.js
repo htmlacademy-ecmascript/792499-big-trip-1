@@ -2,16 +2,20 @@ import Point from './../view/point.js';
 import EditForm from './../view/edit-form.js';
 import {isEscapeKey} from './../utils/common.js';
 import {replace, render, remove} from './../framework/render.js';
+import {Mode} from './../const.js';
 
 export default class PointPresenter {
   #currentPoint = null;
   #currentForm = null;
   #mainContainer = null;
   #handleDataChange = null;
+  #handleModeChange = null;
+  #mode = Mode.DEFAULT;
 
-  constructor({container, onDataChange}) {
+  constructor({container, onDataChange, onModeChange}) {
     this.#mainContainer = container;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   #onDocumentKeydown = (evt) => {
@@ -27,7 +31,7 @@ export default class PointPresenter {
     const prevCurrentForm = this.#currentForm;
 
     this.#currentPoint = new Point({
-      point: point, 
+      point: point,
       onRollupClick: () => {
         this.#replacePointToForm();
         document.addEventListener('keydown', this.#onDocumentKeydown);
@@ -48,11 +52,11 @@ export default class PointPresenter {
       return;
     };
 
-    if (this.#mainContainer.contains(prevCurrentPoint.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#currentPoint, prevCurrentPoint);
     };
 
-    if (this.#mainContainer.contains(prevCurrentForm.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#currentForm, prevCurrentForm);
     };
 
@@ -64,12 +68,22 @@ export default class PointPresenter {
     remove(this.#currentPoint);
     remove(this.#currentForm);
   }
+
+  resetView() {
+    console.log(this.#mode);
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToPoint();
+    }
+  }
   
   #replacePointToForm() {
     replace(this.#currentForm, this.#currentPoint);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
 
   #replaceFormToPoint() {
     replace(this.#currentPoint, this.#currentForm);
+    this.#mode = Mode.DEFAULT;
   }
 }

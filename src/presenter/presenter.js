@@ -33,7 +33,7 @@ export default class Presenter {
   }
 
   #renderSorting() {
-    render(new Sorting(), this.#mainContainer);
+    render(new Sorting({onSortTypeChange: this.#handleSortTypeChange}), this.#mainContainer);
   }
 
   #renderPoints(point) {
@@ -57,4 +57,8 @@ export default class Presenter {
       point.resetView();
     });
   };
+
+  #handleSortTypeChange =(sortType) => {
+    console.log(sortType);
+  }
 }

@@ -71,7 +71,7 @@ export default class Presenter {
     }
 
     this.#currentSortType = sortType;
-  };
+  }
 
   #handlePointChange = (updatedPoint) => {
     this.#presenterPoints = updateItem(this.#presenterPoints, updatedPoint);
@@ -85,7 +85,7 @@ export default class Presenter {
     });
   };
 
-  #handleSortTypeChange =(sortType) => {
+  #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
@@ -93,5 +93,5 @@ export default class Presenter {
     this.#sortPoints(sortType);
     this.#clearPoints();
     this.#renderBoard();
-  }
+  };
 }

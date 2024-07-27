@@ -48,6 +48,7 @@ export default class Sorting extends AbstractView {
       return;
     }
     evt.preventDefault();
+    currentInput.checked = "true";
     this.#handleSortTypeChange(currentInput.dataset.sortType);
   }
 }

@@ -37,6 +37,11 @@ export default class Presenter {
     }
   }
 
+  #clearPoints() {
+    this.#pointsCollection.forEach((point) => point.destroy());
+    this.#pointsCollection.clear();
+  }
+
   #renderSorting() {
     render(new Sorting({onSortTypeChange: this.#handleSortTypeChange}), this.#mainContainer);
   }
@@ -64,6 +69,8 @@ export default class Presenter {
       default:
         this.#presenterPoints = [...this.#primarySortPoints];
     }
+
+    this.#currentSortType = sortType;
   };
 
   #handlePointChange = (updatedPoint) => {
@@ -84,5 +91,7 @@ export default class Presenter {
     }
 
     this.#sortPoints(sortType);
+    this.#clearPoints();
+    this.#renderBoard();
   }
 }

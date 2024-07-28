@@ -10,6 +10,7 @@ export default class PointPresenter {
   #mainContainer = null;
   #handleDataChange = null;
   #handleModeChange = null;
+  #point = null;
   #mode = Mode.DEFAULT;
 
   constructor({container, onDataChange, onModeChange}) {
@@ -27,23 +28,24 @@ export default class PointPresenter {
   };
 
   init(point) {
+    this.#point = point;
     const prevCurrentPoint = this.#currentPoint;
     const prevCurrentForm = this.#currentForm;
 
     this.#currentPoint = new Point({
-      point: point,
+      point: this.#point,
       onRollupClick: () => {
         this.#replacePointToForm();
         document.addEventListener('keydown', this.#onDocumentKeydown);
       },
       onFavoriteClick: () => {
-        this.#handleDataChange({...point, isFavorite: !point.isFavorite});
+        this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
       },
     });
 
-    this.#currentForm = new EditForm({point: point, onFormSubmit: () => {
+    this.#currentForm = new EditForm({point: this.#point, onFormSubmit: () => {
       this.#replaceFormToPoint();
-      this.#handleDataChange(point);
+      this.#handleDataChange(this.#point);
       document.removeEventListener('keydown', this.#onDocumentKeydown);
     }});
 

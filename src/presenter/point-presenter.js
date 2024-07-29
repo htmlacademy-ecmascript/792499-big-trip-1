@@ -39,7 +39,7 @@ export default class PointPresenter {
     });
 
     this.#currentForm = new EditForm({
-      point: this.#point, 
+      point: this.#point,
       onFormSubmit: this.#handleFormSubmit,
     });
 
@@ -85,15 +85,15 @@ export default class PointPresenter {
   #handleRollupClick = () => {
     this.#replacePointToForm();
     document.addEventListener('keydown', this.#onDocumentKeydown);
-  }
+  };
 
   #handleFavoriteClick = () => {
     this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
-  }
+  };
 
   #handleFormSubmit = () => {
     this.#replaceFormToPoint();
     this.#handleDataChange(this.#point);
     document.removeEventListener('keydown', this.#onDocumentKeydown);
-  }
+  };
 }

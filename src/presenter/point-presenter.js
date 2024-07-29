@@ -34,20 +34,14 @@ export default class PointPresenter {
 
     this.#currentPoint = new Point({
       point: this.#point,
-      onRollupClick: () => {
-        this.#replacePointToForm();
-        document.addEventListener('keydown', this.#onDocumentKeydown);
-      },
-      onFavoriteClick: () => {
-        this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
-      },
+      onRollupClick: this.#handleRollupClick,
+      onFavoriteClick: this.#handleFavoriteClick,
     });
 
-    this.#currentForm = new EditForm({point: this.#point, onFormSubmit: () => {
-      this.#replaceFormToPoint();
-      this.#handleDataChange(this.#point);
-      document.removeEventListener('keydown', this.#onDocumentKeydown);
-    }});
+    this.#currentForm = new EditForm({
+      point: this.#point, 
+      onFormSubmit: this.#handleFormSubmit,
+    });
 
     if (prevCurrentPoint === null || prevCurrentForm === null) {
       render(this.#currentPoint, this.#mainContainer);
@@ -86,5 +80,20 @@ export default class PointPresenter {
   #replaceFormToPoint() {
     replace(this.#currentPoint, this.#currentForm);
     this.#mode = Mode.DEFAULT;
+  }
+
+  #handleRollupClick = () => {
+    this.#replacePointToForm();
+    document.addEventListener('keydown', this.#onDocumentKeydown);
+  }
+
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+  }
+
+  #handleFormSubmit = () => {
+    this.#replaceFormToPoint();
+    this.#handleDataChange(this.#point);
+    document.removeEventListener('keydown', this.#onDocumentKeydown);
   }
 }

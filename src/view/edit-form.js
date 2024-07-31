@@ -1,5 +1,7 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import AbstractView from './../framework/view/abstract-view.js';
+import {EVENT_TYPES} from './../const.js';
+import {capitalize} from './../utils/common.js';
+import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 
 const createEditPoint = (point) => {
   const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
@@ -16,6 +18,11 @@ const createEditPoint = (point) => {
           <span class="event__offer-price">${value.price}</span>
         </label>
       </div>`).join('');
+  const createEventType = (pointEvent, eventTypes) => eventTypes.map((type) =>
+    `<div class="event__type-item">
+      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${pointEvent === type ? 'checked' : ' '}>
+      <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalize(type)}</label>
+    </div>`).join('');
 
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -29,8 +36,8 @@ const createEditPoint = (point) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-
-            <div class="event__type-item">
+            ${createEventType(event, EVENT_TYPES)}
+            <!--<div class="event__type-item">
               <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
               <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
             </div>
@@ -39,8 +46,7 @@ const createEditPoint = (point) => {
               <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
               <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
             </div>
-
-            <div class="event__type-item">
+            <!--<div class="event__type-item">
               <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
               <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
             </div>
@@ -73,7 +79,7 @@ const createEditPoint = (point) => {
             <div class="event__type-item">
               <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
               <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-            </div>
+            </div>-->
           </fieldset>
         </div>
       </div>
@@ -135,7 +141,7 @@ const createEditPoint = (point) => {
   </form>`;
 };
 
-export default class EditForm extends AbstractView {
+export default class EditForm extends AbstractStatefulView {
   #point = null;
   #handleFormClick = null;
 

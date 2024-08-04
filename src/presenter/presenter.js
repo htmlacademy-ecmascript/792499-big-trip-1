@@ -1,15 +1,15 @@
 import Sorting from './../view/sorting.js';
-import EditForm from './../view/edit-form.js';
-import Point from './../view/point.js';
 import NoPoints from './../view/no-points.js';
-import {replace, render} from './../framework/render.js';
-import {isEscapeKey} from './../utils/common.js';
+import {render} from './../framework/render.js';
+import {updateItem} from './../utils/common.js';
+import PointPresenter from './point-presenter.js';
 
 export default class Presenter {
   #mainContainer = null;
   #pointModels = null;
 
   #presenterPoints = [];
+  #pointsCollection = new Map();
 
   constructor({mainContainer, pointModels}) {
     this.#mainContainer = mainContainer;
@@ -17,14 +17,14 @@ export default class Presenter {
   }
 
   #renderBoard() {
-    render(new Sorting(), this.#mainContainer);
     for (let i = 0; i < this.#presenterPoints.length; i++) {
-      this.#renderElements(this.#presenterPoints[i]);
+      this.#renderPoints(this.#presenterPoints[i]);
     }
   }
 
   init() {
     this.#presenterPoints = [...this.#pointModels.getPoints()];
+    this.#renderSorting();
     this.#renderBoard();
 
     if (this.#presenterPoints.length === 0) {
@@ -32,33 +32,29 @@ export default class Presenter {
     }
   }
 
-  #renderElements(point) {
-    const onDocumentKeydown = (evt) => {
-      if (isEscapeKey(evt)) {
-        evt.preventDefault();
-        replaceFormToPoint();
-        document.removeEventListener('keydown', onDocumentKeydown);
-      }
-    };
-
-    const currentPoint = new Point({point: point, onRollupClick: () => {
-      replacePointToForm();
-      document.addEventListener('keydown', onDocumentKeydown);
-    }});
-
-    const currentForm = new EditForm({point: point, onFormSubmit: () => {
-      replaceFormToPoint();
-      document.removeEventListener('keydown', onDocumentKeydown);
-    }});
-
-    function replacePointToForm() {
-      replace(currentForm, currentPoint);
-    }
-
-    function replaceFormToPoint() {
-      replace(currentPoint, currentForm);
-    }
-
-    render(currentPoint, this.#mainContainer);
+  #renderSorting() {
+    render(new Sorting(), this.#mainContainer);
   }
+
+  #renderPoints(point) {
+    const pointPresenter = new PointPresenter({
+      container: this.#mainContainer,
+      onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange,
+    });
+
+    pointPresenter.init(point);
+    this.#pointsCollection.set(point.id, pointPresenter);
+  }
+
+  #handlePointChange = (updatedPoint) => {
+    this.#presenterPoints = updateItem(this.#presenterPoints, updatedPoint);
+    this.#pointsCollection.get(updatedPoint.id).init(updatedPoint);
+  };
+
+  #handleModeChange = () => {
+    this.#pointsCollection.forEach((point) => {
+      point.resetView();
+    });
+  };
 }

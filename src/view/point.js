@@ -2,7 +2,7 @@ import {humanizePointDueDate} from './../utils/points.js';
 import AbstractView from './../framework/view/abstract-view.js';
 
 const createNewPoint = (point) => {
-  const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
+  const {isFavorite, basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
   const {offers} = offer;
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <li class="event__offer">
@@ -32,7 +32,7 @@ const createNewPoint = (point) => {
             <ul class="event__selected-offers">
               ${createMarkup(offers)}
             </ul>
-            <button class="event__favorite-btn event__favorite-btn--active" type="button">
+            <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ' '}" type="button">
               <span class="visually-hidden">Add to favorite</span>
               <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
                 <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
@@ -46,25 +46,38 @@ const createNewPoint = (point) => {
 
 export default class Point extends AbstractView {
   #point = null;
-  #handleClick = null;
+  #handleRollupClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({point, onRollupClick}) {
+  constructor({point, onRollupClick, onFavoriteClick}) {
     super();
     this.#point = point;
-    this.#handleClick = onRollupClick;
-    this.buttonRollup.addEventListener('click', this.#clickHandler);
+    this.#handleRollupClick = onRollupClick;
+    this.#handleFavoriteClick = onFavoriteClick;
+
+    this.buttonRollup.addEventListener('click', this.#handlerRollupClick);
+    this.favoriteBtn.addEventListener('click', this.#handlerFavoriteClick);
   }
 
   get buttonRollup() {
     return this.element.querySelector('.event__rollup-btn');
   }
 
+  get favoriteBtn() {
+    return this.element.querySelector('.event__favorite-btn');
+  }
+
   get template() {
     return createNewPoint(this.#point);
   }
 
-  #clickHandler = (evt) => {
+  #handlerRollupClick = (evt) => {
     evt.preventDefault();
-    this.#handleClick();
+    this.#handleRollupClick();
+  };
+
+  #handlerFavoriteClick = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
   };
 }

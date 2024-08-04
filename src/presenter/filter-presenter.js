@@ -1,6 +1,4 @@
 import {render} from './../framework/render.js';
-//import {FilterType} from './../const.js';
-//import createNoPoints from './../view/no-points.js';
 import Filters from './../view/filters.js';
 import {generateFilters} from './../mocs/filters.js';
 

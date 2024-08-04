@@ -115,6 +115,18 @@ const OFFER_TYPES = [
     ],
   },
   {
+    type: EVENT_TYPES[1],
+    offers: [],
+  },
+  {
+    type: EVENT_TYPES[2],
+    offers: [],
+  },
+  {
+    type: EVENT_TYPES[3],
+    offers: [],
+  },
+  {
     type: EVENT_TYPES[4],
     offers: [
       OFFERS[3],
@@ -140,6 +152,10 @@ const OFFER_TYPES = [
       OFFERS[5],
       OFFERS[6],
     ],
+  },
+  {
+    type: EVENT_TYPES[8],
+    offers: [],
   },
 ];
 
@@ -182,7 +198,7 @@ const POINTS = [
     basePrice: 600,
     destination: DESTINATION_CITIES[1],
     event: EVENT_TYPES[4],
-    offer: OFFER_TYPES[1],
+    offer: OFFER_TYPES[4],
     dateFrom: '2024-08-11T08:11',
     dateTo: '2024-08-15T08:11',
   },
@@ -192,7 +208,7 @@ const POINTS = [
     img: EVENT_TYPES[5],
     destination: DESTINATION_CITIES[2],
     event: EVENT_TYPES[5],
-    offer: OFFER_TYPES[2],
+    offer: OFFER_TYPES[5],
     dateFrom: '2024-05-09T07:44',
     dateTo: '2024-05-09T18:44',
   },

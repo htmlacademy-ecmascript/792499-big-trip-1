@@ -1,11 +1,11 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import {EVENT_TYPES} from './../const.js';
+import {EVENT_TYPES, OFFER_TYPES} from './../const.js';
 import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 
 const createEditPoint = (point) => {
-  const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
-  const {offers} = offer;
+  const {basePrice, event, destination, dateFrom, dateTo, isEventType, isOffers} = point;
+  const {offers} = isOffers;
   const {description, pictures} = destination;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
@@ -29,7 +29,7 @@ const createEditPoint = (point) => {
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${img}.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${isEventType}.png" alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -43,7 +43,7 @@ const createEditPoint = (point) => {
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${event}
+          ${isEventType}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
         <datalist id="destination-list-1">
@@ -76,13 +76,14 @@ const createEditPoint = (point) => {
       </button>
     </header>
     <section class="event__details">
-      <section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      ${(offers.length > 0 ? `
+        <section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
-        <div class="event__available-offers">
-          ${createMarkup(offers)}
-        </div>
-      </section>
+          <div class="event__available-offers">
+            ${createMarkup(offers)}
+          </div>
+        </section>` : ' ')}
 
       <section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -99,15 +100,14 @@ const createEditPoint = (point) => {
 };
 
 export default class EditForm extends AbstractStatefulView {
-  #point = null;
   #handleFormClick = null;
 
   constructor({point, onFormSubmit}) {
     super();
-    this.#point = point;
+    this._setState(EditForm.parsePointToState(point));
     this.#handleFormClick = onFormSubmit;
-    this.currentForm.addEventListener('submit', this.#handlerClick);
-    this.rollupBtn.addEventListener('click', this.#handlerClick);
+
+    this._restoreHandlers();
   }
 
   get rollupBtn() {
@@ -118,12 +118,54 @@ export default class EditForm extends AbstractStatefulView {
     return this.element;
   }
 
+  get eventTypeGroup() {
+    return this.element.querySelector('.event__type-group');
+  }
+
+  get offersBlock() {
+    return this.element.querySelector('.event__section--offers');
+  }
+
   get template() {
-    return createEditPoint(this.#point);
+    return createEditPoint(this._state);
+  }
+
+  _restoreHandlers() {
+    this.currentForm.addEventListener('submit', this.#handlerClick);
+    this.rollupBtn.addEventListener('click', this.#handlerClick);
+    this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
   }
 
   #handlerClick = (evt) => {
     evt.preventDefault();
-    this.#handleFormClick(this.#point);
+    this.#handleFormClick(EditForm.parsePointToState(this._state));
   };
+
+  #handlerEventType = (evt) => {
+    if (evt.target.classList.contains('event__type-input')) {
+      evt.preventDefault();
+      this.updateElement({
+        isEventType: evt.target.value,
+        isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
+      });
+    }
+  };
+
+  static parsePointToState(point) {
+    return {
+      ...point,
+      isEventType: point.event,
+      isOffers: point.offer,
+    };
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+
+    delete point.isEventType;
+    delete point.isOffers;
+
+    return point;
+  }
+
 }

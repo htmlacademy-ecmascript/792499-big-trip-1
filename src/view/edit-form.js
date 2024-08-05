@@ -100,12 +100,12 @@ const createEditPoint = (point) => {
 
 export default class EditForm extends AbstractStatefulView {
   #point = null;
-  #handleFormClick = null;
+  #handlerFormClick = null;
 
   constructor({point, onFormSubmit}) {
     super();
     this.#point = point;
-    this.#handleFormClick = onFormSubmit;
+    this.#handlerFormClick = onFormSubmit;
     this.currentForm.addEventListener('submit', this.#handlerClick);
     this.rollupBtn.addEventListener('click', this.#handlerClick);
   }
@@ -124,6 +124,6 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerClick = (evt) => {
     evt.preventDefault();
-    this.#handleFormClick(this.#point);
+    this.#handlerFormClick(this.#point);
   };
 }

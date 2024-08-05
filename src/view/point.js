@@ -46,14 +46,14 @@ const createNewPoint = (point) => {
 
 export default class Point extends AbstractView {
   #point = null;
-  #handleRollupClick = null;
-  #handleFavoriteClick = null;
+  #handlerRollupButton = null;
+  #handlerFavoriteButton = null;
 
   constructor({point, onRollupClick, onFavoriteClick}) {
     super();
     this.#point = point;
-    this.#handleRollupClick = onRollupClick;
-    this.#handleFavoriteClick = onFavoriteClick;
+    this.#handlerRollupButton = onRollupClick;
+    this.#handlerFavoriteButton = onFavoriteClick;
 
     this.buttonRollup.addEventListener('click', this.#handlerRollupClick);
     this.favoriteBtn.addEventListener('click', this.#handlerFavoriteClick);
@@ -73,11 +73,11 @@ export default class Point extends AbstractView {
 
   #handlerRollupClick = (evt) => {
     evt.preventDefault();
-    this.#handleRollupClick();
+    this.#handlerRollupButton();
   };
 
   #handlerFavoriteClick = (evt) => {
     evt.preventDefault();
-    this.#handleFavoriteClick();
+    this.#handlerFavoriteButton();
   };
 }

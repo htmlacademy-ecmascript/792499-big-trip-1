@@ -29,11 +29,11 @@ const createSorting = () => `<form class="trip-events__trip-sort  trip-sort" act
           </form>`;
 
 export default class Sorting extends AbstractView {
-  #handleSortTypeChange = null;
+  #handlerSortTypeChange = null;
 
   constructor({onSortTypeChange}) {
     super();
-    this.#handleSortTypeChange = onSortTypeChange;
+    this.#handlerSortTypeChange = onSortTypeChange;
 
     this.element.addEventListener('click', this.#sortTypeChangeHandler);
   }
@@ -49,6 +49,6 @@ export default class Sorting extends AbstractView {
     }
     evt.preventDefault();
     currentInput.checked = 'true';
-    this.#handleSortTypeChange(currentInput.dataset.sortType);
+    this.#handlerSortTypeChange(currentInput.dataset.sortType);
   };
 }

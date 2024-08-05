@@ -8,15 +8,15 @@ export default class PointPresenter {
   #currentPoint = null;
   #currentForm = null;
   #mainContainer = null;
-  #handleDataChange = null;
-  #handleModeChange = null;
+  #handlerDataChange = null;
+  #handlerModeChange = null;
   #point = null;
   #mode = Mode.DEFAULT;
 
   constructor({container, onDataChange, onModeChange}) {
     this.#mainContainer = container;
-    this.#handleDataChange = onDataChange;
-    this.#handleModeChange = onModeChange;
+    this.#handlerDataChange = onDataChange;
+    this.#handlerModeChange = onModeChange;
   }
 
   #onDocumentKeydown = (evt) => {
@@ -34,13 +34,13 @@ export default class PointPresenter {
 
     this.#currentPoint = new Point({
       point: this.#point,
-      onRollupClick: this.#handleRollupClick,
-      onFavoriteClick: this.#handleFavoriteClick,
+      onRollupClick: this.#handlerRollupClick,
+      onFavoriteClick: this.#handlerFavoriteClick,
     });
 
     this.#currentForm = new EditForm({
       point: this.#point,
-      onFormSubmit: this.#handleFormSubmit,
+      onFormSubmit: this.#handlerFormSubmit,
     });
 
     if (prevCurrentPoint === null || prevCurrentForm === null) {
@@ -73,7 +73,7 @@ export default class PointPresenter {
 
   #replacePointToForm() {
     replace(this.#currentForm, this.#currentPoint);
-    this.#handleModeChange();
+    this.#handlerModeChange();
     this.#mode = Mode.EDITING;
   }
 
@@ -82,18 +82,18 @@ export default class PointPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
-  #handleRollupClick = () => {
+  #handlerRollupClick = () => {
     this.#replacePointToForm();
     document.addEventListener('keydown', this.#onDocumentKeydown);
   };
 
-  #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+  #handlerFavoriteClick = () => {
+    this.#handlerDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
   };
 
-  #handleFormSubmit = () => {
+  #handlerFormSubmit = () => {
     this.#replaceFormToPoint();
-    this.#handleDataChange(this.#point);
+    this.#handlerDataChange(this.#point);
     document.removeEventListener('keydown', this.#onDocumentKeydown);
   };
 }

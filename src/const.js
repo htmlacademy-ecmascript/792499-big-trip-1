@@ -58,12 +58,12 @@ const OFFERS = [
 ];
 
 const EVENT_TYPES = ['taxi','bus','train','ship','drive','flight','check-in','sightseeing','restaurant',];
-
+const CITIES = ['Milan', 'Basel', 'Praga'];
 const DESTINATION_CITIES = [
   {
     id: 0,
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra.',
-    name: 'Milan',
+    name: CITIES[0],
     pictures: [
       {
         src: 'https://loremflickr.com/248/152?random=1',
@@ -78,7 +78,7 @@ const DESTINATION_CITIES = [
   {
     id: 1,
     description: 'Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.',
-    name: 'Basel',
+    name: CITIES[1],
     pictures: [
       {
         src: 'https://loremflickr.com/248/152?random=3',
@@ -93,7 +93,7 @@ const DESTINATION_CITIES = [
   {
     id: 2,
     description: 'Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis.',
-    name: 'Praga',
+    name: CITIES[2],
     pictures: [
       {
         src: 'https://loremflickr.com/248/152?random=5',
@@ -239,4 +239,4 @@ const SortType = {
   PRICE: 'price',
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType};
+export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType};

@@ -1,12 +1,11 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import {EVENT_TYPES, OFFER_TYPES} from './../const.js';
+import {EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
 import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 
 const createEditPoint = (point) => {
-  const {basePrice, event, destination, dateFrom, dateTo, isEventType, isOffers} = point;
+  const {basePrice, event, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
   const {offers} = isOffers;
-  const {description, pictures} = destination;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
@@ -23,6 +22,7 @@ const createEditPoint = (point) => {
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${pointEvent === type ? 'checked' : ' '}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalize(type)}</label>
     </div>`).join('');
+  const createCities = (cities) => cities.map((city) => `<option value="${city}"></option>`).join('');
 
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -45,11 +45,9 @@ const createEditPoint = (point) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${isEventType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" list="destination-list-1">
         <datalist id="destination-list-1">
-          <option value="Amsterdam"></option>
-          <option value="Geneva"></option>
-          <option value="Chamonix"></option>
+          ${createCities(CITIES)}
         </datalist>
       </div>
 
@@ -87,11 +85,11 @@ const createEditPoint = (point) => {
 
       <section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${description}</p>
+        <p class="event__destination-description">${isDescription}</p>
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
-            ${createImgMarkup(pictures)}
+            ${createImgMarkup(isPictures)}
           </div>
         </div>
       </section>
@@ -122,6 +120,10 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__type-group');
   }
 
+  get eventTypeCity() {
+    return this.element.querySelector('.event__input--destination');
+  }
+
   get offersBlock() {
     return this.element.querySelector('.event__section--offers');
   }
@@ -134,6 +136,7 @@ export default class EditForm extends AbstractStatefulView {
     this.currentForm.addEventListener('submit', this.#handlerClick);
     this.rollupBtn.addEventListener('click', this.#handlerClick);
     this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
+    this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
   }
 
   #handlerClick = (evt) => {
@@ -151,11 +154,27 @@ export default class EditForm extends AbstractStatefulView {
     }
   };
 
+  #handlerDestinationPoint = (evt) => {
+    evt.preventDefault();
+    DESTINATION_CITIES.find((item) => {
+      if (item.name === evt.target.value) {
+        this.updateElement({
+          isCity: item.name,
+          isDescription: item.description,
+          isPictures: item.pictures,
+        });
+      }
+    });
+  };
+
   static parsePointToState(point) {
     return {
       ...point,
       isEventType: point.event,
       isOffers: point.offer,
+      isCity: point.destination.name,
+      isDescription: point.destination.description,
+      isPictures: point.destination.pictures,
     };
   }
 
@@ -164,6 +183,9 @@ export default class EditForm extends AbstractStatefulView {
 
     delete point.isEventType;
     delete point.isOffers;
+    delete point.isCity;
+    delete point.isDescription;
+    delete point.isPictures;
 
     return point;
   }

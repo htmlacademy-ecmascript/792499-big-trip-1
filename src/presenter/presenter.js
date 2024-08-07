@@ -43,14 +43,14 @@ export default class Presenter {
   }
 
   #renderSorting() {
-    render(new Sorting({onSortTypeChange: this.#handleSortTypeChange}), this.#mainContainer);
+    render(new Sorting({onSortTypeChange: this.#handlerSortTypeChange}), this.#mainContainer);
   }
 
   #renderPoints(point) {
     const pointPresenter = new PointPresenter({
       container: this.#mainContainer,
-      onDataChange: this.#handlePointChange,
-      onModeChange: this.#handleModeChange,
+      onDataChange: this.#handlerPointChange,
+      onModeChange: this.#handlerModeChange,
     });
 
     pointPresenter.init(point);
@@ -73,19 +73,19 @@ export default class Presenter {
     this.#currentSortType = sortType;
   }
 
-  #handlePointChange = (updatedPoint) => {
+  #handlerPointChange = (updatedPoint) => {
     this.#presenterPoints = updateItem(this.#presenterPoints, updatedPoint);
     this.#primarySortPoints = updateItem(this.#presenterPoints, updatedPoint);
     this.#pointsCollection.get(updatedPoint.id).init(updatedPoint);
   };
 
-  #handleModeChange = () => {
+  #handlerModeChange = () => {
     this.#pointsCollection.forEach((point) => {
       point.resetView();
     });
   };
 
-  #handleSortTypeChange = (sortType) => {
+  #handlerSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }

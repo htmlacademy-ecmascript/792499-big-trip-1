@@ -98,7 +98,7 @@ const createEditPoint = (point) => {
 };
 
 export default class EditForm extends AbstractStatefulView {
-  #handleFormClick = null;
+  #handlerFormClick = null;
 
   constructor({point, onFormSubmit}) {
     super();
@@ -141,7 +141,7 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerClick = (evt) => {
     evt.preventDefault();
-    this.#handleFormClick(EditForm.parsePointToState(this._state));
+    this.#handlerFormClick(EditForm.parsePointToState(this._state));
   };
 
   #handlerEventType = (evt) => {
@@ -189,5 +189,4 @@ export default class EditForm extends AbstractStatefulView {
 
     return point;
   }
-
 }

@@ -217,4 +217,10 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode};
+const SortType = {
+  DAY: 'day',
+  TIME: 'time',
+  PRICE: 'price',
+};
+
+export {BasicValues, OFFERS, EVENT_TYPES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType};

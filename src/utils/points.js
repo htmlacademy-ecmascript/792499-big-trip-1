@@ -47,4 +47,8 @@ const humanizePointDueDate = (firstParam, secondParam) => {
   return format;
 };
 
-export {humanizePointDueDate, isFuture, isPresent, isPast};
+const sortPointTime = (a, b) => dayjs(a.dateFrom).diff(dayjs(a.dateTo), TimeNames.HOUR) - dayjs(b.dateFrom).diff(dayjs(b.dateTo), TimeNames.HOUR);
+
+const sortPointPrice = (a, b) => b.basePrice - a.basePrice;
+
+export {humanizePointDueDate, isFuture, isPresent, isPast, sortPointPrice, sortPointTime};

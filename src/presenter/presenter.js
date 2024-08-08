@@ -2,11 +2,15 @@ import Sorting from './../view/sorting.js';
 import NoPoints from './../view/no-points.js';
 import {render} from './../framework/render.js';
 import {updateItem} from './../utils/common.js';
+import {SortType} from './../const.js';
+import {sortPointPrice, sortPointTime} from './../utils/points.js';
 import PointPresenter from './point-presenter.js';
 
 export default class Presenter {
   #mainContainer = null;
   #pointModels = null;
+  #currentSortType = SortType.DAY;
+  #primarySortPoints = [];
 
   #presenterPoints = [];
   #pointsCollection = new Map();
@@ -24,6 +28,7 @@ export default class Presenter {
 
   init() {
     this.#presenterPoints = [...this.#pointModels.getPoints()];
+    this.#primarySortPoints = [...this.#pointModels.getPoints()];
     this.#renderSorting();
     this.#renderBoard();
 
@@ -32,29 +37,61 @@ export default class Presenter {
     }
   }
 
+  #clearPoints() {
+    this.#pointsCollection.forEach((point) => point.destroy());
+    this.#pointsCollection.clear();
+  }
+
   #renderSorting() {
-    render(new Sorting(), this.#mainContainer);
+    render(new Sorting({onSortTypeChange: this.#handlerSortTypeChange}), this.#mainContainer);
   }
 
   #renderPoints(point) {
     const pointPresenter = new PointPresenter({
       container: this.#mainContainer,
-      onDataChange: this.#handlePointChange,
-      onModeChange: this.#handleModeChange,
+      onDataChange: this.#handlerPointChange,
+      onModeChange: this.#handlerModeChange,
     });
 
     pointPresenter.init(point);
     this.#pointsCollection.set(point.id, pointPresenter);
   }
 
-  #handlePointChange = (updatedPoint) => {
+  #sortPoints(sortType) {
+
+    switch (sortType){
+      case SortType.TIME:
+        this.#presenterPoints.sort(sortPointTime);
+        break;
+      case SortType.PRICE:
+        this.#presenterPoints.sort(sortPointPrice);
+        break;
+      default:
+        this.#presenterPoints = [...this.#primarySortPoints];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handlerPointChange = (updatedPoint) => {
     this.#presenterPoints = updateItem(this.#presenterPoints, updatedPoint);
+    this.#primarySortPoints = updateItem(this.#presenterPoints, updatedPoint);
     this.#pointsCollection.get(updatedPoint.id).init(updatedPoint);
   };
 
-  #handleModeChange = () => {
+  #handlerModeChange = () => {
     this.#pointsCollection.forEach((point) => {
       point.resetView();
     });
+  };
+
+  #handlerSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearPoints();
+    this.#renderBoard();
   };
 }

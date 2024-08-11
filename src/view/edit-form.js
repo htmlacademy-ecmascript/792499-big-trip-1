@@ -133,13 +133,13 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.currentForm.addEventListener('submit', this.#handlerClick);
-    this.rollupBtn.addEventListener('click', this.#handlerClick);
+    this.currentForm.addEventListener('submit', this.#handlerBtnClick);
+    this.rollupBtn.addEventListener('click', this.#handlerBtnClick);
     this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
     this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
   }
 
-  #handlerClick = (evt) => {
+  #handlerBtnClick = (evt) => {
     evt.preventDefault();
 
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));

@@ -1,12 +1,11 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import {EVENT_TYPES} from './../const.js';
+import {EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
 import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 
 const createEditPoint = (point) => {
-  const {basePrice, event, img, destination, offer, dateFrom, dateTo} = point;
-  const {offers} = offer;
-  const {description, pictures} = destination;
+  const {basePrice, event, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
+  const {offers} = isOffers;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
@@ -23,13 +22,14 @@ const createEditPoint = (point) => {
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${pointEvent === type ? 'checked' : ' '}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalize(type)}</label>
     </div>`).join('');
+  const createCities = (cities) => cities.map((city) => `<option value="${city}"></option>`).join('');
 
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          <img class="event__type-icon" width="17" height="17" src="img/icons/${img}.png" alt="Event type icon">
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${isEventType}.png" alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -43,13 +43,11 @@ const createEditPoint = (point) => {
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${event}
+          ${isEventType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" list="destination-list-1">
         <datalist id="destination-list-1">
-          <option value="Amsterdam"></option>
-          <option value="Geneva"></option>
-          <option value="Chamonix"></option>
+          ${createCities(CITIES)}
         </datalist>
       </div>
 
@@ -76,21 +74,22 @@ const createEditPoint = (point) => {
       </button>
     </header>
     <section class="event__details">
-      <section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      ${(offers.length > 0 ? `
+        <section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
-        <div class="event__available-offers">
-          ${createMarkup(offers)}
-        </div>
-      </section>
+          <div class="event__available-offers">
+            ${createMarkup(offers)}
+          </div>
+        </section>` : ' ')}
 
       <section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${description}</p>
+        <p class="event__destination-description">${isDescription}</p>
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
-            ${createImgMarkup(pictures)}
+            ${createImgMarkup(isPictures)}
           </div>
         </div>
       </section>
@@ -99,15 +98,14 @@ const createEditPoint = (point) => {
 };
 
 export default class EditForm extends AbstractStatefulView {
-  #point = null;
   #handlerFormClick = null;
 
   constructor({point, onFormSubmit}) {
     super();
-    this.#point = point;
+    this._setState(EditForm.parsePointToState(point));
     this.#handlerFormClick = onFormSubmit;
-    this.currentForm.addEventListener('submit', this.#handlerClick);
-    this.rollupBtn.addEventListener('click', this.#handlerClick);
+
+    this._restoreHandlers();
   }
 
   get rollupBtn() {
@@ -118,12 +116,84 @@ export default class EditForm extends AbstractStatefulView {
     return this.element;
   }
 
+  get eventTypeGroup() {
+    return this.element.querySelector('.event__type-group');
+  }
+
+  get eventTypeCity() {
+    return this.element.querySelector('.event__input--destination');
+  }
+
+  get offersBlock() {
+    return this.element.querySelector('.event__section--offers');
+  }
+
   get template() {
-    return createEditPoint(this.#point);
+    return createEditPoint(this._state);
+  }
+
+  _restoreHandlers() {
+    this.currentForm.addEventListener('submit', this.#handlerClick);
+    this.rollupBtn.addEventListener('click', this.#handlerClick);
+    this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
+    this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
   }
 
   #handlerClick = (evt) => {
     evt.preventDefault();
-    this.#handlerFormClick(this.#point);
+
+    this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
   };
+
+  #handlerEventType = (evt) => {
+    if (evt.target.classList.contains('event__type-input')) {
+      evt.preventDefault();
+      this.updateElement({
+        isEventType: evt.target.value,
+        isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
+      });
+    }
+  };
+
+  #handlerDestinationPoint = (evt) => {
+    evt.preventDefault();
+    DESTINATION_CITIES.find((item) => {
+      if (item.name === evt.target.value) {
+        this.updateElement({
+          isCity: item.name,
+          isDescription: item.description,
+          isPictures: item.pictures,
+        });
+      }
+    });
+  };
+
+  static parsePointToState(point) {
+    return {
+      ...point,
+      isEventType: point.event,
+      isOffers: point.offer,
+      isCity: point.destination.name,
+      isDescription: point.destination.description,
+      isPictures: point.destination.pictures,
+    };
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+
+    point.event = point.isEventType;
+    point.img = point.isEventType;
+    point.offer = point.isOffers;
+    point.destination.name = point.isCity;
+    point.destination.description = point.isDescription;
+    point.destination.pictures = point.isPictures;
+
+    delete point.isEventType;
+    delete point.isOffers;
+    delete point.isCity;
+    delete point.isDescription;
+    delete point.isPictures;
+    return point;
+  }
 }

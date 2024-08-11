@@ -103,7 +103,7 @@ export default class EditForm extends AbstractStatefulView {
   constructor({point, onFormSubmit}) {
     super();
     this._setState(EditForm.parsePointToState(point));
-    this.#handleFormClick = onFormSubmit;
+    this.#handlerFormClick = onFormSubmit;
 
     this._restoreHandlers();
   }
@@ -141,7 +141,8 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerClick = (evt) => {
     evt.preventDefault();
-    this.#handlerFormClick(EditForm.parsePointToState(this._state));
+
+    this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
   };
 
   #handlerEventType = (evt) => {
@@ -181,12 +182,18 @@ export default class EditForm extends AbstractStatefulView {
   static parseStateToPoint(state) {
     const point = {...state};
 
+    point.event = point.isEventType;
+    point.img = point.isEventType;
+    point.offer = point.isOffers;
+    point.destination.name = point.isCity;
+    point.destination.description = point.isDescription;
+    point.destination.pictures = point.isPictures;
+
     delete point.isEventType;
     delete point.isOffers;
     delete point.isCity;
     delete point.isDescription;
     delete point.isPictures;
-
     return point;
   }
 }

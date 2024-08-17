@@ -1,5 +1,5 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import {EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
+import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
 import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 
@@ -10,8 +10,8 @@ const createEditPoint = (point) => {
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${value.id}" type="checkbox" name="${value.title}" checked>
-        <label class="event__offer-label" for="event-offer-luggage-${value.id}">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}" checked>
+        <label class="event__offer-label" for="event-offer-${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${value.price}</span>
@@ -128,6 +128,14 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__section--offers');
   }
 
+  get offerElements() {
+    return this.element.querySelector('.event__section--offers');
+  }
+
+  get offersElement() {
+    return this.element.querySelector('.event__available-offers');
+  }
+
   get template() {
     return createEditPoint(this._state);
   }
@@ -141,7 +149,7 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerBtnClick = (evt) => {
     evt.preventDefault();
-
+    this.updateElement(this._state.isOffers.offers = this.#creatingActualOffers());
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
   };
 
@@ -166,6 +174,18 @@ export default class EditForm extends AbstractStatefulView {
         });
       }
     });
+  };
+
+  #handlerOfferChecked = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).
+    filter((item) => item.checked).
+    map((item) => item.getAttribute('id').at(-1));
+
+  #creatingActualOffers = () => {
+    const currentOffers = [];
+    this.#handlerOfferChecked().forEach((el) => {
+      currentOffers.push(OFFERS.find((item) => item.id === Number(el)));
+    });
+    return currentOffers;
   };
 
   static parsePointToState(point) {

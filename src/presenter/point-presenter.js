@@ -91,9 +91,9 @@ export default class PointPresenter {
     this.#handlerDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
   };
 
-  #handlerFormSubmit = () => {
+  #handlerFormSubmit = (evt) => {
     this.#replaceFormToPoint();
-    this.#handlerDataChange(this.#point);
+    this.#handlerDataChange(evt);
     document.removeEventListener('keydown', this.#onDocumentKeydown);
   };
 }

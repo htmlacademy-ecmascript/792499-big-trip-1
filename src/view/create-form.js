@@ -1,8 +1,8 @@
-import AbstractView from './../framework/view/abstract-view.js';
+import AbstractStatefulView from './../framework/view/abstract-view.js';
+import {OFFER_TYPES, DESTINATION_CITIES} from './../const.js';
 
 const createForm = (point) => {
   const {event, img} = point;
-
   return `<form class="event event--edit" action="#" method="post">
             <header class="event__header">
               <div class="event__type-wrapper">
@@ -114,15 +114,98 @@ const createForm = (point) => {
           </form>`;
 };
 
-export default class NewForm extends AbstractView {
-  #point = null;
+export default class NewForm extends AbstractStatefulView {
+  #handlerFormClick = null;
 
-  constructor({point}) {
+  constructor({point, onFormSubmit}) {
     super();
-    this.#point = point;
+    this._setState(NewForm.parsePointToState(point));
+    this.#handlerFormClick = onFormSubmit;
+
+    this._restoreHandlers();
+  }
+
+  get currentForm() {
+    return this.element;
+  }
+
+  get eventTypeGroup() {
+    return this.element.querySelector('.event__type-group');
+  }
+
+  get eventTypeCity() {
+    return this.element.querySelector('.event__input--destination');
+  }
+
+  get offersBlock() {
+    return this.element.querySelector('.event__section--offers');
   }
 
   get template() {
-    return createForm(this.#point);
+    return createForm(this._state);
+  }
+
+  _restoreHandlers() {
+    this.currentForm.addEventListener('submit', this.#handlerBtnClick);
+    this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
+    this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
+  }
+
+  #handlerBtnClick = (evt) => {
+    evt.preventDefault();
+
+    this.#handlerFormClick(NewForm.parseStateToPoint(this._state));
+  };
+
+  #handlerEventType = (evt) => {
+    if (evt.target.classList.contains('event__type-input')) {
+      evt.preventDefault();
+      this.updateElement({
+        isEventType: evt.target.value,
+        isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
+      });
+    }
+  };
+
+  #handlerDestinationPoint = (evt) => {
+    evt.preventDefault();
+    DESTINATION_CITIES.find((item) => {
+      if (item.name === evt.target.value) {
+        this.updateElement({
+          isCity: item.name,
+          isDescription: item.description,
+          isPictures: item.pictures,
+        });
+      }
+    });
+  };
+
+  static parsePointToState(point) {
+    return {
+      ...point,
+      isEventType: point.event,
+      isOffers: point.offer,
+      isCity: point.destination.name,
+      isDescription: point.destination.description,
+      isPictures: point.destination.pictures,
+    };
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+
+    point.event = point.isEventType;
+    point.img = point.isEventType;
+    point.offer = point.isOffers;
+    point.destination.name = point.isCity;
+    point.destination.description = point.isDescription;
+    point.destination.pictures = point.isPictures;
+
+    delete point.isEventType;
+    delete point.isOffers;
+    delete point.isCity;
+    delete point.isDescription;
+    delete point.isPictures;
+    return point;
   }
 }

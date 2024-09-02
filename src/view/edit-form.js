@@ -1,7 +1,9 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
+import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, DifferenceTwoInputs} from './../const.js';
 import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditPoint = (point) => {
   const {basePrice, event, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
@@ -99,6 +101,8 @@ const createEditPoint = (point) => {
 
 export default class EditForm extends AbstractStatefulView {
   #handlerFormClick = null;
+  #datepickerStart = null;
+  #datepickerEnd = null;
 
   constructor({point, onFormSubmit}) {
     super();
@@ -136,6 +140,14 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__available-offers');
   }
 
+  get inputStartTime() {
+    return this.element.querySelector('#event-start-time-1');
+  }
+
+  get inputEndTime() {
+    return this.element.querySelector('#event-end-time-1');
+  }
+
   get template() {
     return createEditPoint(this._state);
   }
@@ -145,6 +157,7 @@ export default class EditForm extends AbstractStatefulView {
     this.rollupBtn.addEventListener('click', this.#handlerBtnClick);
     this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
     this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
+    this.#setDatepicker();
   }
 
   #handlerBtnClick = (evt) => {
@@ -187,6 +200,49 @@ export default class EditForm extends AbstractStatefulView {
     });
     return currentOffers;
   };
+
+  #handlerDateChange = () => {
+    /*const datepickerStartYear = this.#datepickerStart.latestSelectedDateObj.getFullYear();
+    const datepickerStartMonth = this.#datepickerStart.latestSelectedDateObj.getMonth();
+    const datepickerStartDay = this.#datepickerStart.latestSelectedDateObj.getDate();
+    const datepickerStartHours = this.#datepickerStart.latestSelectedDateObj.getHours();*/
+    //console.log(this.#datepickerEnd)
+    /*const thisDate = new Date(Date.parse(this.#datepickerStart.selectedDates[0]));
+    console.log(thisDate.getHours() + 1)*/
+    this.#datepickerEnd.set({
+      minDate: (this.#datepickerStart.selectedDates[0]),
+      minTime: `${this.#datepickerStart.latestSelectedDateObj.getHours() + DifferenceTwoInputs}:${this.#datepickerStart.latestSelectedDateObj.getMinutes()}`,
+      //defaultDate: `${this.#datepickerStart.latestSelectedDateObj.getFullYear()}/${this.#datepickerStart.latestSelectedDateObj.getMonth()}/${this.#datepickerStart.latestSelectedDateObj.getDate()}/${this.#datepickerStart.latestSelectedDateObj.getHours()}/${this.#datepickerStart.latestSelectedDateObj.getMinutes()}`,
+    });
+    //console.log(this.#datepickerEnd.selectedDates);
+    //this.#datepickerEnd.config._minDate =`${datepickerStartYear}/${datepickerStartMonth}/${datepickerStartDay}/${datepickerStartHours}`;
+  };
+
+  #setDatepicker() {
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth();
+    const day = new Date().getDate();
+    const hours = new Date().getHours();
+    const minutes = new Date().getMinutes();
+    //console.log(minutes)
+    this.#datepickerStart = flatpickr(this.inputStartTime, {
+      enableTime: true,
+      'time_24hr': true,
+      dateFormat: 'y/m/d H:i',
+      minDate: `today`,
+      minTime: `${hours}:${minutes}`,
+      onChange: this.#handlerDateChange,
+    });
+
+    this.#datepickerEnd = flatpickr(this.inputEndTime, {
+      enableTime: true,
+      'time_24hr': true,
+      //defaultDate: this.inputEndTime.value,
+      dateFormat: 'y/m/d H:i',
+      minDate: 'today',
+      onChange: this.#handlerDateChange,
+    });
+  }
 
   static parsePointToState(point) {
     return {

@@ -140,14 +140,6 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__available-offers');
   }
 
-  get inputStartTime() {
-    return this.element.querySelector('#event-start-time-1');
-  }
-
-  get inputEndTime() {
-    return this.element.querySelector('#event-end-time-1');
-  }
-
   get template() {
     return createEditPoint(this._state);
   }
@@ -201,46 +193,32 @@ export default class EditForm extends AbstractStatefulView {
     return currentOffers;
   };
 
-  #handlerDateChange = () => {
-    /*const datepickerStartYear = this.#datepickerStart.latestSelectedDateObj.getFullYear();
-    const datepickerStartMonth = this.#datepickerStart.latestSelectedDateObj.getMonth();
-    const datepickerStartDay = this.#datepickerStart.latestSelectedDateObj.getDate();
-    const datepickerStartHours = this.#datepickerStart.latestSelectedDateObj.getHours();*/
-    //console.log(this.#datepickerEnd)
-    /*const thisDate = new Date(Date.parse(this.#datepickerStart.selectedDates[0]));
-    console.log(thisDate.getHours() + 1)*/
-    this.#datepickerEnd.set({
-      minDate: (this.#datepickerStart.selectedDates[0]),
-      minTime: `${this.#datepickerStart.latestSelectedDateObj.getHours() + DifferenceTwoInputs}:${this.#datepickerStart.latestSelectedDateObj.getMinutes()}`,
-      //defaultDate: `${this.#datepickerStart.latestSelectedDateObj.getFullYear()}/${this.#datepickerStart.latestSelectedDateObj.getMonth()}/${this.#datepickerStart.latestSelectedDateObj.getDate()}/${this.#datepickerStart.latestSelectedDateObj.getHours()}/${this.#datepickerStart.latestSelectedDateObj.getMinutes()}`,
-    });
-    //console.log(this.#datepickerEnd.selectedDates);
-    //this.#datepickerEnd.config._minDate =`${datepickerStartYear}/${datepickerStartMonth}/${datepickerStartDay}/${datepickerStartHours}`;
+  #handlerDateFromChange = ([selectedDate]) => {
+    this.updateElement(this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker);
+    this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
+  };
+
+  #handlerDateToChange = ([selectedDate]) => {
+    this.updateElement(this._state.dateTo = humanizePointDueDate(selectedDate).datepicker);
   };
 
   #setDatepicker() {
-    const year = new Date().getFullYear();
-    const month = new Date().getMonth();
-    const day = new Date().getDate();
-    const hours = new Date().getHours();
-    const minutes = new Date().getMinutes();
-    //console.log(minutes)
-    this.#datepickerStart = flatpickr(this.inputStartTime, {
+    const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
+    this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'y/m/d H:i',
-      minDate: `today`,
-      minTime: `${hours}:${minutes}`,
-      onChange: this.#handlerDateChange,
+      minDate: humanizePointDueDate(this._state.dateFrom).allDate,
+      maxDate: humanizePointDueDate(this._state.dateTo).allDate,
+      onClose: this.#handlerDateFromChange,
     });
 
-    this.#datepickerEnd = flatpickr(this.inputEndTime, {
+    this.#datepickerEnd = flatpickr(inputEndTime, {
       enableTime: true,
       'time_24hr': true,
-      //defaultDate: this.inputEndTime.value,
       dateFormat: 'y/m/d H:i',
-      minDate: 'today',
-      onChange: this.#handlerDateChange,
+      minDate: humanizePointDueDate(this._state.dateTo).allDate,
+      onClose: this.#handlerDateToChange,
     });
   }
 

@@ -1,5 +1,5 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, DifferenceTwoInputs} from './../const.js';
+import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
 import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
@@ -101,13 +101,17 @@ const createEditPoint = (point) => {
 
 export default class EditForm extends AbstractStatefulView {
   #handlerFormClick = null;
+  #handlerFormReset = null;
   #datepickerStart = null;
   #datepickerEnd = null;
+  #point = null;
 
-  constructor({point, onFormSubmit}) {
+  constructor({point, onFormSubmit, onFormReset}) {
     super();
+    this.#point = point;
     this._setState(EditForm.parsePointToState(point));
     this.#handlerFormClick = onFormSubmit;
+    this.#handlerFormReset = onFormReset;
 
     this._restoreHandlers();
   }
@@ -144,18 +148,36 @@ export default class EditForm extends AbstractStatefulView {
     return createEditPoint(this._state);
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerStart) {
+      this.#datepickerStart.destroy();
+      this.#datepickerStart = null;
+    }
+
+    if (this.#datepickerEnd) {
+      this.#datepickerEnd.destroy();
+      this.#datepickerEnd = null;
+    }
+  }
+
   _restoreHandlers() {
-    this.currentForm.addEventListener('submit', this.#handlerBtnClick);
-    this.rollupBtn.addEventListener('click', this.#handlerBtnClick);
+    this.currentForm.addEventListener('submit', this.#handlerBtnSubmit);
+    this.rollupBtn.addEventListener('click', this.#handlerResetForm);
     this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
     this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
     this.#setDatepicker();
   }
 
-  #handlerBtnClick = (evt) => {
-    evt.preventDefault();
+  #handlerBtnSubmit = () => {
     this.updateElement(this._state.isOffers.offers = this.#creatingActualOffers());
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
+  };
+
+  #handlerResetForm = () => {
+    this.updateElement(EditForm.parsePointToState(this.#point));
+    this.#handlerFormReset();
   };
 
   #handlerEventType = (evt) => {
@@ -194,12 +216,13 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   #handlerDateFromChange = ([selectedDate]) => {
-    this.updateElement(this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker);
+    this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
     this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
   };
 
   #handlerDateToChange = ([selectedDate]) => {
-    this.updateElement(this._state.dateTo = humanizePointDueDate(selectedDate).datepicker);
+    this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
+    this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
   };
 
   #setDatepicker() {
@@ -236,12 +259,12 @@ export default class EditForm extends AbstractStatefulView {
   static parseStateToPoint(state) {
     const point = {...state};
 
-    point.event = point.isEventType;
-    point.img = point.isEventType;
-    point.offer = point.isOffers;
-    point.destination.name = point.isCity;
-    point.destination.description = point.isDescription;
-    point.destination.pictures = point.isPictures;
+    point.event = state.isEventType;
+    point.img = state.isEventType;
+    point.offer = state.isOffers;
+    point.destination.name = state.isCity;
+    point.destination.description = state.isDescription;
+    point.destination.pictures = state.isPictures;
 
     delete point.isEventType;
     delete point.isOffers;

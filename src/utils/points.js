@@ -22,7 +22,7 @@ const humanizePointDueDate = (firstParam, secondParam) => {
     time: dayjs(firstParam).format(TimeFormat.HOUR_MINUTE),
     allDate: dayjs(firstParam).format(TimeFormat.ALL),
     datepicker: dayjs(firstParam).format(TimeFormat.DATEPICKER),
-    
+
     difference: () => {
       const dayValue = dayjs(secondParam).diff(dayjs(firstParam), TimeNames.DAY);
       const hourValue = dayjs(secondParam).diff(dayjs(firstParam), TimeNames.HOUR);

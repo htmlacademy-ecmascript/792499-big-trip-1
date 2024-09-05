@@ -4,7 +4,7 @@ import {isEscapeKey} from './../utils/common.js';
 import {replace, render, remove} from './../framework/render.js';
 import {Mode} from './../const.js';
 
-export default class PointPresenter {
+export default class PointPresenter /*extends AbstractStatefulView*/ {
   #currentPoint = null;
   #currentForm = null;
   #mainContainer = null;
@@ -41,6 +41,7 @@ export default class PointPresenter {
     this.#currentForm = new EditForm({
       point: this.#point,
       onFormSubmit: this.#handlerFormSubmit,
+      onFormReset: this.#handlerFormReset,
     });
 
     if (prevCurrentPoint === null || prevCurrentForm === null) {
@@ -89,6 +90,10 @@ export default class PointPresenter {
 
   #handlerFavoriteClick = () => {
     this.#handlerDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+  };
+
+  #handlerFormReset = () => {
+    this.#replaceFormToPoint();
   };
 
   #handlerFormSubmit = (evt) => {

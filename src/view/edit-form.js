@@ -4,6 +4,7 @@ import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import {isEscapeKey} from './../utils/common.js';
 
 const createEditPoint = (point) => {
   const {basePrice, event, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
@@ -112,8 +113,6 @@ export default class EditForm extends AbstractStatefulView {
     this._setState(EditForm.parsePointToState(point));
     this.#handlerFormClick = onFormSubmit;
     this.#handlerFormReset = onFormReset;
-
-    this._restoreHandlers();
   }
 
   get rollupBtn() {
@@ -132,25 +131,12 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__input--destination');
   }
 
-  get offersBlock() {
-    return this.element.querySelector('.event__section--offers');
-  }
-
-  get offerElements() {
-    return this.element.querySelector('.event__section--offers');
-  }
-
-  get offersElement() {
-    return this.element.querySelector('.event__available-offers');
-  }
-
   get template() {
     return createEditPoint(this._state);
   }
 
-  removeElement() {
+  _removeDatepicker() {
     super.removeElement();
-
     if (this.#datepickerStart) {
       this.#datepickerStart.destroy();
       this.#datepickerStart = null;
@@ -167,17 +153,30 @@ export default class EditForm extends AbstractStatefulView {
     this.rollupBtn.addEventListener('click', this.#handlerResetForm);
     this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
     this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
-    this.#setDatepicker();
   }
+
+  #handlerRemoveElements = () => {
+    this.#handlerFormReset();
+    document.removeEventListener('keydown', this._handlerEscResetForm);
+  };
 
   #handlerBtnSubmit = () => {
     this.updateElement(this._state.isOffers.offers = this.#creatingActualOffers());
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
+    this.#handlerRemoveElements();
+    this._removeDatepicker();
+  };
+
+  _handlerEscResetForm = (evt) => {
+    evt.preventDefault();
+    if (isEscapeKey(evt) && this.isOpen) {
+      this.#handlerResetForm();
+    }
   };
 
   #handlerResetForm = () => {
     this.updateElement(EditForm.parsePointToState(this.#point));
-    this.#handlerFormReset();
+    this.#handlerRemoveElements();
   };
 
   #handlerEventType = (evt) => {
@@ -225,7 +224,7 @@ export default class EditForm extends AbstractStatefulView {
     this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
   };
 
-  #setDatepicker() {
+  _setDatepicker() {
     const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,
@@ -233,6 +232,9 @@ export default class EditForm extends AbstractStatefulView {
       dateFormat: 'y/m/d H:i',
       minDate: humanizePointDueDate(this._state.dateFrom).allDate,
       maxDate: humanizePointDueDate(this._state.dateTo).allDate,
+      locale: {
+        firstDayOfWeek: 1,
+      },
       onClose: this.#handlerDateFromChange,
     });
 
@@ -241,6 +243,9 @@ export default class EditForm extends AbstractStatefulView {
       'time_24hr': true,
       dateFormat: 'y/m/d H:i',
       minDate: humanizePointDueDate(this._state.dateTo).allDate,
+      locale: {
+        firstDayOfWeek: 1,
+      },
       onClose: this.#handlerDateToChange,
     });
   }

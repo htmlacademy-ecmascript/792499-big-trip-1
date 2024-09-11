@@ -1,10 +1,9 @@
 import Point from './../view/point.js';
 import EditForm from './../view/edit-form.js';
-import {isEscapeKey} from './../utils/common.js';
 import {replace, render, remove} from './../framework/render.js';
 import {Mode} from './../const.js';
 
-export default class PointPresenter /*extends AbstractStatefulView*/ {
+export default class PointPresenter {
   #currentPoint = null;
   #currentForm = null;
   #mainContainer = null;
@@ -18,14 +17,6 @@ export default class PointPresenter /*extends AbstractStatefulView*/ {
     this.#handlerDataChange = onDataChange;
     this.#handlerModeChange = onModeChange;
   }
-
-  #onDocumentKeydown = (evt) => {
-    if (isEscapeKey(evt)) {
-      evt.preventDefault();
-      this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#onDocumentKeydown);
-    }
-  };
 
   init(point) {
     this.#point = point;
@@ -85,7 +76,10 @@ export default class PointPresenter /*extends AbstractStatefulView*/ {
 
   #handlerRollupClick = () => {
     this.#replacePointToForm();
-    document.addEventListener('keydown', this.#onDocumentKeydown);
+    this.#currentForm.isOpen = true;
+    this.#currentForm._restoreHandlers();
+    this.#currentForm._setDatepicker();
+    document.addEventListener('keydown', this.#currentForm._handlerEscResetForm);
   };
 
   #handlerFavoriteClick = () => {
@@ -93,12 +87,12 @@ export default class PointPresenter /*extends AbstractStatefulView*/ {
   };
 
   #handlerFormReset = () => {
+    this.#currentForm.isOpen = false;
     this.#replaceFormToPoint();
+    this.#currentForm._removeDatepicker();
   };
 
   #handlerFormSubmit = (evt) => {
-    this.#replaceFormToPoint();
     this.#handlerDataChange(evt);
-    document.removeEventListener('keydown', this.#onDocumentKeydown);
   };
 }

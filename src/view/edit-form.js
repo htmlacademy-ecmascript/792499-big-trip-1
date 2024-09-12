@@ -151,7 +151,7 @@ export default class EditForm extends AbstractStatefulView {
   _restoreHandlers() {
     this.currentForm.addEventListener('submit', this.#handlerBtnSubmit);
     this.rollupBtn.addEventListener('click', this.#handlerResetForm);
-    this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
+    this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
   }
 
@@ -168,8 +168,8 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   _handlerEscResetForm = (evt) => {
-    evt.preventDefault();
-    if (isEscapeKey(evt) && this.isOpen) {
+    if (isEscapeKey(evt) && this.isOpen && !evt.target.classList.contains('event__input--time')) {
+      evt.preventDefault();
       this.#handlerResetForm();
     }
   };

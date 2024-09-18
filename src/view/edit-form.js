@@ -136,7 +136,6 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   _removeDatepicker() {
-    super.removeElement();
     if (this.#datepickerStart) {
       this.#datepickerStart.destroy();
       this.#datepickerStart = null;
@@ -180,6 +179,7 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   #handlerEventType = (evt) => {
+    this._removeDatepicker();
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
       this.updateElement({
@@ -187,9 +187,11 @@ export default class EditForm extends AbstractStatefulView {
         isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
       });
     }
+    this._setDatepicker();
   };
 
   #handlerDestinationPoint = (evt) => {
+    this._removeDatepicker();
     evt.preventDefault();
     DESTINATION_CITIES.find((item) => {
       if (item.name === evt.target.value) {
@@ -200,6 +202,7 @@ export default class EditForm extends AbstractStatefulView {
         });
       }
     });
+    this._setDatepicker();
   };
 
   #handlerOfferChecked = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).

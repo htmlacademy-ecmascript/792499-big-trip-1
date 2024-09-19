@@ -179,6 +179,7 @@ const TimeFormat = {
   HOUR_IN_DAY: 24,
   MINUTE_IN_HOUR: 60,
   ZERO: '0',
+  DATEPICKER: 'YYYY-MM-DDTHH:mm',
 };
 
 const POINTS = [

@@ -2,6 +2,9 @@ import {humanizePointDueDate} from './../utils/points.js';
 import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
 import {capitalize} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import {isEscapeKey} from './../utils/common.js';
 
 const createEditPoint = (point) => {
   const {basePrice, event, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
@@ -99,13 +102,17 @@ const createEditPoint = (point) => {
 
 export default class EditForm extends AbstractStatefulView {
   #handlerFormClick = null;
+  #handlerFormReset = null;
+  #datepickerStart = null;
+  #datepickerEnd = null;
+  #point = null;
 
-  constructor({point, onFormSubmit}) {
+  constructor({point, onFormSubmit, onFormReset}) {
     super();
+    this.#point = point;
     this._setState(EditForm.parsePointToState(point));
     this.#handlerFormClick = onFormSubmit;
-
-    this._restoreHandlers();
+    this.#handlerFormReset = onFormReset;
   }
 
   get rollupBtn() {
@@ -124,36 +131,55 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__input--destination');
   }
 
-  get offersBlock() {
-    return this.element.querySelector('.event__section--offers');
-  }
-
-  get offerElements() {
-    return this.element.querySelector('.event__section--offers');
-  }
-
-  get offersElement() {
-    return this.element.querySelector('.event__available-offers');
-  }
-
   get template() {
     return createEditPoint(this._state);
   }
 
+  _removeDatepicker() {
+    if (this.#datepickerStart) {
+      this.#datepickerStart.destroy();
+      this.#datepickerStart = null;
+    }
+
+    if (this.#datepickerEnd) {
+      this.#datepickerEnd.destroy();
+      this.#datepickerEnd = null;
+    }
+  }
+
   _restoreHandlers() {
-    this.currentForm.addEventListener('submit', this.#handlerBtnClick);
-    this.rollupBtn.addEventListener('click', this.#handlerBtnClick);
-    this.eventTypeGroup.addEventListener('click', this.#handlerEventType);
+    this.currentForm.addEventListener('submit', this.#handlerBtnSubmit);
+    this.rollupBtn.addEventListener('click', this.#handlerResetForm);
+    this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
   }
 
-  #handlerBtnClick = (evt) => {
-    evt.preventDefault();
+  #handlerRemoveElements = () => {
+    this.#handlerFormReset();
+    document.removeEventListener('keydown', this._handlerEscResetForm);
+  };
+
+  #handlerBtnSubmit = () => {
     this.updateElement(this._state.isOffers.offers = this.#creatingActualOffers());
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
+    this.#handlerRemoveElements();
+    this._removeDatepicker();
+  };
+
+  _handlerEscResetForm = (evt) => {
+    if (isEscapeKey(evt) && this.isOpen && !evt.target.classList.contains('event__input--time')) {
+      evt.preventDefault();
+      this.#handlerResetForm();
+    }
+  };
+
+  #handlerResetForm = () => {
+    this.updateElement(EditForm.parsePointToState(this.#point));
+    this.#handlerRemoveElements();
   };
 
   #handlerEventType = (evt) => {
+    this._removeDatepicker();
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
       this.updateElement({
@@ -161,9 +187,11 @@ export default class EditForm extends AbstractStatefulView {
         isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
       });
     }
+    this._setDatepicker();
   };
 
   #handlerDestinationPoint = (evt) => {
+    this._removeDatepicker();
     evt.preventDefault();
     DESTINATION_CITIES.find((item) => {
       if (item.name === evt.target.value) {
@@ -174,6 +202,7 @@ export default class EditForm extends AbstractStatefulView {
         });
       }
     });
+    this._setDatepicker();
   };
 
   #handlerOfferChecked = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).
@@ -187,6 +216,42 @@ export default class EditForm extends AbstractStatefulView {
     });
     return currentOffers;
   };
+
+  #handlerDateFromChange = ([selectedDate]) => {
+    this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
+    this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
+  };
+
+  #handlerDateToChange = ([selectedDate]) => {
+    this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
+    this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
+  };
+
+  _setDatepicker() {
+    const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
+    this.#datepickerStart = flatpickr(inputStartTime, {
+      enableTime: true,
+      'time_24hr': true,
+      dateFormat: 'y/m/d H:i',
+      minDate: humanizePointDueDate(this._state.dateFrom).allDate,
+      maxDate: humanizePointDueDate(this._state.dateTo).allDate,
+      locale: {
+        firstDayOfWeek: 1,
+      },
+      onClose: this.#handlerDateFromChange,
+    });
+
+    this.#datepickerEnd = flatpickr(inputEndTime, {
+      enableTime: true,
+      'time_24hr': true,
+      dateFormat: 'y/m/d H:i',
+      minDate: humanizePointDueDate(this._state.dateTo).allDate,
+      locale: {
+        firstDayOfWeek: 1,
+      },
+      onClose: this.#handlerDateToChange,
+    });
+  }
 
   static parsePointToState(point) {
     return {
@@ -202,12 +267,12 @@ export default class EditForm extends AbstractStatefulView {
   static parseStateToPoint(state) {
     const point = {...state};
 
-    point.event = point.isEventType;
-    point.img = point.isEventType;
-    point.offer = point.isOffers;
-    point.destination.name = point.isCity;
-    point.destination.description = point.isDescription;
-    point.destination.pictures = point.isPictures;
+    point.event = state.isEventType;
+    point.img = state.isEventType;
+    point.offer = state.isOffers;
+    point.destination.name = state.isCity;
+    point.destination.description = state.isDescription;
+    point.destination.pictures = state.isPictures;
 
     delete point.isEventType;
     delete point.isOffers;

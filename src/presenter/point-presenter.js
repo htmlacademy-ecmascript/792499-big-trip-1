@@ -1,7 +1,7 @@
 import Point from './../view/point.js';
 import EditForm from './../view/edit-form.js';
 import {replace, render, remove} from './../framework/render.js';
-import {Mode} from './../const.js';
+import {Mode, UserAction, UpdateType} from './../const.js';
 
 export default class PointPresenter {
   #currentPoint = null;
@@ -83,7 +83,12 @@ export default class PointPresenter {
   };
 
   #handlerFavoriteClick = () => {
-    this.#handlerDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    //this.#handlerDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handlerDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      {...this.#point, isFavorite: !this.#point.isFavorite},
+    );
   };
 
   #handlerFormReset = () => {
@@ -93,6 +98,10 @@ export default class PointPresenter {
   };
 
   #handlerFormSubmit = (evt) => {
-    this.#handlerDataChange(evt);
+    this.#handlerDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      evt,
+    );
   };
 }

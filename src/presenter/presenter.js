@@ -1,6 +1,6 @@
 import Sorting from './../view/sorting.js';
 import NoPoints from './../view/no-points.js';
-import {render} from './../framework/render.js';
+import {render, remove} from './../framework/render.js';
 import {SortType, UserAction, UpdateType} from './../const.js';
 import {sortPointPrice, sortPointTime} from './../utils/points.js';
 import PointPresenter from './point-presenter.js';
@@ -13,6 +13,8 @@ export default class Presenter extends Observable {
   #filtersModel = null;
   #currentSortType = SortType.DAY;
   #pointsCollection = new Map();
+  #noPoints = null;
+  #filterType = null;
 
   constructor({mainContainer, pointModels, filtersModel}) {
     super();
@@ -28,12 +30,16 @@ export default class Presenter extends Observable {
     for (let i = 0; i < this.points.length; i++) {
       this.#renderPoints(this.points[i]);
     }
+
+    if (this.points.length === 0) {
+      this.#renderNoPoints();
+    }
   }
 
   get points() {
-    const filterType = this.#filtersModel.filters;
+    this.#filterType = this.#filtersModel.filters;
     const points = this.#pointModels.points;
-    const filteredPoints = filters[filterType](points);
+    const filteredPoints = filters[this.#filterType](points);
 
     switch (this.#currentSortType) {
       case SortType.TIME:
@@ -50,15 +56,15 @@ export default class Presenter extends Observable {
   init() {
     this.#renderSorting();
     this.renderBoard();
-
-    if (this.points.length === 0) {
-      render(new NoPoints(), this.#mainContainer);
-    }
   }
 
   clearBoard() {
     this.#pointsCollection.forEach((point) => point.destroy());
     this.#pointsCollection.clear();
+
+    if (this.#noPoints) {
+      remove(this.#noPoints);
+    }
   }
 
   #renderSorting() {
@@ -74,6 +80,11 @@ export default class Presenter extends Observable {
 
     pointPresenter.init(point);
     this.#pointsCollection.set(point.id, pointPresenter);
+  }
+
+  #renderNoPoints() {
+    this.#noPoints = new NoPoints({filterType: this.#filterType});
+    render(this.#noPoints, this.#mainContainer);
   }
 
   #handlerModeChange = () => {

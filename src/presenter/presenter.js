@@ -1,11 +1,13 @@
 import Sorting from './../view/sorting.js';
 import NoPoints from './../view/no-points.js';
 import {render, remove} from './../framework/render.js';
-import {SortType, UserAction, UpdateType} from './../const.js';
+import {SortType, UserAction, UpdateType, FilterType} from './../const.js';
 import {sortPointPrice, sortPointTime} from './../utils/points.js';
 import PointPresenter from './point-presenter.js';
+import NewPointPresenter from './new-point-presenter.js';
 import Observable from './../framework/observable.js';
 import {filters} from './../utils/filters-utils.js';
+import BtnNewPoint from './../view/btn-new-point.js';
 
 export default class Presenter extends Observable {
   #mainContainer = null;
@@ -15,15 +17,30 @@ export default class Presenter extends Observable {
   #pointsCollection = new Map();
   #noPoints = null;
   #filterType = null;
+  #newPointPresenter = null;
+  #btnNewPoint = null;
+  #headerMain = null;
 
-  constructor({mainContainer, pointModels, filtersModel}) {
+  constructor({mainContainer, pointModels, filtersModel, headerMain}) {
     super();
     this.#mainContainer = mainContainer;
     this.#pointModels = pointModels;
     this.#filtersModel = filtersModel;
+    this.#headerMain = headerMain;
 
     this.#pointModels.addObserver(this.#handlerModelEvent);
     this.#filtersModel.addObserver(this.#handlerModelEvent);
+
+    this.#newPointPresenter = new NewPointPresenter({
+      mainContainer: this.#mainContainer,
+      onDataChange: this.#handlerViewAction,
+      onDestroy: this.#handlerNewFormClose,
+    });
+
+    this.#btnNewPoint = new BtnNewPoint({
+      onClick: this.#handlerBtnNewPoint,
+      headerMain: this.#headerMain,
+    });
   }
 
   renderBoard() {
@@ -58,7 +75,14 @@ export default class Presenter extends Observable {
     this.renderBoard();
   }
 
+  createTask() {
+    this.#currentSortType = SortType.DAY;
+    this.#filtersModel.setFilters(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newPointPresenter.init();
+  }
+
   clearBoard() {
+    this.#newPointPresenter.destroy();
     this.#pointsCollection.forEach((point) => point.destroy());
     this.#pointsCollection.clear();
 
@@ -88,6 +112,7 @@ export default class Presenter extends Observable {
   }
 
   #handlerModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#pointsCollection.forEach((point) => {
       point.resetView();
     });
@@ -131,5 +156,13 @@ export default class Presenter extends Observable {
     this.#currentSortType = sortType;
     this.clearBoard();
     this.renderBoard();
+  };
+
+  #handlerBtnNewPoint = () => {
+    this.createTask();
+  };
+
+  #handlerNewFormClose = () => {
+    this.#btnNewPoint._handlerFormClose();
   };
 }

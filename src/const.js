@@ -252,4 +252,27 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType};
+const NewPoint = {
+  event: 'taxi',
+  img: 'taxi',
+  basePrice: '',
+  offer: {
+    type: 'taxi',
+    offers: [
+      {
+        id: 1,
+        title: 'Order Uber',
+        price: 20,
+      },
+    ],
+  },
+  isFavorite: false,
+  destination: {
+    id: 123,
+    description: 'this is destination',
+    name: '',
+    pictures: [{src: 'https://loremflickr.com/248/152?random=1', description: 'Oslo'}],
+  }
+};
+
+export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint};

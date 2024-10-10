@@ -33,6 +33,7 @@ export default class PointPresenter {
       point: this.#point,
       onFormSubmit: this.#handlerFormSubmit,
       onFormReset: this.#handlerFormReset,
+      onFormDelete: this.#handlerDeletePoint,
     });
 
     if (prevCurrentPoint === null || prevCurrentForm === null) {
@@ -83,7 +84,6 @@ export default class PointPresenter {
   };
 
   #handlerFavoriteClick = () => {
-    //this.#handlerDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
     this.#handlerDataChange(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
@@ -100,6 +100,14 @@ export default class PointPresenter {
   #handlerFormSubmit = (evt) => {
     this.#handlerDataChange(
       UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      evt,
+    );
+  };
+
+  #handlerDeletePoint = (evt) => {
+    this.#handlerDataChange(
+      UserAction.DELETE_POINT,
       UpdateType.MINOR,
       evt,
     );

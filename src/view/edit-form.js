@@ -7,7 +7,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 import {isEscapeKey} from './../utils/common.js';
 
 const createEditPoint = (point) => {
-  const {basePrice, event, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
+  const {basePrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
   const {offers} = isOffers;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
@@ -39,7 +39,7 @@ const createEditPoint = (point) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-            ${createEventType(event, EVENT_TYPES)}
+            ${createEventType(isEventType, EVENT_TYPES)}
           </fieldset>
         </div>
       </div>
@@ -103,20 +103,26 @@ const createEditPoint = (point) => {
 export default class EditForm extends AbstractStatefulView {
   #handlerFormClick = null;
   #handlerFormReset = null;
+  #handlerDeleteThisPoint = null;
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
 
-  constructor({point, onFormSubmit, onFormReset}) {
+  constructor({point, onFormSubmit, onFormReset, onFormDelete}) {
     super();
     this.#point = point;
     this._setState(EditForm.parsePointToState(point));
     this.#handlerFormClick = onFormSubmit;
     this.#handlerFormReset = onFormReset;
+    this.#handlerDeleteThisPoint = onFormDelete;
   }
 
   get rollupBtn() {
     return this.element.querySelector('.event__rollup-btn');
+  }
+
+  get deleteBtn() {
+    return this.element.querySelector('.event__reset-btn');
   }
 
   get currentForm() {
@@ -150,6 +156,7 @@ export default class EditForm extends AbstractStatefulView {
   _restoreHandlers() {
     this.currentForm.addEventListener('submit', this.#handlerBtnSubmit);
     this.rollupBtn.addEventListener('click', this.#handlerResetForm);
+    this.deleteBtn.addEventListener('click', this.#handlerDeletePoint);
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
   }
@@ -163,7 +170,6 @@ export default class EditForm extends AbstractStatefulView {
     this.updateElement(this._state.isOffers.offers = this.#creatingActualOffers());
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
     this.#handlerRemoveElements();
-    this._removeDatepicker();
   };
 
   _handlerEscResetForm = (evt) => {
@@ -176,6 +182,10 @@ export default class EditForm extends AbstractStatefulView {
   #handlerResetForm = () => {
     this.updateElement(EditForm.parsePointToState(this.#point));
     this.#handlerRemoveElements();
+  };
+
+  #handlerDeletePoint = () => {
+    this.#handlerDeleteThisPoint(this.#point);
   };
 
   #handlerEventType = (evt) => {

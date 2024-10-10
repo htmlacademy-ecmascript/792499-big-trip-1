@@ -4,6 +4,7 @@ import PointModel from './model/point-model.js';
 import FiltersModel from './model/filters-model.js';
 
 const siteBody = document.querySelector('.page-body');
+const headerMain = siteBody.querySelector('.trip-main');
 const siteFilters = siteBody.querySelector('.trip-controls__filters');
 const siteContainer = siteBody.querySelector('.trip-events');
 
@@ -14,6 +15,7 @@ const pagePresenter = new Presenter({
   mainContainer: siteContainer,
   pointModels,
   filtersModel,
+  headerMain
 });
 
 const filterPresenter = new FilterPresenter({

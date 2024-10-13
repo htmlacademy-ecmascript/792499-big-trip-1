@@ -2,7 +2,7 @@ import Sorting from './../view/sorting.js';
 import NoPoints from './../view/no-points.js';
 import {render, RenderPosition, remove} from './../framework/render.js';
 import {SortType, UserAction, UpdateType, FilterType} from './../const.js';
-import {sortPointPrice, sortPointTime} from './../utils/points.js';
+import {sortPointPrice, sortPointTime, sortPointDate} from './../utils/points.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import Observable from './../framework/observable.js';
@@ -69,6 +69,9 @@ export default class Presenter extends Observable {
     const filteredPoints = filters[this.#filterType](points);
 
     switch (this.#currentSortType) {
+      case SortType.DAY:
+        filteredPoints.sort(sortPointDate);
+        break;
       case SortType.TIME:
         filteredPoints.sort(sortPointTime);
         break;

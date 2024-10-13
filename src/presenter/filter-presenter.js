@@ -8,14 +8,13 @@ export default class FilterPresenter {
   #filtersModel = null;
   #pointsModel = null;
   #filterComponent = null;
+  #presenter = null;
 
-  constructor({filtersContainer, filtersModel, pointsModel}) {
+  constructor({filtersContainer, filtersModel, pointsModel, presenter}) {
     this.#filtersContainer = filtersContainer;
     this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
-
-    this.#pointsModel.addObserver(this.#handlerModelEvent);
-    this.#filtersModel.addObserver(this.#handlerModelEvent);
+    this.#presenter = presenter;
   }
 
   get filters() {
@@ -46,16 +45,13 @@ export default class FilterPresenter {
     remove(prevFilterComponent);
   }
 
-  #handlerModelEvent = () => {
-    this.init();
-  };
-
   #handlerFilters = (filterType) => {
     const currentFilter = filterType.slice(7);
     if (this.#filtersModel.filters === currentFilter) {
       return;
     }
 
+    this.#presenter.resetSortType();
     this.#filtersModel.setFilters(UpdateType.MAJOR, currentFilter);
   };
 }

@@ -1,6 +1,6 @@
 import Sorting from './../view/sorting.js';
 import NoPoints from './../view/no-points.js';
-import {render, remove} from './../framework/render.js';
+import {render, RenderPosition, remove} from './../framework/render.js';
 import {SortType, UserAction, UpdateType, FilterType} from './../const.js';
 import {sortPointPrice, sortPointTime} from './../utils/points.js';
 import PointPresenter from './point-presenter.js';
@@ -20,6 +20,7 @@ export default class Presenter extends Observable {
   #newPointPresenter = null;
   #btnNewPoint = null;
   #headerMain = null;
+  #sorting = null;
 
   constructor({mainContainer, pointModels, filtersModel, headerMain}) {
     super();
@@ -35,6 +36,7 @@ export default class Presenter extends Observable {
       mainContainer: this.#mainContainer,
       onDataChange: this.#handlerViewAction,
       onDestroy: this.#handlerNewFormClose,
+      presenter: this,
     });
 
     this.#btnNewPoint = new BtnNewPoint({
@@ -51,6 +53,14 @@ export default class Presenter extends Observable {
     if (this.points.length === 0) {
       this.#renderNoPoints();
     }
+  }
+
+  renderSorting() {
+    this.#sorting = new Sorting({
+      onSortTypeChange: this.#handlerSortTypeChange,
+    });
+
+    render(this.#sorting, this.#mainContainer, RenderPosition.AFTERBEGIN);
   }
 
   get points() {
@@ -71,12 +81,12 @@ export default class Presenter extends Observable {
   }
 
   init() {
-    this.#renderSorting();
     this.renderBoard();
+    this.renderSorting();
   }
 
   createTask() {
-    this.#currentSortType = SortType.DAY;
+    this.resetSortType();
     this.#filtersModel.setFilters(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init();
   }
@@ -91,9 +101,11 @@ export default class Presenter extends Observable {
     }
   }
 
-  #renderSorting() {
-    render(new Sorting({onSortTypeChange: this.#handlerSortTypeChange}), this.#mainContainer);
-  }
+  resetSortType = () => {
+    remove(this.#sorting);
+    this.#currentSortType = SortType.DAY;
+    this.renderSorting();
+  };
 
   #renderPoints(point) {
     const pointPresenter = new PointPresenter({
@@ -154,8 +166,7 @@ export default class Presenter extends Observable {
     }
 
     this.#currentSortType = sortType;
-    this.clearBoard();
-    this.renderBoard();
+    this.#handlerModelEvent(UpdateType.MINOR);
   };
 
   #handlerBtnNewPoint = () => {

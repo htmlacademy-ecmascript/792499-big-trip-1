@@ -15,13 +15,14 @@ const pagePresenter = new Presenter({
   mainContainer: siteContainer,
   pointModels,
   filtersModel,
-  headerMain
+  headerMain,
 });
 
 const filterPresenter = new FilterPresenter({
   filtersContainer: siteFilters,
   filtersModel: filtersModel,
   pointsModel: pointModels,
+  presenter: pagePresenter,
 });
 
 pagePresenter.init();

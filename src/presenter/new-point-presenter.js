@@ -9,11 +9,13 @@ export default class NewPointPresenter {
   #mainContainer = null;
   #handlerDataChange = null;
   #handlerDestroy = null;
+  #presenter = null;
 
-  constructor({mainContainer, onDataChange, onDestroy}) {
+  constructor({mainContainer, onDataChange, onDestroy, presenter}) {
     this.#mainContainer = mainContainer;
     this.#handlerDataChange = onDataChange;
     this.#handlerDestroy = onDestroy;
+    this.#presenter = presenter;
   }
 
   init() {

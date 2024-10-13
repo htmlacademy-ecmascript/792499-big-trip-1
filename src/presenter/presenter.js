@@ -89,6 +89,7 @@ export default class Presenter extends Observable {
     this.resetSortType();
     this.#filtersModel.setFilters(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init();
+    this.renderSorting();
   }
 
   clearBoard() {
@@ -104,7 +105,6 @@ export default class Presenter extends Observable {
   resetSortType = () => {
     remove(this.#sorting);
     this.#currentSortType = SortType.DAY;
-    this.renderSorting();
   };
 
   #renderPoints(point) {

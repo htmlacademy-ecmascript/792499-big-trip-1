@@ -52,6 +52,7 @@ export default class FilterPresenter {
     }
 
     this.#presenter.resetSortType();
+    this.#presenter.renderSorting();
     this.#filtersModel.setFilters(UpdateType.MAJOR, currentFilter);
   };
 }

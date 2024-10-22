@@ -7,7 +7,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 import {isEscapeKey} from './../utils/common.js';
 
 const createEditPoint = (point) => {
-  const {basePrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
+  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
   const {offers} = isOffers;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
@@ -48,7 +48,7 @@ const createEditPoint = (point) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${isEventType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" list="destination-list-1" required>
         <datalist id="destination-list-1">
           ${createCities(CITIES)}
         </datalist>
@@ -67,7 +67,7 @@ const createEditPoint = (point) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" maxlength="6" required>
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -133,12 +133,16 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__type-group');
   }
 
-  get eventTypeCity() {
+  get template() {
+    return createEditPoint(this._state);
+  }
+
+  get city() {
     return this.element.querySelector('.event__input--destination');
   }
 
-  get template() {
-    return createEditPoint(this._state);
+  get price() {
+    return this.element.querySelector('.event__input--price');
   }
 
   _removeDatepicker() {
@@ -158,7 +162,8 @@ export default class EditForm extends AbstractStatefulView {
     this.rollupBtn.addEventListener('click', this.#handlerResetForm);
     this.deleteBtn.addEventListener('click', this.#handlerDeletePoint);
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
-    this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
+    this.city.addEventListener('change', this.#handlerDestinationPoint);
+    this.price.addEventListener('change', this.#handlerPriceInput);
   }
 
   #handlerRemoveElements = () => {
@@ -202,9 +207,11 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerDestinationPoint = (evt) => {
     this._removeDatepicker();
-    evt.preventDefault();
+
+    let currentValue;
     DESTINATION_CITIES.find((item) => {
       if (item.name === evt.target.value) {
+        currentValue = item.name;
         this.updateElement({
           isCity: item.name,
           isDescription: item.description,
@@ -212,7 +219,28 @@ export default class EditForm extends AbstractStatefulView {
         });
       }
     });
+
+    if (evt.target.value !== currentValue) {
+      this.city.style = 'border: 1px solid red';
+      this.city.value = '';
+      this.city.setAttribute('placeholder', 'incorrect city');
+    }
+
     this._setDatepicker();
+  };
+
+  #handlerPriceInput = (evt) => {
+    if (!Number(evt.target.value)) {
+      this.price.style = 'border: 1px solid red';
+      this.price.value = '';
+      this.price.setAttribute('placeholder', 'enter number');
+    } else {
+      this.price.value = Math.floor(evt.target.value);
+      this.price.style = '';
+      this.updateElement({
+        isPrice: evt.target.value,
+      });
+    }
   };
 
   #handlerOfferChecked = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).
@@ -264,8 +292,10 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
+
     return {
       ...point,
+      isPrice: point.basePrice,
       isEventType: point.event,
       isOffers: point.offer,
       isCity: point.destination.name,
@@ -277,6 +307,7 @@ export default class EditForm extends AbstractStatefulView {
   static parseStateToPoint(state) {
     const point = {...state};
 
+    point.basePrice = state.isPrice;
     point.event = state.isEventType;
     point.img = state.isEventType;
     point.offer = state.isOffers;
@@ -289,6 +320,7 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isCity;
     delete point.isDescription;
     delete point.isPictures;
+    delete point.isPrice;
     return point;
   }
 }

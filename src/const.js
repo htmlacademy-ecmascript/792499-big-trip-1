@@ -275,4 +275,14 @@ const NewPoint = {
   }
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint};
+const TooltipLabel = {
+  CITY: 'CITY',
+  NUMBER: 'NUMBER',
+};
+
+const TooltipText = {
+  CITY: 'Please, select a city from the suggested list',
+  NUMBER: 'Please, enter a number',
+};
+
+export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel};

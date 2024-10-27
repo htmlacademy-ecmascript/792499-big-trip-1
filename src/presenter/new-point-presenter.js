@@ -2,8 +2,9 @@ import NewForm from './../view/create-form.js';
 import {render, RenderPosition, remove} from './../framework/render.js';
 import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../const.js';
+import Observable from './../framework/observable.js';
 
-export default class NewPointPresenter {
+export default class NewPointPresenter extends Observable {
   #btnNewPoint = null;
   #newForm = null;
   #mainContainer = null;
@@ -12,6 +13,7 @@ export default class NewPointPresenter {
   #presenter = null;
 
   constructor({mainContainer, onDataChange, onDestroy, presenter}) {
+    super();
     this.#mainContainer = mainContainer;
     this.#handlerDataChange = onDataChange;
     this.#handlerDestroy = onDestroy;
@@ -27,6 +29,7 @@ export default class NewPointPresenter {
     this.#newForm = new NewForm({
       onFormSubmit: this.#handlerFormSubmit,
       onFormReset: this.#handlerDeleteClick,
+      onErrorForm: this.#handlerErrorForm,
     });
 
     render(this.#newForm, this.#mainContainer, RenderPosition.AFTERBEGIN);
@@ -60,5 +63,9 @@ export default class NewPointPresenter {
     this.#newForm.isOpen = false;
     this.#newForm._removeDatepicker();
     this.destroy();
+  };
+
+  #handlerErrorForm = (container, thisTextContent) => {
+    this._notify(container, thisTextContent);
   };
 }

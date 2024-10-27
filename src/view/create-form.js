@@ -1,8 +1,7 @@
 import {humanizePointDueDate} from './../utils/points.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, NewPoint} from './../const.js';
-import {isEscapeKey} from './../utils/common.js';
-import {capitalize} from './../utils/common.js';
+import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, NewPoint, TooltipLabel} from './../const.js';
+import {isEscapeKey, checkingForms, capitalize} from './../utils/common.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -48,7 +47,7 @@ const createForm = (point) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${isEventType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" list="destination-list-1" required>
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" autocomplete="off" list="destination-list-1" required>
         <datalist id="destination-list-1">
           ${createCities(CITIES)}
         </datalist>
@@ -67,7 +66,7 @@ const createForm = (point) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" required>
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" required>
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -100,16 +99,18 @@ const createForm = (point) => {
 export default class NewForm extends AbstractStatefulView {
   #handlerFormClick = null;
   #handlerFormReset = null;
+  #handlerErrorForm = null;
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
 
-  constructor({onFormSubmit, onFormReset}) {
+  constructor({onFormSubmit, onFormReset, onErrorForm}) {
     super();
     this.#point = NewPoint;
     this._setState(NewForm.parsePointToState(this.#point));
     this.#handlerFormClick = onFormSubmit;
     this.#handlerFormReset = onFormReset;
+    this.#handlerErrorForm = onErrorForm;
   }
 
   get resetBtn() {
@@ -209,9 +210,8 @@ export default class NewForm extends AbstractStatefulView {
     });
 
     if (evt.target.value !== currentValue) {
-      this.city.style = 'border: 1px solid red';
-      this.city.value = '';
-      this.city.setAttribute('placeholder', 'incorrect city');
+      checkingForms.styleError(this.city, this.city.parentElement);
+      this.#handlerErrorForm(this.city.parentElement, TooltipLabel.CITY);
     }
 
     this._setDatepicker();
@@ -219,12 +219,14 @@ export default class NewForm extends AbstractStatefulView {
 
   #handlerPriceInput = (evt) => {
     if (!Number(evt.target.value)) {
-      this.price.style = 'border: 1px solid red';
-      this.price.value = '';
-      this.price.setAttribute('placeholder', 'enter number');
+      checkingForms.styleError(this.price, this.price.parentElement);
+      this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
     } else {
-      this.price.value = Math.floor(evt.target.value);
-      this.price.style = '';
+      //this.price.value = Math.floor(evt.target.value);
+      /*this.updateElement({
+        isPrice: evt.target.value,
+      });*/
+      checkingForms.priceInputCorrect(this.price, this.price.value);
       this._state.isPrice = evt.target.value;
     }
   };

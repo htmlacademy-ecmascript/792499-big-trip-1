@@ -115,6 +115,7 @@ export default class Presenter extends Observable {
       container: this.#mainContainer,
       onDataChange: this.#handlerViewAction,
       onModeChange: this.#handlerModeChange,
+      newPointPresenter: this.#newPointPresenter,
     });
 
     pointPresenter.init(point);

@@ -8,4 +8,16 @@ const capitalize = (word) => {
   return `${firstChar}${remainingChar}`;
 };
 
-export {isEscapeKey, getRandomArrayElement, capitalize};
+const checkingForms = {
+  styleError: (input, container) => {
+    input.style = 'border: 1px solid red';
+    input.value = '';
+    container.style.setProperty('position', 'relative');
+  },
+  priceInputCorrect: (input, price) => {
+    input.value = Math.floor(price);
+    input.style = '';
+  },
+};
+
+export {isEscapeKey, getRandomArrayElement, capitalize, checkingForms};

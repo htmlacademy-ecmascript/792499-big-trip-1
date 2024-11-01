@@ -1,18 +1,18 @@
 import {humanizePointDueDate} from './../utils/points.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, TooltipLabel} from './../const.js';
+import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditPoint = (point) => {
-  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
+  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, ...rest} = point;
   const {offers} = isOffers;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}" checked>
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]}>
         <label class="event__offer-label" for="event-offer-${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
@@ -130,6 +130,10 @@ export default class EditForm extends AbstractStatefulView {
     return this.element;
   }
 
+  get offers() {
+    return this.element.querySelectorAll('.event__offer-checkbox');
+  }
+
   get eventTypeGroup() {
     return this.element.querySelector('.event__type-group');
   }
@@ -165,6 +169,10 @@ export default class EditForm extends AbstractStatefulView {
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.city.addEventListener('change', this.#handlerDestinationPoint);
     this.price.addEventListener('change', this.#handlerPriceInput);
+    this.offers.forEach((offer) => {
+      offer.addEventListener('change', this.#creatingActualOffers);
+      offer.addEventListener('change', this.#handlerChecked);
+    });
   }
 
   #handlerRemoveElements = () => {
@@ -253,6 +261,15 @@ export default class EditForm extends AbstractStatefulView {
     return currentOffers;
   };
 
+  #handlerChecked = (evt) => {
+    const offerId = BasicValues.CHECKED + evt.target.id.at(-1);
+    if (evt.target.checked) {
+      this._state[BasicValues.CHECKED + evt.target.id.at(-1)] = BasicValues.CHECKED;
+    } else {
+      this._state[offerId] = ' ';
+    }
+  };
+
   #handlerDateFromChange = ([selectedDate]) => {
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
     this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
@@ -291,7 +308,7 @@ export default class EditForm extends AbstractStatefulView {
 
   static parsePointToState(point) {
 
-    return {
+    const currentForm = {
       ...point,
       isPrice: point.basePrice,
       isEventType: point.event,
@@ -300,6 +317,14 @@ export default class EditForm extends AbstractStatefulView {
       isDescription: point.destination.description,
       isPictures: point.destination.pictures,
     };
+
+    const offersArray = Object.entries(point.offer.offers).map(([,value]) => value.id);
+
+    offersArray.forEach((el) => {
+      currentForm[BasicValues.CHECKED + el] = BasicValues.CHECKED;
+    });
+
+    return currentForm;
   }
 
   static parseStateToPoint(state) {
@@ -319,6 +344,7 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isDescription;
     delete point.isPictures;
     delete point.isPrice;
+    delete point.isChecked;
     return point;
   }
 }

@@ -1,18 +1,18 @@
 import {humanizePointDueDate} from './../utils/points.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, NewPoint, TooltipLabel} from './../const.js';
+import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, NewPoint, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, checkingForms, capitalize} from './../utils/common.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createForm = (point) => {
-  const {isPrice, isEventType, isOffers, isCity, isDescription, isPictures} = point;
+  const {isPrice, isEventType, isOffers, isCity, isDescription, isPictures, ...rest} = point;
   const {offers} = isOffers;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]}>
         <label class="event__offer-label" for="event-offer-${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
@@ -121,6 +121,10 @@ export default class NewForm extends AbstractStatefulView {
     return this.element;
   }
 
+  get offers() {
+    return this.element.querySelectorAll('.event__offer-checkbox');
+  }
+
   get eventTypeGroup() {
     return this.element.querySelector('.event__type-group');
   }
@@ -155,6 +159,10 @@ export default class NewForm extends AbstractStatefulView {
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.city.addEventListener('change', this.#handlerDestinationPoint);
     this.price.addEventListener('change', this.#handlerPriceInput);
+    this.offers.forEach((offer) => {
+      offer.addEventListener('change', this.#creatingActualOffers);
+      offer.addEventListener('change', this.#handlerChecked);
+    });
   }
 
   #handlerRemoveElements = () => {
@@ -222,12 +230,10 @@ export default class NewForm extends AbstractStatefulView {
       checkingForms.styleError(this.price, this.price.parentElement);
       this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
     } else {
-      //this.price.value = Math.floor(evt.target.value);
-      /*this.updateElement({
+      this.price.value = Math.floor(evt.target.value);
+      this.updateElement({
         isPrice: evt.target.value,
-      });*/
-      checkingForms.priceInputCorrect(this.price, this.price.value);
-      this._state.isPrice = evt.target.value;
+      });
     }
   };
 
@@ -241,6 +247,15 @@ export default class NewForm extends AbstractStatefulView {
       currentOffers.push(OFFERS.find((item) => item.id === Number(el)));
     });
     return currentOffers;
+  };
+
+  #handlerChecked = (evt) => {
+    const offerId = BasicValues.CHECKED + evt.target.id.at(-1);
+    if (evt.target.checked) {
+      this._state[BasicValues.CHECKED + evt.target.id.at(-1)] = BasicValues.CHECKED;
+    } else {
+      this._state[offerId] = ' ';
+    }
   };
 
   #handlerDateFromChange = ([selectedDate]) => {
@@ -280,7 +295,8 @@ export default class NewForm extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-    return {
+
+    const currentForm = {
       ...point,
       isPrice: point.basePrice,
       isEventType: point.event,
@@ -289,6 +305,14 @@ export default class NewForm extends AbstractStatefulView {
       isDescription: point.destination.description,
       isPictures: point.destination.pictures,
     };
+
+    const offersArray = Object.entries(point.offer.offers).map(([,value]) => value.id);
+
+    offersArray.forEach((el) => {
+      currentForm[BasicValues.CHECKED + el] = BasicValues.CHECKED;
+    });
+
+    return currentForm;
   }
 
   static parseStateToPoint(state) {

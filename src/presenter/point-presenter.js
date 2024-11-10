@@ -1,6 +1,5 @@
 import Point from './../view/point.js';
 import EditForm from './../view/edit-form.js';
-import Tooltip from './../view/tooltip.js';
 import {replace, render, remove} from './../framework/render.js';
 import {Mode, UserAction, UpdateType} from './../const.js';
 import Observable from './../framework/observable.js';
@@ -8,22 +7,20 @@ import Observable from './../framework/observable.js';
 export default class PointPresenter extends Observable {
   #currentPoint = null;
   #currentForm = null;
-  #tooltip = null;
+  //#tooltip = null;
   #mainContainer = null;
   #handlerDataChange = null;
   #handlerModeChange = null;
   #point = null;
   #mode = Mode.DEFAULT;
-  #newPointPresenter = null;
+  #handlerCurrentErrorForm = null;
 
-  constructor({container, onDataChange, onModeChange, newPointPresenter}) {
+  constructor({container, onDataChange, onModeChange, onCurrentErrorForm}) {
     super();
     this.#mainContainer = container;
     this.#handlerDataChange = onDataChange;
     this.#handlerModeChange = onModeChange;
-    this.#newPointPresenter = newPointPresenter;
-
-    this.#newPointPresenter.addObserver(this.#handlerErrorForm);
+    this.#handlerCurrentErrorForm = onCurrentErrorForm;
   }
 
   init(point) {
@@ -115,12 +112,21 @@ export default class PointPresenter extends Observable {
   };
 
   #handlerErrorForm = (container, thisTextContent) => {
+    this.#handlerCurrentErrorForm(container, thisTextContent);
+  };
+
+  /*#handlerErrorForm = (container, thisTextContent) => {
     this.#tooltip = new Tooltip({
       textContent: thisTextContent,
     });
 
     render(this.#tooltip, container);
-  };
+  };*/
+
+  /*#handlerRemoveErrorForm = () => {
+    console.log(1)
+    remove(this.#tooltip)
+  }*/
 
   #handlerDeletePoint = (evt) => {
     this.#handlerDataChange(

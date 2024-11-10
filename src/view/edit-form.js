@@ -307,7 +307,6 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-
     const currentForm = {
       ...point,
       isPrice: point.basePrice,

@@ -10,14 +10,16 @@ export default class NewPointPresenter extends Observable {
   #mainContainer = null;
   #handlerDataChange = null;
   #handlerDestroy = null;
-  #presenter = null;
+  #handlerErroNewForm = null;
+  #handlerRemoveCurrentError = null;
 
-  constructor({mainContainer, onDataChange, onDestroy, presenter}) {
+  constructor({mainContainer, onDataChange, onDestroy, onErrorForm, onRemoveErrorForm}) {
     super();
     this.#mainContainer = mainContainer;
     this.#handlerDataChange = onDataChange;
     this.#handlerDestroy = onDestroy;
-    this.#presenter = presenter;
+    this.#handlerErroNewForm = onErrorForm;
+    this.#handlerRemoveCurrentError = onRemoveErrorForm;
   }
 
   init() {
@@ -30,6 +32,7 @@ export default class NewPointPresenter extends Observable {
       onFormSubmit: this.#handlerFormSubmit,
       onFormReset: this.#handlerDeleteClick,
       onErrorForm: this.#handlerErrorForm,
+      onRemoveErrorForm: this.#handlerRemoveErrorForm,
     });
 
     render(this.#newForm, this.#mainContainer, RenderPosition.AFTERBEGIN);
@@ -66,6 +69,10 @@ export default class NewPointPresenter extends Observable {
   };
 
   #handlerErrorForm = (container, thisTextContent) => {
-    this._notify(container, thisTextContent);
+    this.#handlerErroNewForm(container, thisTextContent);
+  };
+
+  #handlerRemoveErrorForm = () => {
+    this.#handlerRemoveCurrentError();
   };
 }

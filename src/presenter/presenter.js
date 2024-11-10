@@ -8,6 +8,7 @@ import NewPointPresenter from './new-point-presenter.js';
 import Observable from './../framework/observable.js';
 import {filters} from './../utils/filters-utils.js';
 import BtnNewPoint from './../view/btn-new-point.js';
+import Tooltip from './../view/tooltip.js';
 
 export default class Presenter extends Observable {
   #mainContainer = null;
@@ -21,6 +22,7 @@ export default class Presenter extends Observable {
   #btnNewPoint = null;
   #headerMain = null;
   #sorting = null;
+  #tooltip = null;
 
   constructor({mainContainer, pointModels, filtersModel, headerMain}) {
     super();
@@ -36,7 +38,8 @@ export default class Presenter extends Observable {
       mainContainer: this.#mainContainer,
       onDataChange: this.#handlerViewAction,
       onDestroy: this.#handlerNewFormClose,
-      presenter: this,
+      onErrorForm: this.#handlerErrorForm,
+      onRemoveErrorForm: this.#handlerRemoveErrorForm,
     });
 
     this.#btnNewPoint = new BtnNewPoint({
@@ -115,7 +118,7 @@ export default class Presenter extends Observable {
       container: this.#mainContainer,
       onDataChange: this.#handlerViewAction,
       onModeChange: this.#handlerModeChange,
-      newPointPresenter: this.#newPointPresenter,
+      onCurrentErrorForm: this.#handlerErrorForm,
     });
 
     pointPresenter.init(point);
@@ -179,5 +182,18 @@ export default class Presenter extends Observable {
 
   #handlerNewFormClose = () => {
     this.#btnNewPoint._handlerFormClose();
+  };
+
+
+  #handlerErrorForm = (container, thisTextContent) => {
+    this.#tooltip = new Tooltip({
+      textContent: thisTextContent,
+    });
+
+    render(this.#tooltip, container);
+  };
+
+  #handlerRemoveErrorForm = () => {
+    remove(this.#tooltip);
   };
 }

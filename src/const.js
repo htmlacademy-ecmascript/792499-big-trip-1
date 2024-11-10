@@ -268,22 +268,25 @@ const NewPoint = {
     ],
   },
   isFavorite: false,
+  checked: ' ',
   destination: {
     id: 123,
-    description: 'this is destination',
+    description: '',
     name: '',
     pictures: [{src: 'https://loremflickr.com/248/152?random=1', description: 'Oslo'}],
-  }
+  },
 };
 
 const TooltipLabel = {
   CITY: 'CITY',
   NUMBER: 'NUMBER',
+  DATE: 'DATE',
 };
 
 const TooltipText = {
   CITY: 'Please, select a city from the suggested list',
   NUMBER: 'Please, enter a number',
+  DATE: 'Please, enter a date',
 };
 
 export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel};

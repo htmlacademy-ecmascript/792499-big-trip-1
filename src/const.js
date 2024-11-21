@@ -2,6 +2,8 @@ const BasicValues = {
   COUNT_POINTS: 3,
   TIME_STAMP: 10,
   ESCAPE_KEY: 27,
+  CHECKED: 'checked',
+  UNCHECKED: ' ',
 };
 
 const OFFERS = [
@@ -103,6 +105,10 @@ const DESTINATION_CITIES = [
         src: 'https://loremflickr.com/248/152?random=6',
         description: 'Purus ex euismod diam.',
       },
+      {
+        src: 'https://loremflickr.com/248/152?random=7',
+        description: 'Purus ex euismod diam.',
+      },
     ]
   },
 ];
@@ -190,8 +196,8 @@ const POINTS = [
     destination: DESTINATION_CITIES[0],
     event: EVENT_TYPES[0],
     offer: OFFER_TYPES[0],
-    dateFrom: '2024-07-10T21:39',
-    dateTo: '2024-07-18T21:44',
+    dateFrom: '2024-11-10T21:39',
+    dateTo: '2024-11-18T21:44',
   },
   {
     isFavorite: false,
@@ -240,4 +246,51 @@ const SortType = {
   PRICE: 'price',
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType};
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_TASK',
+  DELETE_POINT: 'DELETE_POINT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const NewPoint = {
+  event: 'taxi',
+  img: 'taxi',
+  basePrice: '',
+  offer: {
+    type: 'taxi',
+    offers: [
+      {
+        id: 1,
+        title: 'Order Uber',
+        price: 20,
+      },
+    ],
+  },
+  isFavorite: false,
+  destination: {
+    id: 123,
+    description: '',
+    name: '',
+    pictures: [{src: 'https://loremflickr.com/248/152?random=1', description: 'Oslo'}],
+  },
+};
+
+const TooltipLabel = {
+  CITY: 'CITY',
+  NUMBER: 'NUMBER',
+  DATE: 'DATE',
+};
+
+const TooltipText = {
+  CITY: 'Please, select a city from the suggested list',
+  NUMBER: 'Please, enter a number',
+  DATE: 'Please, enter a date',
+};
+
+export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel};

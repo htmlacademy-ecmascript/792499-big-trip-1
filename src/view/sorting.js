@@ -43,11 +43,11 @@ export default class Sorting extends AbstractView {
   }
 
   #sortTypeChangeHandler = (evt) => {
+    evt.preventDefault();
     const currentInput = evt.target.previousElementSibling;
-    if (!currentInput.classList.contains('trip-sort__input')) {
+    if (!evt.target.classList.contains('trip-sort__btn') || currentInput.disabled) {
       return;
     }
-    evt.preventDefault();
     currentInput.checked = 'true';
     this.#handlerSortTypeChange(currentInput.dataset.sortType);
   };

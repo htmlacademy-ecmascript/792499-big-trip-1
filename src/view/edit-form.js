@@ -1,19 +1,18 @@
-import {humanizePointDueDate} from './../utils/points.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES} from './../const.js';
-import {capitalize} from './../utils/common.js';
+import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
+import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, TooltipLabel, BasicValues} from './../const.js';
+import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import {isEscapeKey} from './../utils/common.js';
 
 const createEditPoint = (point) => {
-  const {basePrice, event, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures} = point;
+  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, ...rest} = point;
   const {offers} = isOffers;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}" checked>
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]}>
         <label class="event__offer-label" for="event-offer-${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
@@ -39,7 +38,7 @@ const createEditPoint = (point) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-            ${createEventType(event, EVENT_TYPES)}
+            ${createEventType(isEventType, EVENT_TYPES)}
           </fieldset>
         </div>
       </div>
@@ -48,7 +47,7 @@ const createEditPoint = (point) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${isEventType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" autocomplete="off" list="destination-list-1" required>
         <datalist id="destination-list-1">
           ${createCities(CITIES)}
         </datalist>
@@ -67,7 +66,7 @@ const createEditPoint = (point) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" maxlength="6" required>
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -103,36 +102,54 @@ const createEditPoint = (point) => {
 export default class EditForm extends AbstractStatefulView {
   #handlerFormClick = null;
   #handlerFormReset = null;
+  #handlerDeleteThisPoint = null;
+  #handlerErrorForm = null;
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
+  #currentAttribute = null;
+  #currentOffersValue = null;
 
-  constructor({point, onFormSubmit, onFormReset}) {
+  constructor({point, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
     super();
     this.#point = point;
     this._setState(EditForm.parsePointToState(point));
     this.#handlerFormClick = onFormSubmit;
     this.#handlerFormReset = onFormReset;
+    this.#handlerDeleteThisPoint = onFormDelete;
+    this.#handlerErrorForm = onErrorForm;
   }
 
   get rollupBtn() {
     return this.element.querySelector('.event__rollup-btn');
   }
 
+  get deleteBtn() {
+    return this.element.querySelector('.event__reset-btn');
+  }
+
   get currentForm() {
     return this.element;
+  }
+
+  get offers() {
+    return this.element.querySelectorAll('.event__offer-checkbox');
   }
 
   get eventTypeGroup() {
     return this.element.querySelector('.event__type-group');
   }
 
-  get eventTypeCity() {
+  get template() {
+    return createEditPoint(this._state);
+  }
+
+  get city() {
     return this.element.querySelector('.event__input--destination');
   }
 
-  get template() {
-    return createEditPoint(this._state);
+  get price() {
+    return this.element.querySelector('.event__input--price');
   }
 
   _removeDatepicker() {
@@ -150,8 +167,14 @@ export default class EditForm extends AbstractStatefulView {
   _restoreHandlers() {
     this.currentForm.addEventListener('submit', this.#handlerBtnSubmit);
     this.rollupBtn.addEventListener('click', this.#handlerResetForm);
+    this.deleteBtn.addEventListener('click', this.#handlerDeletePoint);
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
-    this.eventTypeCity.addEventListener('change', this.#handlerDestinationPoint);
+    this.city.addEventListener('change', this.#handlerDestinationPoint);
+    this.price.addEventListener('change', this.#handlerPriceInput);
+    this.offers.forEach((offer) => {
+      offer.addEventListener('change', this.#creatingActualOffers);
+      offer.addEventListener('change', this.#handlerCurrentOffers);
+    });
   }
 
   #handlerRemoveElements = () => {
@@ -163,7 +186,6 @@ export default class EditForm extends AbstractStatefulView {
     this.updateElement(this._state.isOffers.offers = this.#creatingActualOffers());
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
     this.#handlerRemoveElements();
-    this._removeDatepicker();
   };
 
   _handlerEscResetForm = (evt) => {
@@ -178,10 +200,16 @@ export default class EditForm extends AbstractStatefulView {
     this.#handlerRemoveElements();
   };
 
+  #handlerDeletePoint = () => {
+    this.#handlerDeleteThisPoint(this.#point);
+  };
+
   #handlerEventType = (evt) => {
     this._removeDatepicker();
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
+      handlerOffers(this._state.offer.offers, this._state, BasicValues.UNCHECKED);
+
       this.updateElement({
         isEventType: evt.target.value,
         isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
@@ -192,9 +220,11 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerDestinationPoint = (evt) => {
     this._removeDatepicker();
-    evt.preventDefault();
+
+    let currentValue;
     DESTINATION_CITIES.find((item) => {
       if (item.name === evt.target.value) {
+        currentValue = item.name;
         this.updateElement({
           isCity: item.name,
           isDescription: item.description,
@@ -202,18 +232,43 @@ export default class EditForm extends AbstractStatefulView {
         });
       }
     });
+
+    if (evt.target.value !== currentValue) {
+      checkingForms.styleError(this.city, this.city.parentElement);
+      this.#handlerErrorForm(this.city.parentElement, TooltipLabel.CITY);
+    }
+
     this._setDatepicker();
   };
 
-  #handlerOfferChecked = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).
+  #handlerCurrentOffers = (evt) => {
+    this.#currentAttribute = BasicValues.CHECKED + evt.target.id.at(-1);
+    this.#currentOffersValue = evt.target.checked;
+    this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
+  };
+
+  #handlerPriceInput = (evt) => {
+    if (!Number(evt.target.value)) {
+      checkingForms.styleError(this.price, this.price.parentElement);
+      this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
+    } else {
+      this.price.value = Math.floor(evt.target.value);
+      this.updateElement({
+        isPrice: evt.target.value,
+      });
+    }
+  };
+
+  #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
     filter((item) => item.checked).
     map((item) => item.getAttribute('id').at(-1));
 
   #creatingActualOffers = () => {
     const currentOffers = [];
-    this.#handlerOfferChecked().forEach((el) => {
+    this.#handlerOfferChecked('.event__offer-checkbox').forEach((el) => {
       currentOffers.push(OFFERS.find((item) => item.id === Number(el)));
     });
+
     return currentOffers;
   };
 
@@ -233,8 +288,8 @@ export default class EditForm extends AbstractStatefulView {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(this._state.dateFrom).allDate,
-      maxDate: humanizePointDueDate(this._state.dateTo).allDate,
+      minDate: humanizePointDueDate(new Date()).allDate,
+      //maxDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: 1,
       },
@@ -254,19 +309,26 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-    return {
+
+    const currentForm = {
       ...point,
+      isPrice: point.basePrice,
       isEventType: point.event,
       isOffers: point.offer,
       isCity: point.destination.name,
       isDescription: point.destination.description,
       isPictures: point.destination.pictures,
     };
+
+    handlerOffers(point.offer.offers, currentForm, BasicValues.CHECKED);
+
+    return currentForm;
   }
 
   static parseStateToPoint(state) {
     const point = {...state};
 
+    point.basePrice = state.isPrice;
     point.event = state.isEventType;
     point.img = state.isEventType;
     point.offer = state.isOffers;
@@ -279,6 +341,7 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isCity;
     delete point.isDescription;
     delete point.isPictures;
+    delete point.isPrice;
     return point;
   }
 }

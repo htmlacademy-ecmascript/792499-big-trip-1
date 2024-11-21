@@ -1,9 +1,9 @@
 import AbstractView from './../framework/view/abstract-view.js';
 
-const createFilters = (filter) => {
+const createFilters = (filter, currentFilter) => {
   const createMarkup = (dataFilter) => Object.entries(dataFilter).map(([, data]) => `
     <div class="trip-filters__filter">
-      <input id="filter-${data.type}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${data.type}" checked ${data.has ? '' : 'disabled'}>
+      <input id="filter-${data.type}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${data.type}" ${data.type === currentFilter ? 'checked' : ''} ${data.has ? '' : 'disabled'}>
       <label class="trip-filters__filter-label" for="filter-${data.type}">${data.type}</label>
     </div>`).join('');
 
@@ -16,13 +16,25 @@ const createFilters = (filter) => {
 
 export default class Filters extends AbstractView {
   #filters = null;
+  #currentFilter = null;
+  #handlerFilters = null;
 
-  constructor({filters}) {
+  constructor({filters, currentFilter, onChangeFilters}) {
     super();
     this.#filters = filters;
+    this.#currentFilter = currentFilter;
+    this.#handlerFilters = onChangeFilters;
+    this.element.addEventListener('click', this.#handlerFiltersChange);
   }
 
   get template() {
-    return createFilters(this.#filters);
+    return createFilters(this.#filters, this.#currentFilter);
   }
+
+  #handlerFiltersChange = (evt) => {
+    const currentInput = evt.target;
+    if (currentInput.classList.contains('trip-filters__filter-input')) {
+      this.#handlerFilters(currentInput.id);
+    }
+  };
 }

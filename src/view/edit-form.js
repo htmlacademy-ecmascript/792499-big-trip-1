@@ -1,4 +1,4 @@
-import {humanizePointDueDate} from './../utils/points.js';
+import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
 import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
@@ -107,6 +107,8 @@ export default class EditForm extends AbstractStatefulView {
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
+  #currentAttribute = null;
+  #currentOffersValue = null;
 
   constructor({point, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
     super();
@@ -171,7 +173,7 @@ export default class EditForm extends AbstractStatefulView {
     this.price.addEventListener('change', this.#handlerPriceInput);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingActualOffers);
-      offer.addEventListener('change', this.#handlerChecked);
+      offer.addEventListener('change', this.#handlerCurrentOffers);
     });
   }
 
@@ -206,6 +208,8 @@ export default class EditForm extends AbstractStatefulView {
     this._removeDatepicker();
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
+      handlerOffers(this._state.offer.offers, this._state, BasicValues.UNCHECKED);
+
       this.updateElement({
         isEventType: evt.target.value,
         isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
@@ -237,6 +241,12 @@ export default class EditForm extends AbstractStatefulView {
     this._setDatepicker();
   };
 
+  #handlerCurrentOffers = (evt) => {
+    this.#currentAttribute = BasicValues.CHECKED + evt.target.id.at(-1);
+    this.#currentOffersValue = evt.target.checked;
+    this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
+  };
+
   #handlerPriceInput = (evt) => {
     if (!Number(evt.target.value)) {
       checkingForms.styleError(this.price, this.price.parentElement);
@@ -249,25 +259,17 @@ export default class EditForm extends AbstractStatefulView {
     }
   };
 
-  #handlerOfferChecked = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).
+  #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
     filter((item) => item.checked).
     map((item) => item.getAttribute('id').at(-1));
 
   #creatingActualOffers = () => {
     const currentOffers = [];
-    this.#handlerOfferChecked().forEach((el) => {
+    this.#handlerOfferChecked('.event__offer-checkbox').forEach((el) => {
       currentOffers.push(OFFERS.find((item) => item.id === Number(el)));
     });
-    return currentOffers;
-  };
 
-  #handlerChecked = (evt) => {
-    const offerId = BasicValues.CHECKED + evt.target.id.at(-1);
-    if (evt.target.checked) {
-      this._state[BasicValues.CHECKED + evt.target.id.at(-1)] = BasicValues.CHECKED;
-    } else {
-      this._state[offerId] = ' ';
-    }
+    return currentOffers;
   };
 
   #handlerDateFromChange = ([selectedDate]) => {
@@ -286,8 +288,8 @@ export default class EditForm extends AbstractStatefulView {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(this._state.dateFrom).allDate,
-      maxDate: humanizePointDueDate(this._state.dateTo).allDate,
+      minDate: humanizePointDueDate(new Date()).allDate,
+      //maxDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: 1,
       },
@@ -307,6 +309,7 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
+
     const currentForm = {
       ...point,
       isPrice: point.basePrice,
@@ -317,11 +320,7 @@ export default class EditForm extends AbstractStatefulView {
       isPictures: point.destination.pictures,
     };
 
-    const offersArray = Object.entries(point.offer.offers).map(([,value]) => value.id);
-
-    offersArray.forEach((el) => {
-      currentForm[BasicValues.CHECKED + el] = BasicValues.CHECKED;
-    });
+    handlerOffers(point.offer.offers, currentForm, BasicValues.CHECKED);
 
     return currentForm;
   }
@@ -343,7 +342,6 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isDescription;
     delete point.isPictures;
     delete point.isPrice;
-    delete point.isChecked;
     return point;
   }
 }

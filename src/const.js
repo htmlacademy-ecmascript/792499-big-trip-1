@@ -3,6 +3,7 @@ const BasicValues = {
   TIME_STAMP: 10,
   ESCAPE_KEY: 27,
   CHECKED: 'checked',
+  UNCHECKED: ' ',
 };
 
 const OFFERS = [
@@ -102,6 +103,10 @@ const DESTINATION_CITIES = [
       },
       {
         src: 'https://loremflickr.com/248/152?random=6',
+        description: 'Purus ex euismod diam.',
+      },
+      {
+        src: 'https://loremflickr.com/248/152?random=7',
         description: 'Purus ex euismod diam.',
       },
     ]
@@ -268,7 +273,6 @@ const NewPoint = {
     ],
   },
   isFavorite: false,
-  checked: ' ',
   destination: {
     id: 123,
     description: '',

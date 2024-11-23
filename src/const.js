@@ -6,6 +6,11 @@ const BasicValues = {
   UNCHECKED: ' ',
 };
 
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+}
+
 const OFFERS = [
   {
     id: 0,
@@ -293,4 +298,4 @@ const TooltipText = {
   DATE: 'Please, enter a date',
 };
 
-export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel};
+export {BasicValues, OFFERS, EVENT_TYPES, CITIES, DESTINATION_CITIES, OFFER_TYPES, TimeNames, TimeFormat, POINTS, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel, Method};

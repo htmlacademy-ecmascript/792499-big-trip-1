@@ -289,7 +289,6 @@ export default class EditForm extends AbstractStatefulView {
       'time_24hr': true,
       dateFormat: 'y/m/d H:i',
       minDate: humanizePointDueDate(new Date()).allDate,
-      //maxDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: 1,
       },

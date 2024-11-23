@@ -9,7 +9,7 @@ const BasicValues = {
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
-}
+};
 
 const OFFERS = [
   {

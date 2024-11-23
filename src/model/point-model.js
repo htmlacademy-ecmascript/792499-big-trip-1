@@ -3,7 +3,14 @@ import {getRandomPoint} from './../mocs/route-point.js';
 import {BasicValues} from './../const.js';
 
 export default class PointModel extends Observable {
+  #pointsApiService = null;
   #points = Array.from({length: BasicValues.COUNT_POINTS}, getRandomPoint);
+
+  constructor({pointsApiService}) {
+    super();
+    this.#pointsApiService = pointsApiService;
+    this.#pointsApiService.points.then((points) => points);
+  }
 
   get points() {
     return this.#points;

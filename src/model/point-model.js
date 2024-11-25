@@ -1,10 +1,9 @@
 import Observable from './../framework/observable.js';
-import {getRandomPoint} from './../mocs/route-point.js';
-import {BasicValues} from './../const.js';
+import {UpdateType} from './../const.js';
 
 export default class PointModel extends Observable {
   #pointsApiService = null;
-  #points = Array.from({length: BasicValues.COUNT_POINTS}, getRandomPoint);
+  #points = [];
 
   constructor({pointsApiService}) {
     super();
@@ -15,7 +14,19 @@ export default class PointModel extends Observable {
   }
 
   get points() {
+    console.log(this.#points)
     return this.#points;
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch(err) {
+      this.#points = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   updatePoint(updateType, update) {

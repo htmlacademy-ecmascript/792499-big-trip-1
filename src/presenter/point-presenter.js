@@ -7,7 +7,6 @@ import Observable from './../framework/observable.js';
 export default class PointPresenter extends Observable {
   #currentPoint = null;
   #currentForm = null;
-  //#tooltip = null;
   #mainContainer = null;
   #handlerDataChange = null;
   #handlerModeChange = null;
@@ -114,19 +113,6 @@ export default class PointPresenter extends Observable {
   #handlerErrorForm = (container, thisTextContent) => {
     this.#handlerCurrentErrorForm(container, thisTextContent);
   };
-
-  /*#handlerErrorForm = (container, thisTextContent) => {
-    this.#tooltip = new Tooltip({
-      textContent: thisTextContent,
-    });
-
-    render(this.#tooltip, container);
-  };*/
-
-  /*#handlerRemoveErrorForm = () => {
-    console.log(1)
-    remove(this.#tooltip)
-  }*/
 
   #handlerDeletePoint = (evt) => {
     this.#handlerDataChange(

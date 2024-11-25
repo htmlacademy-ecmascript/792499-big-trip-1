@@ -1,5 +1,6 @@
 import Sorting from './../view/sorting.js';
 import NoPoints from './../view/no-points.js';
+import LoadingView from './../view/loading-view.js';
 import {render, RenderPosition, remove} from './../framework/render.js';
 import {SortType, UserAction, UpdateType, FilterType} from './../const.js';
 import {sortPointPrice, sortPointTime, sortPointDate} from './../utils/points.js';
@@ -23,6 +24,8 @@ export default class Presenter extends Observable {
   #headerMain = null;
   #sorting = null;
   #tooltip = null;
+  #loadingComponent = new LoadingView();
+  #isLoading = true;
 
   constructor({mainContainer, pointModels, filtersModel, headerMain}) {
     super();
@@ -51,6 +54,11 @@ export default class Presenter extends Observable {
   renderBoard() {
     for (let i = 0; i < this.points.length; i++) {
       this.#renderPoints(this.points[i]);
+    }
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
     }
 
     if (this.points.length === 0) {
@@ -102,6 +110,7 @@ export default class Presenter extends Observable {
     this.#newPointPresenter.destroy();
     this.#pointsCollection.forEach((point) => point.destroy());
     this.#pointsCollection.clear();
+    remove(this.#loadingComponent);
 
     if (this.#noPoints) {
       remove(this.#noPoints);
@@ -123,6 +132,10 @@ export default class Presenter extends Observable {
 
     pointPresenter.init(point);
     this.#pointsCollection.set(point.id, pointPresenter);
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#mainContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderNoPoints() {
@@ -162,6 +175,11 @@ export default class Presenter extends Observable {
         break;
       case UpdateType.MAJOR:
         this.clearBoard();
+        this.renderBoard();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.renderBoard();
         break;
     }

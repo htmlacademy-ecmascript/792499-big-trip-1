@@ -1,5 +1,5 @@
 const BasicValues = {
-  COUNT_POINTS: 3,
+  //COUNT_POINTS: 3,
   TIME_STAMP: 10,
   ESCAPE_KEY: 27,
   CHECKED: 'checked',
@@ -264,6 +264,7 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 const NewPoint = {

@@ -31,3 +31,4 @@ const filterPresenter = new FilterPresenter({
 
 pagePresenter.init();
 filterPresenter.init();
+pointModels.init();

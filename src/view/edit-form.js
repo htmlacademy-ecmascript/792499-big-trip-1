@@ -1,19 +1,18 @@
 import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, TooltipLabel, BasicValues} from './../const.js';
+import {EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditPoint = (point) => {
-  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, ...rest} = point;
-  const {offers} = isOffers;
+  const {isPrice, dateFrom, dateTo, isEventType, offer, isCity, isDescription, isPictures, destination, ...rest} = point;
 
-  const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}.jpg" alt="${value.description}">`).join('');
+  const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]}>
-        <label class="event__offer-label" for="event-offer-${value.id}">
+        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]}>
+        <label class="event__offer-label" for="${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${value.price}</span>
@@ -76,12 +75,12 @@ const createEditPoint = (point) => {
       </button>
     </header>
     <section class="event__details">
-      ${(offers.length > 0 ? `
+      ${(offer.length > 0 ? `
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
           <div class="event__available-offers">
-            ${createMarkup(offers)}
+            ${createMarkup(offer)}
           </div>
         </section>` : ' ')}
 
@@ -183,7 +182,7 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   #handlerBtnSubmit = () => {
-    this.updateElement(this._state.isOffers.offers = this.#creatingActualOffers());
+    this.updateElement(this._state.isOffers = this.#creatingActualOffers());
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
     this.#handlerRemoveElements();
   };
@@ -208,7 +207,7 @@ export default class EditForm extends AbstractStatefulView {
     this._removeDatepicker();
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
-      handlerOffers(this._state.offer.offers, this._state, BasicValues.UNCHECKED);
+      handlerOffers(this._state.offer, this._state, BasicValues.UNCHECKED);
 
       this.updateElement({
         isEventType: evt.target.value,
@@ -242,7 +241,7 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   #handlerCurrentOffers = (evt) => {
-    this.#currentAttribute = BasicValues.CHECKED + evt.target.id.at(-1);
+    this.#currentAttribute = BasicValues.CHECKED + evt.target.id;
     this.#currentOffersValue = evt.target.checked;
     this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
   };
@@ -261,12 +260,12 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
     filter((item) => item.checked).
-    map((item) => item.getAttribute('id').at(-1));
+    map((item) => item.getAttribute('id'));
 
   #creatingActualOffers = () => {
     const currentOffers = [];
     this.#handlerOfferChecked('.event__offer-checkbox').forEach((el) => {
-      currentOffers.push(OFFERS.find((item) => item.id === Number(el)));
+      currentOffers.push(this._state.isOffers.find((item) => item.id === el));
     });
 
     return currentOffers;
@@ -308,18 +307,18 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-
     const currentForm = {
       ...point,
       isPrice: point.basePrice,
-      isEventType: point.event,
+      isEventType: point.type,
       isOffers: point.offer,
       isCity: point.destination.name,
       isDescription: point.destination.description,
       isPictures: point.destination.pictures,
+      isDestination: point.destination,
     };
 
-    handlerOffers(point.offer.offers, currentForm, BasicValues.CHECKED);
+    handlerOffers(point.offer, currentForm, BasicValues.CHECKED);
 
     return currentForm;
   }
@@ -328,9 +327,10 @@ export default class EditForm extends AbstractStatefulView {
     const point = {...state};
 
     point.basePrice = state.isPrice;
-    point.event = state.isEventType;
-    point.img = state.isEventType;
+    point.type = state.isEventType;
+    point.type = state.isEventType;
     point.offer = state.isOffers;
+    point.destination = state.isDestination;
     point.destination.name = state.isCity;
     point.destination.description = state.isDescription;
     point.destination.pictures = state.isPictures;
@@ -341,6 +341,7 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isDescription;
     delete point.isPictures;
     delete point.isPrice;
+    delete point.isDestination;
     return point;
   }
 }

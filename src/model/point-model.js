@@ -4,24 +4,33 @@ import {UpdateType} from './../const.js';
 export default class PointModel extends Observable {
   #pointsApiService = null;
   #points = [];
+  #offers = [];
+  #destinations = [];
 
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
+    this.#pointsApiService.offers.then((offers) => offers.map((el) => el.offers.forEach((elem) => {
+      this.#offers.push(elem);
+    })));
+
     this.#pointsApiService.points.then((points) => {
-      points.map((point) => this.#adaptToClient(point));
+      points.map((point) => {
+        this.#adaptToClient(point);
+      });
     });
+
+    this.#pointsApiService.destinations.then((destination) => destination.map((el) => this.#destinations.push(el)));
   }
 
   get points() {
-    console.log(this.#points)
     return this.#points;
   }
 
   async init() {
     try {
       const points = await this.#pointsApiService.points;
-      this.#points = points.map(this.#adaptToClient);
+      this.#points = points.map((el) => this.#adaptToClient(el));
     } catch(err) {
       this.#points = [];
     }
@@ -65,6 +74,40 @@ export default class PointModel extends Observable {
     this._notify(updateType);
   }
 
+  #getCurrentOffers = (point) => {
+    try {
+      const selectOffers = [];
+      this.#offers.forEach((el) => {
+        point.offers.forEach((elem) => {
+          if (el.id === elem) {
+            selectOffers.push(el);
+          }
+        })
+      });
+      
+      return selectOffers;
+    } catch(err) {
+      this.#points = [];
+    }
+  };
+
+  #getCurrentDestination = (point) => {
+    try {
+      let selectDestianiton = {};
+      this.#destinations.forEach((el) => {
+        if (point.destination === el.id) {
+          
+          selectDestianiton = el;
+        }
+      });
+      
+      return selectDestianiton;
+    } catch(err) {
+      console.log(err)
+      this.#points = [];
+    }
+  };
+
   #adaptToClient(point) {
     const adaptedPoint = {
       ...point,
@@ -72,12 +115,15 @@ export default class PointModel extends Observable {
       basePrice: point['base_price'],
       dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
       dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_from'],
+      offer: this.#getCurrentOffers(point),
+      destination: this.#getCurrentDestination(point),
     };
 
     delete adaptedPoint['base_price'];
     delete adaptedPoint['is_favorite'];
     delete adaptedPoint['date_from'];
     delete adaptedPoint['date_to'];
+    delete adaptedPoint['offers'];
 
     return adaptedPoint;
   }

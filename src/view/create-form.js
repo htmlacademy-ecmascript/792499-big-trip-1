@@ -1,6 +1,6 @@
 import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
-import {OFFERS, EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, BasicValues, NewPoint, TooltipLabel} from './../const.js';
+import {EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, BasicValues, NewPoint, TooltipLabel} from './../const.js';
 import {isEscapeKey, checkingForms, capitalize} from './../utils/common.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -295,12 +295,12 @@ export default class NewForm extends AbstractStatefulView {
 
   #handlerOfferChecked = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).
     filter((item) => item.checked).
-    map((item) => item.getAttribute('id').at(-1));
+    map((item) => item.getAttribute('id'));
 
   #creatingActualOffers = () => {
     const currentOffers = [];
     this.#handlerOfferChecked().forEach((el) => {
-      currentOffers.push(OFFERS.find((item) => item.id === Number(el)));
+      currentOffers.push(this._state.isOffers.find((item) => item.id === el));
     });
     return currentOffers;
   };

@@ -11,6 +11,7 @@ export default class PointPresenter extends Observable {
   #handlerDataChange = null;
   #handlerModeChange = null;
   #point = null;
+  #destinations = null;
   #mode = Mode.DEFAULT;
   #handlerCurrentErrorForm = null;
 
@@ -22,8 +23,9 @@ export default class PointPresenter extends Observable {
     this.#handlerCurrentErrorForm = onCurrentErrorForm;
   }
 
-  init(point) {
+  init(point, destinations) {
     this.#point = point;
+    this.#destinations = destinations;
     const prevCurrentPoint = this.#currentPoint;
     const prevCurrentForm = this.#currentForm;
 
@@ -35,6 +37,7 @@ export default class PointPresenter extends Observable {
 
     this.#currentForm = new EditForm({
       point: this.#point,
+      destinations: this.#destinations,
       onFormSubmit: this.#handlerFormSubmit,
       onFormReset: this.#handlerFormReset,
       onFormDelete: this.#handlerDeletePoint,

@@ -6,8 +6,8 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditPoint = (point) => {
-  const {isPrice, dateFrom, dateTo, isEventType, offer, isCity, isDescription, isPictures, destination, ...rest} = point;
-
+  const {isPrice, dateFrom, dateTo, isEventType, offer, isCity, cities, isDescription, isPictures, destination, ...rest} = point;
+  console.log(point)
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
@@ -48,7 +48,7 @@ const createEditPoint = (point) => {
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" autocomplete="off" list="destination-list-1" required>
         <datalist id="destination-list-1">
-          ${createCities(CITIES)}
+          ${createCities(cities)}
         </datalist>
       </div>
 
@@ -106,13 +106,15 @@ export default class EditForm extends AbstractStatefulView {
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
+  #destinations = null;
   #currentAttribute = null;
   #currentOffersValue = null;
 
-  constructor({point, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
+  constructor({point, destinations, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
     super();
     this.#point = point;
-    this._setState(EditForm.parsePointToState(point));
+    this.#destinations = destinations;
+    this._setState(EditForm.parsePointToState(point, destinations));
     this.#handlerFormClick = onFormSubmit;
     this.#handlerFormReset = onFormReset;
     this.#handlerDeleteThisPoint = onFormDelete;
@@ -221,7 +223,8 @@ export default class EditForm extends AbstractStatefulView {
     this._removeDatepicker();
 
     let currentValue;
-    DESTINATION_CITIES.find((item) => {
+
+    this.#destinations.find((item) => {
       if (item.name === evt.target.value) {
         currentValue = item.name;
         this.updateElement({
@@ -306,7 +309,7 @@ export default class EditForm extends AbstractStatefulView {
     });
   }
 
-  static parsePointToState(point) {
+  static parsePointToState(point, destinations) {
     const currentForm = {
       ...point,
       isPrice: point.basePrice,
@@ -316,7 +319,12 @@ export default class EditForm extends AbstractStatefulView {
       isDescription: point.destination.description,
       isPictures: point.destination.pictures,
       isDestination: point.destination,
+      cities: [],
     };
+
+    destinations.forEach((el) => {
+      currentForm.cities.push(el.name);
+    });
 
     handlerOffers(point.offer, currentForm, BasicValues.CHECKED);
 

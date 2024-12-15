@@ -9,6 +9,7 @@ const siteBody = document.querySelector('.page-body');
 const headerMain = siteBody.querySelector('.trip-main');
 const siteFilters = siteBody.querySelector('.trip-controls__filters');
 const siteContainer = siteBody.querySelector('.trip-events');
+const newPointBtn = siteBody.querySelector('.trip-main__event-add-btn');
 
 const pointModels = new PointModel({
   pointsApiService: new PointApiService(END_POINT, AUTHORIZATION)
@@ -29,6 +30,8 @@ const filterPresenter = new FilterPresenter({
   presenter: pagePresenter,
 });
 
+newPointBtn.setAttribute('disabled', 'disabled');
+
 pagePresenter.init();
 filterPresenter.init();
-pointModels.init();
+pointModels.init().finally(() => newPointBtn.removeAttribute('disabled'));

@@ -27,6 +27,10 @@ export default class PointModel extends Observable {
     return this.#points;
   }
 
+  get destinations() {
+    return this.#destinations;
+  }
+
   async init() {
     try {
       const points = await this.#pointsApiService.points;
@@ -103,7 +107,6 @@ export default class PointModel extends Observable {
       
       return selectDestianiton;
     } catch(err) {
-      console.log(err)
       this.#points = [];
     }
   };

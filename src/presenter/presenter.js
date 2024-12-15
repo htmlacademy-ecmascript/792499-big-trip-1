@@ -14,6 +14,7 @@ import Tooltip from './../view/tooltip.js';
 export default class Presenter extends Observable {
   #mainContainer = null;
   #pointModels = null;
+  #destinations = null;
   #filtersModel = null;
   #currentSortType = SortType.DAY;
   #pointsCollection = new Map();
@@ -36,6 +37,8 @@ export default class Presenter extends Observable {
 
     this.#pointModels.addObserver(this.#handlerModelEvent);
     this.#filtersModel.addObserver(this.#handlerModelEvent);
+
+    this.#destinations = this.#pointModels.destinations;
 
     this.#newPointPresenter = new NewPointPresenter({
       mainContainer: this.#mainContainer,
@@ -130,7 +133,7 @@ export default class Presenter extends Observable {
       onCurrentErrorForm: this.#handlerErrorForm,
     });
 
-    pointPresenter.init(point);
+    pointPresenter.init(point, this.#destinations);
     this.#pointsCollection.set(point.id, pointPresenter);
   }
 

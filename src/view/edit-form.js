@@ -197,7 +197,7 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   #handlerResetForm = () => {
-    this.updateElement(EditForm.parsePointToState(this.#point));
+    this.updateElement(EditForm.parsePointToState(this.#point, this.#destinations));
     this.#handlerRemoveElements();
   };
 

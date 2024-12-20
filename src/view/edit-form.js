@@ -1,13 +1,13 @@
 import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
-import {EVENT_TYPES, OFFER_TYPES, CITIES, DESTINATION_CITIES, TooltipLabel, BasicValues} from './../const.js';
+import {EVENT_TYPES, OFFER_TYPES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditPoint = (point) => {
-  const {isPrice, dateFrom, dateTo, isEventType, offer, isCity, cities, isDescription, isPictures, destination, ...rest} = point;
-  console.log(point)
+  const {isPrice, dateFrom, dateTo, isEventType, offer, isCity, cities, isDescription, isPictures, ...rest} = point;
+
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
@@ -23,7 +23,7 @@ const createEditPoint = (point) => {
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${pointEvent === type ? 'checked' : ' '}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalize(type)}</label>
     </div>`).join('');
-  const createCities = (cities) => cities.map((city) => `<option value="${city}"></option>`).join('');
+  const createCities = (currentCities) => currentCities.map((city) => `<option value="${city}"></option>`).join('');
 
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -315,10 +315,10 @@ export default class EditForm extends AbstractStatefulView {
       isPrice: point.basePrice,
       isEventType: point.type,
       isOffers: point.offer,
-      isCity: point.destination.name,
-      isDescription: point.destination.description,
-      isPictures: point.destination.pictures,
-      isDestination: point.destination,
+      isCity: point.destinations.name,
+      isDescription: point.destinations.description,
+      isPictures: point.destinations.pictures,
+      isDestination: point.destinations,
       cities: [],
     };
 
@@ -338,10 +338,10 @@ export default class EditForm extends AbstractStatefulView {
     point.type = state.isEventType;
     point.type = state.isEventType;
     point.offer = state.isOffers;
-    point.destination = state.isDestination;
-    point.destination.name = state.isCity;
-    point.destination.description = state.isDescription;
-    point.destination.pictures = state.isPictures;
+    point.destinations = state.isDestination;
+    point.destinations.name = state.isCity;
+    point.destinations.description = state.isDescription;
+    point.destinations.pictures = state.isPictures;
 
     delete point.isEventType;
     delete point.isOffers;

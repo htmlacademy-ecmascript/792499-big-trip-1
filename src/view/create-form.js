@@ -355,9 +355,9 @@ export default class NewForm extends AbstractStatefulView {
       isPrice: point.basePrice,
       isEventType: point.event,
       isOffers: point.offer,
-      isCity: point.destination.name,
-      isDescription: point.destination.description,
-      isPictures: point.destination.pictures,
+      isCity: point.destinations.name,
+      isDescription: point.destinations.description,
+      isPictures: point.destinations.pictures,
     };
 
     const offersArray = Object.entries(point.offer.offers).map(([,value]) => value.id);
@@ -376,9 +376,9 @@ export default class NewForm extends AbstractStatefulView {
     point.event = state.isEventType;
     point.img = state.isEventType;
     point.offer = state.isOffers;
-    point.destination.name = state.isCity;
-    point.destination.description = state.isDescription;
-    point.destination.pictures = state.isPictures;
+    point.destinations.name = state.isCity;
+    point.destinations.description = state.isDescription;
+    point.destinations.pictures = state.isPictures;
 
     delete point.isEventType;
     delete point.isOffers;

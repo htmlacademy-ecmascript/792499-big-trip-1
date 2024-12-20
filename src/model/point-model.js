@@ -13,14 +13,15 @@ export default class PointModel extends Observable {
     this.#pointsApiService.offers.then((offers) => offers.map((el) => el.offers.forEach((elem) => {
       this.#offers.push(elem);
     })));
-
     this.#pointsApiService.points.then((points) => {
       points.map((point) => {
         this.#adaptToClient(point);
       });
     });
 
-    this.#pointsApiService.destinations.then((destination) => destination.map((el) => this.#destinations.push(el)));
+    this.#pointsApiService.destinations.then((destination) => destination.map((el) => {
+      this.#destinations.push(el);
+    }));
   }
 
   get points() {
@@ -34,7 +35,12 @@ export default class PointModel extends Observable {
   async init() {
     try {
       const points = await this.#pointsApiService.points;
-      this.#points = points.map((el) => this.#adaptToClient(el));
+      this.#points = points.map((el) => {
+        if (this.#destinations.length === 0) {
+          throw new SyntaxError('Не удалось загрузить часть данных');
+        }
+        return this.#adaptToClient(el);
+      });
     } catch(err) {
       this.#points = [];
     }
@@ -79,36 +85,27 @@ export default class PointModel extends Observable {
   }
 
   #getCurrentOffers = (point) => {
-    try {
-      const selectOffers = [];
-      this.#offers.forEach((el) => {
-        point.offers.forEach((elem) => {
-          if (el.id === elem) {
-            selectOffers.push(el);
-          }
-        })
-      });
-      
-      return selectOffers;
-    } catch(err) {
-      this.#points = [];
-    }
-  };
 
-  #getCurrentDestination = (point) => {
-    try {
-      let selectDestianiton = {};
-      this.#destinations.forEach((el) => {
-        if (point.destination === el.id) {
-          
-          selectDestianiton = el;
+    const selectOffers = [];
+    this.#offers.forEach((el) => {
+      point.offers.forEach((elem) => {
+        if (el.id === elem) {
+          selectOffers.push(el);
         }
       });
-      
-      return selectDestianiton;
-    } catch(err) {
-      this.#points = [];
-    }
+    });
+
+    return selectOffers;
+  };
+
+  #getCurrentDestination = (id) => {
+    let selectDestination;
+    this.#destinations.forEach((el) => {
+      if (id === el.id) {
+        selectDestination = el;
+      }
+    });
+    return selectDestination;
   };
 
   #adaptToClient(point) {
@@ -119,7 +116,7 @@ export default class PointModel extends Observable {
       dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
       dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_from'],
       offer: this.#getCurrentOffers(point),
-      destination: this.#getCurrentDestination(point),
+      destinations: this.#getCurrentDestination(point.destination),
     };
 
     delete adaptedPoint['base_price'];
@@ -127,6 +124,7 @@ export default class PointModel extends Observable {
     delete adaptedPoint['date_from'];
     delete adaptedPoint['date_to'];
     delete adaptedPoint['offers'];
+    delete adaptedPoint['destination'];
 
     return adaptedPoint;
   }

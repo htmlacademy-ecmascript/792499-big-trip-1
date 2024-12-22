@@ -6,6 +6,7 @@ export default class PointModel extends Observable {
   #points = [];
   #offers = [];
   #destinations = [];
+  #cities = [];
 
   constructor({pointsApiService}) {
     super();
@@ -21,6 +22,7 @@ export default class PointModel extends Observable {
 
     this.#pointsApiService.destinations.then((destination) => destination.map((el) => {
       this.#destinations.push(el);
+      this.#cities.push(el.name);
     }));
   }
 
@@ -30,6 +32,14 @@ export default class PointModel extends Observable {
 
   get destinations() {
     return this.#destinations;
+  }
+
+  get offers() {
+    return this.#offers;
+  }
+
+  get cities() {
+    return this.#cities;
   }
 
   async init() {
@@ -90,6 +100,7 @@ export default class PointModel extends Observable {
     this.#offers.forEach((el) => {
       point.offers.forEach((elem) => {
         if (el.id === elem) {
+          el.type = point.type;
           selectOffers.push(el);
         }
       });

@@ -12,6 +12,9 @@ export default class NewPointPresenter extends Observable {
   #handlerDestroy = null;
   #handlerErroNewForm = null;
   #handlerRemoveCurrentError = null;
+  #cities = null;
+  #destinations = null;
+  #offers = null;
 
   constructor({mainContainer, onDataChange, onDestroy, onErrorForm, onRemoveErrorForm}) {
     super();
@@ -22,7 +25,11 @@ export default class NewPointPresenter extends Observable {
     this.#handlerRemoveCurrentError = onRemoveErrorForm;
   }
 
-  init() {
+  init(cities, destinations, offers) {
+
+    this.#cities = cities;
+    this.#destinations = destinations;
+    this.#offers = offers;
 
     if (this.#newForm !== null) {
       return;
@@ -33,6 +40,9 @@ export default class NewPointPresenter extends Observable {
       onFormReset: this.#handlerDeleteClick,
       onErrorForm: this.#handlerErrorForm,
       onRemoveErrorForm: this.#handlerRemoveErrorForm,
+      cities: this.#cities,
+      destinations: this.#destinations,
+      offers: this.#offers,
     });
 
     render(this.#newForm, this.#mainContainer, RenderPosition.AFTERBEGIN);

@@ -15,6 +15,8 @@ export default class Presenter extends Observable {
   #mainContainer = null;
   #pointModels = null;
   #destinations = null;
+  #offers = null;
+  #cities = null;
   #filtersModel = null;
   #currentSortType = SortType.DAY;
   #pointsCollection = new Map();
@@ -39,6 +41,8 @@ export default class Presenter extends Observable {
     this.#filtersModel.addObserver(this.#handlerModelEvent);
 
     this.#destinations = this.#pointModels.destinations;
+    this.#offers = this.#pointModels.offers;
+    this.#cities = this.#pointModels.cities;
 
     this.#newPointPresenter = new NewPointPresenter({
       mainContainer: this.#mainContainer,
@@ -105,7 +109,7 @@ export default class Presenter extends Observable {
   createTask() {
     this.resetSortType();
     this.#filtersModel.setFilters(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#newPointPresenter.init();
+    this.#newPointPresenter.init(this.#cities, this.#destinations, this.#offers);
     this.renderSorting();
   }
 
@@ -133,7 +137,7 @@ export default class Presenter extends Observable {
       onCurrentErrorForm: this.#handlerErrorForm,
     });
 
-    pointPresenter.init(point, this.#destinations);
+    pointPresenter.init(point, this.#destinations, this.#offers, this.#cities);
     this.#pointsCollection.set(point.id, pointPresenter);
   }
 

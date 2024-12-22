@@ -1,12 +1,12 @@
 import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
-import {EVENT_TYPES, OFFER_TYPES, TooltipLabel, BasicValues} from './../const.js';
+import {EVENT_TYPES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-const createEditPoint = (point) => {
-  const {isPrice, dateFrom, dateTo, isEventType, offer, isCity, cities, isDescription, isPictures, ...rest} = point;
+const createEditPoint = (point, cities) => {
+  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, ...rest} = point;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
@@ -75,12 +75,12 @@ const createEditPoint = (point) => {
       </button>
     </header>
     <section class="event__details">
-      ${(offer.length > 0 ? `
+      ${(isOffers.length > 0 ? `
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
           <div class="event__available-offers">
-            ${createMarkup(offer)}
+            ${createMarkup(isOffers)}
           </div>
         </section>` : ' ')}
 
@@ -107,13 +107,17 @@ export default class EditForm extends AbstractStatefulView {
   #datepickerEnd = null;
   #point = null;
   #destinations = null;
+  #offers = null;
+  #cities = null;
   #currentAttribute = null;
   #currentOffersValue = null;
 
-  constructor({point, destinations, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
+  constructor({point, destinations, offers, cities, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
     super();
     this.#point = point;
     this.#destinations = destinations;
+    this.#offers = offers;
+    this.#cities = cities;
     this._setState(EditForm.parsePointToState(point, destinations));
     this.#handlerFormClick = onFormSubmit;
     this.#handlerFormReset = onFormReset;
@@ -142,7 +146,7 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   get template() {
-    return createEditPoint(this._state);
+    return createEditPoint(this._state, this.#cities);
   }
 
   get city() {
@@ -207,13 +211,19 @@ export default class EditForm extends AbstractStatefulView {
 
   #handlerEventType = (evt) => {
     this._removeDatepicker();
+    const currentOffers = [];
+    this.#offers.forEach((el) => {
+      if (el.type === evt.target.value) {
+        currentOffers.push(el);
+      }
+    });
+
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
-      handlerOffers(this._state.offer, this._state, BasicValues.UNCHECKED);
-
+      handlerOffers(currentOffers, this._state, BasicValues.UNCHECKED);
       this.updateElement({
         isEventType: evt.target.value,
-        isOffers: OFFER_TYPES.find((item) => item.type === evt.target.value),
+        isOffers: currentOffers,
       });
     }
     this._setDatepicker();
@@ -309,7 +319,7 @@ export default class EditForm extends AbstractStatefulView {
     });
   }
 
-  static parsePointToState(point, destinations) {
+  static parsePointToState(point) {
     const currentForm = {
       ...point,
       isPrice: point.basePrice,
@@ -319,12 +329,7 @@ export default class EditForm extends AbstractStatefulView {
       isDescription: point.destinations.description,
       isPictures: point.destinations.pictures,
       isDestination: point.destinations,
-      cities: [],
     };
-
-    destinations.forEach((el) => {
-      currentForm.cities.push(el.name);
-    });
 
     handlerOffers(point.offer, currentForm, BasicValues.CHECKED);
 

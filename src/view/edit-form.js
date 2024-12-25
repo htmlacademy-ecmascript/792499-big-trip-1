@@ -188,7 +188,9 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   #handlerBtnSubmit = () => {
-    this.updateElement(this._state.isOffers = this.#creatingActualOffers());
+    this.updateElement({
+      isOffers: this.#creatingActualOffers(),
+    });
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
     this.#handlerRemoveElements();
   };
@@ -266,7 +268,7 @@ export default class EditForm extends AbstractStatefulView {
     } else {
       this.price.value = Math.floor(evt.target.value);
       this.updateElement({
-        isPrice: evt.target.value,
+        isPrice: Number(evt.target.value),
       });
     }
   };
@@ -347,6 +349,8 @@ export default class EditForm extends AbstractStatefulView {
     point.destinations.name = state.isCity;
     point.destinations.description = state.isDescription;
     point.destinations.pictures = state.isPictures;
+    point.dateTo = new Date(point.dateTo);
+    point.dateFrom = new Date(point.dateFrom);
 
     delete point.isEventType;
     delete point.isOffers;
@@ -355,6 +359,13 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isPictures;
     delete point.isPrice;
     delete point.isDestination;
+
+    for (const key in point) {
+      if (point[key] === ' ' || point[key] === 'checked') {
+        delete point[key];
+      }
+    }
+
     return point;
   }
 }

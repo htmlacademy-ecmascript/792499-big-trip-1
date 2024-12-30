@@ -8,6 +8,8 @@ const BasicValues = {
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 const AUTHORIZATION = 'Basic iowue89w33r8r';

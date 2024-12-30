@@ -1,6 +1,5 @@
 import NewForm from './../view/create-form.js';
 import {render, RenderPosition, remove} from './../framework/render.js';
-import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../const.js';
 import Observable from './../framework/observable.js';
 
@@ -67,7 +66,7 @@ export default class NewPointPresenter extends Observable {
     this.#handlerDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      {id: nanoid(),...evt}
+      evt,
     );
     this.destroy();
   };

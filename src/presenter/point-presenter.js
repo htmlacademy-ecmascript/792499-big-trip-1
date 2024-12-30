@@ -62,6 +62,7 @@ export default class PointPresenter extends Observable {
 
     if (this.#mode === Mode.EDITING) {
       replace(this.#currentForm, prevCurrentForm);
+      return this.#mode === Mode.DEFAULT;
     }
 
     remove(prevCurrentPoint);
@@ -77,6 +78,41 @@ export default class PointPresenter extends Observable {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToPoint();
     }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#currentForm.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#currentForm.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#currentPoint.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#currentForm.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#currentForm.shake(resetFormState);
   }
 
   #replacePointToForm() {

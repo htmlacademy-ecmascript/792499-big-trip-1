@@ -12,6 +12,11 @@ const Method = {
   DELETE: 'DELETE',
 };
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
 const AUTHORIZATION = 'Basic iowue89w33r8r';
 const END_POINT = 'https://20.objects.htmlacademy.pro/big-trip';
 
@@ -110,4 +115,4 @@ const TooltipText = {
   DATE: 'Please, enter a date',
 };
 
-export {BasicValues, EVENT_TYPES, TimeNames, TimeFormat, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel, Method, AUTHORIZATION, END_POINT};
+export {BasicValues, EVENT_TYPES, TimeNames, TimeFormat, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel, Method, AUTHORIZATION, END_POINT, TimeLimit};

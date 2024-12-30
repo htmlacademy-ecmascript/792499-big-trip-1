@@ -6,12 +6,12 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditPoint = (point, cities) => {
-  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, ...rest} = point;
+  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, isDisabled, isSaving, isDeleting, ...rest} = point;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]}>
+        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]} ${isDisabled ? 'disabled' : ' '}>
         <label class="event__offer-label" for="${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
@@ -32,7 +32,7 @@ const createEditPoint = (point, cities) => {
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${isEventType}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ' '}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -46,7 +46,7 @@ const createEditPoint = (point, cities) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${isEventType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" autocomplete="off" list="destination-list-1" required>
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" autocomplete="off" list="destination-list-1" ${isDisabled ? 'disabled' : ' '} required>
         <datalist id="destination-list-1">
           ${createCities(cities)}
         </datalist>
@@ -54,10 +54,10 @@ const createEditPoint = (point, cities) => {
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizePointDueDate(dateFrom).allDate}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizePointDueDate(dateFrom).allDate}" ${isDisabled ? 'disabled' : ' '}>
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizePointDueDate(dateTo).allDate}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizePointDueDate(dateTo).allDate}" ${isDisabled ? 'disabled' : ' '}>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -65,11 +65,11 @@ const createEditPoint = (point, cities) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" maxlength="6" required>
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" maxlength="6" ${isDisabled ? 'disabled' : ' '} required>
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ' '}>${isSaving ? 'Saving' : 'Save'}</button>
+      <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ' '}>${isDeleting ? 'Deleting' : 'Delete'}</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>
@@ -331,6 +331,9 @@ export default class EditForm extends AbstractStatefulView {
       isDescription: point.destinations.description,
       isPictures: point.destinations.pictures,
       isDestination: point.destinations,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
     };
 
     handlerOffers(point.offer, currentForm, BasicValues.CHECKED);
@@ -359,6 +362,9 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isPictures;
     delete point.isPrice;
     delete point.isDestination;
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
 
     for (const key in point) {
       if (point[key] === ' ' || point[key] === 'checked') {

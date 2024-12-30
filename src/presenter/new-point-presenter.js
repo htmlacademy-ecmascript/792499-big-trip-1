@@ -62,6 +62,25 @@ export default class NewPointPresenter extends Observable {
     this.#newForm = null;
   }
 
+  setSaving() {
+    this.#newForm.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#newForm.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#newForm.shake(resetFormState);
+  }
+
   #handlerFormSubmit = (evt) => {
     this.#handlerDataChange(
       UserAction.ADD_POINT,

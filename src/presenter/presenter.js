@@ -183,7 +183,6 @@ export default class Presenter extends Observable {
         }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointModels.deletePoint(updateType, update);
         this.#pointsCollection.get(update.id).setDeleting();
         try {
           await this.#pointModels.deletePoint(updateType, update);

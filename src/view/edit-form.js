@@ -346,7 +346,6 @@ export default class EditForm extends AbstractStatefulView {
 
     point.basePrice = state.isPrice;
     point.type = state.isEventType;
-    point.type = state.isEventType;
     point.offer = state.isOffers;
     point.destinations = state.isDestination;
     point.destinations.name = state.isCity;

@@ -85,18 +85,10 @@ const UpdateType = {
 
 const NewPoint = {
   event: 'taxi',
-  img: 'taxi',
   basePrice: '',
-  offer: [
-    {
-      id: 1,
-      title: 'Order Uber',
-      price: 20,
-    },
-  ],
   isFavorite: false,
   destinations: {
-    id: 123,
+    id: 1,
     description: '',
     name: '',
     pictures: [{src: 'https://loremflickr.com/248/152?random=1', description: 'Oslo'}],

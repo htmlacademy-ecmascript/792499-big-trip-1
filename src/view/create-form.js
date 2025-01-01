@@ -113,14 +113,24 @@ export default class NewForm extends AbstractStatefulView {
   constructor({onFormSubmit, onFormReset, onErrorForm, onRemoveErrorForm, cities, destinations, offers}) {
     super();
     this.#point = NewPoint;
+    this.#offers = offers;
+    this.#destinations = destinations;
+
+    const currentOffers = [];
+    this.#offers.forEach((el) => {
+      if (el.type === this.#point.event) {
+        currentOffers.push(el);
+      }
+    });
+
+    this.#point.offer = currentOffers;
+
     this._setState(NewForm.parsePointToState(this.#point));
     this.#handlerFormClick = onFormSubmit;
     this.#handlerFormReset = onFormReset;
     this.#handlerErrorForm = onErrorForm;
     this.#handlerRemoveErrorForm = onRemoveErrorForm;
     this.#cities = cities;
-    this.#destinations = destinations;
-    this.#offers = offers;
   }
 
   get resetBtn() {
@@ -216,6 +226,7 @@ export default class NewForm extends AbstractStatefulView {
     this.updateElement({
       isOffers: this.#creatingActualOffers(),
     });
+
     this.#handlerFormClick(NewForm.parseStateToPoint(this._state));
     this._removeDatepicker();
     document.removeEventListener('keydown', this._handlerEscResetForm);
@@ -270,6 +281,7 @@ export default class NewForm extends AbstractStatefulView {
           isCity: item.name,
           isDescription: item.description,
           isPictures: item.pictures,
+          isDestinationId: item.id,
         });
       }
 
@@ -304,7 +316,7 @@ export default class NewForm extends AbstractStatefulView {
     } else {
       this.price.value = Math.floor(evt.target.value);
       checkingForms.priceInputCorrect(this.price, evt.target.value);
-      this._state.isPrice = evt.target.value;
+      this._state.isPrice = Number(evt.target.value);
       this.#handlerRemoveErrorForm();
     }
   };
@@ -316,15 +328,15 @@ export default class NewForm extends AbstractStatefulView {
   #creatingActualOffers = () => {
     const currentOffers = [];
     this.#handlerOfferChecked('.event__offer-checkbox').forEach((el) => {
-      currentOffers.push(this._state.isOffers.find((item) => item.id === el));
+      currentOffers.push(el);
     });
+
     return currentOffers;
   };
 
   #handlerDateFromChange = ([selectedDate]) => {
     this.eventStartTime.value = humanizePointDueDate(selectedDate).allDate;
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
-    //this.eventStartTime.parentElement.querySelector('.tooltip') ? this.#handlerRemoveErrorForm() : ' ';
   };
 
   #handlerDateToChange = ([selectedDate]) => {
@@ -365,7 +377,6 @@ export default class NewForm extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-
     const currentForm = {
       ...point,
       isPrice: point.basePrice,
@@ -374,12 +385,14 @@ export default class NewForm extends AbstractStatefulView {
       isCity: point.destinations.name,
       isDescription: point.destinations.description,
       isPictures: point.destinations.pictures,
+      isDestination: point.destinations,
+      isDestinationId: point.destinations.id,
       isDisabled: false,
       isSaving: false,
       isDeleting: false,
     };
 
-    handlerOffers(point.offer, currentForm, BasicValues.CHECKED);
+    handlerOffers(point.offer, currentForm, BasicValues.UNCHECKED);
 
     return currentForm;
   }
@@ -389,21 +402,32 @@ export default class NewForm extends AbstractStatefulView {
 
     point.basePrice = state.isPrice;
     point.type = state.isEventType;
-    point.type = state.isEventType;
     point.offer = state.isOffers;
     point.destinations.name = state.isCity;
     point.destinations.description = state.isDescription;
     point.destinations.pictures = state.isPictures;
+    point.destinations.id = state.isDestinationId;
+    point.dateTo = new Date(point.dateTo);
+    point.dateFrom = new Date(point.dateFrom);
 
+    delete point.event;
     delete point.isEventType;
     delete point.isOffers;
     delete point.isCity;
     delete point.isDescription;
     delete point.isPictures;
     delete point.isPrice;
+    delete point.isDestinationId;
+    delete point.isDestination;
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;
+
+    for (const key in point) {
+      if (point[key] === ' ' || point[key] === 'checked') {
+        delete point[key];
+      }
+    }
 
     return point;
   }

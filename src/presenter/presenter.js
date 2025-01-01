@@ -176,7 +176,6 @@ export default class Presenter extends Observable {
         break;
       case UserAction.ADD_POINT:
         this.#newPointPresenter.setSaving();
-        this.#pointModels.addPoint(updateType, update);
         try {
           await this.#pointModels.addPoint(updateType, update);
         } catch {

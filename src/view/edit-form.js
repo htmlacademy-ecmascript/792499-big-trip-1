@@ -192,7 +192,6 @@ export default class EditForm extends AbstractStatefulView {
       isOffers: this.#creatingActualOffers(),
     });
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
-    this.#handlerRemoveElements();
   };
 
   _handlerEscResetForm = (evt) => {

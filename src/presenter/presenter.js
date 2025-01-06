@@ -170,7 +170,7 @@ export default class Presenter extends Observable {
         this.#pointsCollection.get(update.id).setSaving();
         try {
           await this.#pointModels.updatePoint(updateType, update);
-        } catch {
+        } catch(err) {
           this.#pointsCollection.get(update.id).setAborting();
         }
         break;
@@ -178,15 +178,15 @@ export default class Presenter extends Observable {
         this.#newPointPresenter.setSaving();
         try {
           await this.#pointModels.addPoint(updateType, update);
-        } catch {
-          this.#newPointPresenter.setAborting();
+        } catch(err) {
+          this.#pointsCollection.get(update.id).setAborting();
         }
         break;
       case UserAction.DELETE_POINT:
         this.#pointsCollection.get(update.id).setDeleting();
         try {
           await this.#pointModels.deletePoint(updateType, update);
-        } catch {
+        } catch(err) {
           this.#pointsCollection.get(update.id).setAborting();
         }
         break;

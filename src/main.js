@@ -1,5 +1,5 @@
 import Presenter from './presenter/presenter.js';
-import FilterPresenter from './presenter/filter-presenter.js';
+//import FilterPresenter from './presenter/filter-presenter.js';
 import PointModel from './model/point-model.js';
 import FiltersModel from './model/filters-model.js';
 import PointApiService from './task-api-service.js';
@@ -18,20 +18,21 @@ const filtersModel = new FiltersModel();
 
 const pagePresenter = new Presenter({
   mainContainer: siteContainer,
+  filtersContainer: siteFilters,
   pointModels,
   filtersModel,
   headerMain,
 });
 
-const filterPresenter = new FilterPresenter({
+/*const filterPresenter = new FilterPresenter({
   filtersContainer: siteFilters,
   filtersModel: filtersModel,
   pointsModel: pointModels,
   presenter: pagePresenter,
-});
+});*/
 
 newPointBtn.setAttribute('disabled', 'disabled');
 
 pagePresenter.init();
-filterPresenter.init();
+//filterPresenter.init();
 pointModels.init().finally(() => newPointBtn.removeAttribute('disabled'));

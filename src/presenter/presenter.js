@@ -10,6 +10,7 @@ import NewPointPresenter from './new-point-presenter.js';
 import Observable from './../framework/observable.js';
 import {filters} from './../utils/filters-utils.js';
 import BtnNewPoint from './../view/btn-new-point.js';
+import FilterPresenter from './filter-presenter.js';
 import Tooltip from './../view/tooltip.js';
 
 export default class Presenter extends Observable {
@@ -25,7 +26,9 @@ export default class Presenter extends Observable {
   #filterType = null;
   #newPointPresenter = null;
   #btnNewPoint = null;
+  #filterPresenter = null;
   #headerMain = null;
+  #filtersContainer = null;
   #sorting = null;
   #tooltip = null;
   #loadingComponent = new LoadingView();
@@ -35,12 +38,13 @@ export default class Presenter extends Observable {
     upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
-  constructor({mainContainer, pointModels, filtersModel, headerMain}) {
+  constructor({mainContainer, filtersContainer, pointModels, filtersModel, headerMain}) {
     super();
     this.#mainContainer = mainContainer;
     this.#pointModels = pointModels;
     this.#filtersModel = filtersModel;
     this.#headerMain = headerMain;
+    this.#filtersContainer = filtersContainer;
 
     this.#pointModels.addObserver(this.#handlerModelEvent);
     this.#filtersModel.addObserver(this.#handlerModelEvent);
@@ -61,9 +65,17 @@ export default class Presenter extends Observable {
       onClick: this.#handlerBtnNewPoint,
       headerMain: this.#headerMain,
     });
+
+    this.#filterPresenter = new FilterPresenter({
+      filtersContainer: this.#filtersContainer,
+      filtersModel: this.#filtersModel,
+      pointsModel: pointModels,
+      presenter: this,
+    });
   }
 
   renderBoard() {
+    this.#filterPresenter.init(this.points);
     for (let i = 0; i < this.points.length; i++) {
       this.#renderPoints(this.points[i]);
     }

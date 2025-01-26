@@ -3,6 +3,10 @@ const BasicValues = {
   ESCAPE_KEY: 27,
   CHECKED: 'checked',
   UNCHECKED: ' ',
+  ZERO: 0,
+  ONE: 1,
+  TWO: 2,
+  THREE: 1,
 };
 
 const Method = {

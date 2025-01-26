@@ -6,16 +6,22 @@ export default class RoutesPresenter extends AbstractStatefulView {
   #mainContainer = null;
   #routes = null;
   #cities = null;
+  #points = null;
 
-  constructor({mainContainer, cities}) {
+  constructor({mainContainer, cities, points}) {
     super();
-    this.#cities = cities;
     this.#mainContainer = mainContainer;
+    this.#cities = cities;
+    this.#points = points;
   }
 
   createRoutes() {
-    const routes = new Routes({cities: this.#cities});
-    render(routes, this.#mainContainer, RenderPosition.BEFOREBEGIN);
+    this.#routes = new Routes({
+      cities: this.#cities,
+      points: this.#points,
+    });
+
+    render(this.#routes, this.#mainContainer, RenderPosition.BEFOREBEGIN);
   }
 
   init() {

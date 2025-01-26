@@ -84,6 +84,7 @@ export default class Presenter extends Observable {
     this.#routesPresenter = new RoutesPresenter({
       mainContainer: this.#filtersContainer,
       cities: this.#cities,
+      points: this.points,
     });
     this.#routesPresenter.init();
   }

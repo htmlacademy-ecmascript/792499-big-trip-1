@@ -74,10 +74,6 @@ export default class Presenter extends Observable {
       pointsModel: pointModels,
       presenter: this,
     });
-
-    this.#routesPresenter = new RoutesPresenter({
-      mainContainer: this.#filtersContainer,
-    });
   }
 
   renderFilters() {
@@ -85,6 +81,10 @@ export default class Presenter extends Observable {
   }
 
   renderRoutes() {
+    this.#routesPresenter = new RoutesPresenter({
+      mainContainer: this.#filtersContainer,
+      cities: this.#cities,
+    });
     this.#routesPresenter.init();
   }
 
@@ -93,6 +93,8 @@ export default class Presenter extends Observable {
       this.#renderPoints(this.points[i]);
     }
 
+    this.renderFilters();
+
     if (this.#isLoading) {
       this.#renderLoading();
       return;
@@ -100,6 +102,10 @@ export default class Presenter extends Observable {
 
     if (this.points.length === 0) {
       this.#renderNoPoints();
+    }
+
+    if (this.points.length > 0) {
+      this.renderRoutes();
     }
   }
 
@@ -132,9 +138,7 @@ export default class Presenter extends Observable {
   }
 
   init() {
-    this.renderFilters();
     this.renderBoard();
-    this.renderRoutes();
     this.renderSorting();
   }
 

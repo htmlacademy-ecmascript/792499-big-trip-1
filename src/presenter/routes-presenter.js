@@ -4,15 +4,18 @@ import Routes from './../view/routes.js';
 
 export default class RoutesPresenter extends AbstractStatefulView {
   #mainContainer = null;
-  #routes = new Routes();
+  #routes = null;
+  #cities = null;
 
-  constructor({mainContainer}) {
+  constructor({mainContainer, cities}) {
     super();
+    this.#cities = cities;
     this.#mainContainer = mainContainer;
   }
 
   createRoutes() {
-    render(this.#routes, this.#mainContainer, RenderPosition.BEFOREBEGIN);
+    const routes = new Routes({cities: this.#cities});
+    render(routes, this.#mainContainer, RenderPosition.BEFOREBEGIN);
   }
 
   init() {

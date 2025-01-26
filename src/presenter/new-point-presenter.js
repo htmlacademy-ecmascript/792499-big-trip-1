@@ -25,7 +25,6 @@ export default class NewPointPresenter extends Observable {
   }
 
   init(cities, destinations, offers) {
-
     this.#cities = cities;
     this.#destinations = destinations;
     this.#offers = offers;

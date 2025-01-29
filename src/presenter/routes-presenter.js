@@ -1,23 +1,28 @@
-import AbstractStatefulView from './../framework/view/abstract-view.js';
-import {render, RenderPosition} from './../framework/render.js';
+import {render, remove, RenderPosition} from './../framework/render.js';
 import Routes from './../view/routes.js';
 
-export default class RoutesPresenter extends AbstractStatefulView {
+export default class RoutesPresenter {
   #mainContainer = null;
   #routes = null;
   #cities = null;
   #points = null;
 
-  constructor({mainContainer, cities, points}) {
-    super();
+  constructor({mainContainer, points}) {
     this.#mainContainer = mainContainer;
-    this.#cities = cities;
     this.#points = points;
+  }
+
+  destroy() {
+    if (this.#routes === null) {
+      return;
+    }
+
+    remove(this.#routes);
+    this.#routes = null;
   }
 
   createRoutes() {
     this.#routes = new Routes({
-      cities: this.#cities,
       points: this.#points,
     });
 

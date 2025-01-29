@@ -77,15 +77,15 @@ export default class Presenter extends Observable {
   }
 
   renderFilters() {
-    this.#filterPresenter.init(this.points);
+    this.#filterPresenter.init();
   }
 
   renderRoutes() {
     this.#routesPresenter = new RoutesPresenter({
       mainContainer: this.#filtersContainer,
-      cities: this.#cities,
       points: this.points,
     });
+
     this.#routesPresenter.init();
   }
 
@@ -151,6 +151,7 @@ export default class Presenter extends Observable {
   }
 
   clearBoard() {
+    this.#routesPresenter.destroy();
     this.#newPointPresenter.destroy();
     this.#pointsCollection.forEach((point) => point.destroy());
     this.#pointsCollection.clear();

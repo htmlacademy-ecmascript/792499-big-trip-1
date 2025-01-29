@@ -20,6 +20,7 @@ const checkingForms = {
 };
 
 const firstElement = (arrayName) => arrayName[BasicValues.ZERO];
+const secondElement = (arrayName) => arrayName[BasicValues.ONE];
 const lastElement = (arrayName) => arrayName[arrayName.length - BasicValues.ONE];
 
-export {isEscapeKey, capitalize, checkingForms, firstElement, lastElement};
+export {isEscapeKey, capitalize, checkingForms, firstElement, secondElement, lastElement};

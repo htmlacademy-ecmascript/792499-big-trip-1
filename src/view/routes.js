@@ -19,7 +19,7 @@ const createRoutes = (points) => {
 
   return `<section class="trip-main__trip-info trip-info">
       <div class="trip-info__main">
-        <h1 class="trip-info__title">${listRoutes(points)}</h1>
+        <h1 class="trip-info__title">${listRoutes()}</h1>
         <p class="trip-info__dates">${humanizePointDueDate(dateFrom).date}&nbsp;&mdash;&nbsp;${humanizePointDueDate(dateTo).date}</p>
       </div>
 

@@ -6,7 +6,7 @@ const BasicValues = {
   ZERO: 0,
   ONE: 1,
   TWO: 2,
-  THREE: 1,
+  THREE: 3,
 };
 
 const Method = {

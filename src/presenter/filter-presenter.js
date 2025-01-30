@@ -9,6 +9,7 @@ export default class FilterPresenter {
   #pointsModel = null;
   #filterComponent = null;
   #presenter = null;
+  #points = null;
 
   constructor({filtersContainer, filtersModel, pointsModel, presenter}) {
     this.#filtersContainer = filtersContainer;
@@ -18,11 +19,11 @@ export default class FilterPresenter {
   }
 
   get filters() {
-    const points = this.#pointsModel.points;
+    this.#points = this.#pointsModel.points;
 
     return Object.entries(filters).map(([filterType, filterPoints]) => ({
       type: filterType,
-      has: filterPoints(points).length,
+      has: filterPoints(this.#points).length,
     }));
   }
 

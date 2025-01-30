@@ -4,6 +4,23 @@ import {BasicValues} from './../const.js';
 import {firstElement, secondElement, lastElement} from './../utils/common.js';
 
 const createRoutes = (points) => {
+
+  const totalBasePrice = () => {
+    let sum = 0;
+    let offersSum = 0;
+
+    points.forEach((el) => {
+      if (el.offer.length > 0) {
+        const [{price}] = el.offer;
+        offersSum += price;
+      }
+      sum += el.basePrice;
+    });
+
+    sum += offersSum;
+    return sum;
+  };
+
   const dateFrom = firstElement(points).dateFrom;
   const dateTo = lastElement(points).dateTo;
 
@@ -24,7 +41,7 @@ const createRoutes = (points) => {
       </div>
 
       <p class="trip-info__cost">
-        Total: &euro;&nbsp;<span class="trip-info__cost-value">1230</span>
+        Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalBasePrice()}</span>
       </p>
     </section>`;
 };

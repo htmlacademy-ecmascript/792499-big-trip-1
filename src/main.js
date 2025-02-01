@@ -1,5 +1,4 @@
 import Presenter from './presenter/presenter.js';
-//import FilterPresenter from './presenter/filter-presenter.js';
 import PointModel from './model/point-model.js';
 import FiltersModel from './model/filters-model.js';
 import PointApiService from './task-api-service.js';
@@ -14,6 +13,7 @@ const newPointBtn = siteBody.querySelector('.trip-main__event-add-btn');
 const pointModels = new PointModel({
   pointsApiService: new PointApiService(END_POINT, AUTHORIZATION)
 });
+
 const filtersModel = new FiltersModel();
 
 const pagePresenter = new Presenter({
@@ -24,15 +24,7 @@ const pagePresenter = new Presenter({
   headerMain,
 });
 
-/*const filterPresenter = new FilterPresenter({
-  filtersContainer: siteFilters,
-  filtersModel: filtersModel,
-  pointsModel: pointModels,
-  presenter: pagePresenter,
-});*/
-
 newPointBtn.setAttribute('disabled', 'disabled');
 
 pagePresenter.init();
-//filterPresenter.init();
 pointModels.init().finally(() => newPointBtn.removeAttribute('disabled'));

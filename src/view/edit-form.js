@@ -6,6 +6,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createEditPoint = (point, cities) => {
+  const currentCities = Array.from(new Set(cities));
   const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, isDisabled, isSaving, isDeleting, ...rest} = point;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
@@ -48,7 +49,7 @@ const createEditPoint = (point, cities) => {
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${isCity}" autocomplete="off" list="destination-list-1" ${isDisabled ? 'disabled' : ' '} required>
         <datalist id="destination-list-1">
-          ${createCities(cities)}
+          ${createCities(currentCities)}
         </datalist>
       </div>
 

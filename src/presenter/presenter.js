@@ -6,6 +6,7 @@ import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import {SortType, UserAction, UpdateType, FilterType, TimeLimit} from './../const.js';
 import {sortPointPrice, sortPointTime, sortPointDate} from './../utils/points.js';
 import PointPresenter from './point-presenter.js';
+import RoutesPresenter from './routes-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import Observable from './../framework/observable.js';
 import {filters} from './../utils/filters-utils.js';
@@ -27,6 +28,7 @@ export default class Presenter extends Observable {
   #newPointPresenter = null;
   #btnNewPoint = null;
   #filterPresenter = null;
+  #routesPresenter = null;
   #headerMain = null;
   #filtersContainer = null;
   #sorting = null;
@@ -74,11 +76,25 @@ export default class Presenter extends Observable {
     });
   }
 
+  renderFilters() {
+    this.#filterPresenter.init();
+  }
+
+  renderRoutes() {
+    this.#routesPresenter = new RoutesPresenter({
+      mainContainer: this.#filtersContainer,
+      points: this.points,
+    });
+
+    this.#routesPresenter.init();
+  }
+
   renderBoard() {
-    this.#filterPresenter.init(this.points);
     for (let i = 0; i < this.points.length; i++) {
       this.#renderPoints(this.points[i]);
     }
+
+    this.renderFilters();
 
     if (this.#isLoading) {
       this.#renderLoading();
@@ -87,6 +103,10 @@ export default class Presenter extends Observable {
 
     if (this.points.length === 0) {
       this.#renderNoPoints();
+    }
+
+    if (this.points.length > 0) {
+      this.renderRoutes();
     }
   }
 
@@ -131,6 +151,7 @@ export default class Presenter extends Observable {
   }
 
   clearBoard() {
+    this.#routesPresenter.destroy();
     this.#newPointPresenter.destroy();
     this.#pointsCollection.forEach((point) => point.destroy());
     this.#pointsCollection.clear();

@@ -1,25 +1,36 @@
 import Point from './../view/point.js';
 import EditForm from './../view/edit-form.js';
 import {replace, render, remove} from './../framework/render.js';
-import {Mode} from './../const.js';
+import {Mode, UserAction, UpdateType} from './../const.js';
+import Observable from './../framework/observable.js';
 
-export default class PointPresenter {
+export default class PointPresenter extends Observable {
   #currentPoint = null;
   #currentForm = null;
   #mainContainer = null;
   #handlerDataChange = null;
   #handlerModeChange = null;
   #point = null;
+  #destinations = null;
+  #offers = null;
+  #cities = null;
   #mode = Mode.DEFAULT;
+  #handlerCurrentErrorForm = null;
 
-  constructor({container, onDataChange, onModeChange}) {
+  constructor({container, onDataChange, onModeChange, onCurrentErrorForm}) {
+    super();
     this.#mainContainer = container;
     this.#handlerDataChange = onDataChange;
     this.#handlerModeChange = onModeChange;
+    this.#handlerCurrentErrorForm = onCurrentErrorForm;
   }
 
-  init(point) {
+  init(point, destinations, offers, cities) {
     this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#cities = cities;
+
     const prevCurrentPoint = this.#currentPoint;
     const prevCurrentForm = this.#currentForm;
 
@@ -31,8 +42,13 @@ export default class PointPresenter {
 
     this.#currentForm = new EditForm({
       point: this.#point,
+      destinations: this.#destinations,
+      offers: this.#offers,
+      cities: this.#cities,
       onFormSubmit: this.#handlerFormSubmit,
       onFormReset: this.#handlerFormReset,
+      onFormDelete: this.#handlerDeletePoint,
+      onErrorForm: this.#handlerErrorForm,
     });
 
     if (prevCurrentPoint === null || prevCurrentForm === null) {
@@ -46,6 +62,7 @@ export default class PointPresenter {
 
     if (this.#mode === Mode.EDITING) {
       replace(this.#currentForm, prevCurrentForm);
+      return this.#mode === Mode.DEFAULT;
     }
 
     remove(prevCurrentPoint);
@@ -61,6 +78,41 @@ export default class PointPresenter {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToPoint();
     }
+  }
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#currentForm.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#currentForm.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#currentPoint.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#currentForm.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#currentForm.shake(resetFormState);
   }
 
   #replacePointToForm() {
@@ -83,7 +135,11 @@ export default class PointPresenter {
   };
 
   #handlerFavoriteClick = () => {
-    this.#handlerDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handlerDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      {...this.#point, isFavorite: !this.#point.isFavorite},
+    );
   };
 
   #handlerFormReset = () => {
@@ -93,6 +149,22 @@ export default class PointPresenter {
   };
 
   #handlerFormSubmit = (evt) => {
-    this.#handlerDataChange(evt);
+    this.#handlerDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      evt,
+    );
+  };
+
+  #handlerErrorForm = (container, thisTextContent) => {
+    this.#handlerCurrentErrorForm(container, thisTextContent);
+  };
+
+  #handlerDeletePoint = (evt) => {
+    this.#handlerDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      evt,
+    );
   };
 }

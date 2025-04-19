@@ -1,17 +1,59 @@
-import {render} from './../framework/render.js';
+import {render, replace, remove} from './../framework/render.js';
 import Filters from './../view/filters.js';
-import {generateFilters} from './../mocs/filters.js';
+import {UpdateType} from './../const.js';
+import {filters} from './../utils/filters-utils.js';
 
 export default class FilterPresenter {
   #filtersContainer = null;
-  #filters = null;
+  #filtersModel = null;
+  #pointsModel = null;
+  #filterComponent = null;
+  #presenter = null;
+  #points = null;
 
-  constructor({filtersContainer, pointModels}) {
+  constructor({filtersContainer, filtersModel, pointsModel, presenter}) {
     this.#filtersContainer = filtersContainer;
-    this.#filters = generateFilters(pointModels.getPoints());
+    this.#filtersModel = filtersModel;
+    this.#pointsModel = pointsModel;
+    this.#presenter = presenter;
+  }
+
+  get filters() {
+    this.#points = this.#pointsModel.points;
+
+    return Object.entries(filters).map(([filterType, filterPoints]) => ({
+      type: filterType,
+      has: filterPoints(this.#points).length,
+    }));
   }
 
   init() {
-    render(new Filters({filters: this.#filters,}), this.#filtersContainer);
+    const currentFilters = this.filters;
+    const prevFilterComponent = this.#filterComponent;
+
+    this.#filterComponent = new Filters({
+      filters: currentFilters,
+      currentFilter: this.#filtersModel.filters,
+      onChangeFilters: this.#handlerFilters,
+    });
+
+    if (prevFilterComponent === null) {
+      render(this.#filterComponent, this.#filtersContainer);
+      return;
+    }
+
+    replace(this.#filterComponent, prevFilterComponent);
+    remove(prevFilterComponent);
   }
+
+  #handlerFilters = (filterType) => {
+    const currentFilter = filterType.slice(7);
+    if (this.#filtersModel.filters === currentFilter) {
+      return;
+    }
+
+    this.#presenter.resetSortType();
+    this.#presenter.renderSorting();
+    this.#filtersModel.setFilters(UpdateType.MAJOR, currentFilter);
+  };
 }

@@ -24,7 +24,7 @@ const createEditPoint = (point, cities) => {
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${pointEvent === type ? 'checked' : ' '}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalize(type)}</label>
     </div>`).join('');
-  const createCities = (currentCities) => currentCities.map((city) => `<option value="${city}"></option>`).join('');
+  const createCities = (places) => places.map((city) => `<option value="${city}"></option>`).join('');
 
   return `<form class="event event--edit" action="#" method="post">
     <header class="event__header">

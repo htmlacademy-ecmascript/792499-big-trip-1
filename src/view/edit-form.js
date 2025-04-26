@@ -76,7 +76,7 @@ const createEditPoint = (point, cities) => {
       </button>
     </header>
     <section class="event__details">
-      ${(isOffers.length > 0 ? `
+      ${(isOffers.length > BasicValues.ZERO ? `
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
@@ -304,7 +304,7 @@ export default class EditForm extends AbstractStatefulView {
       dateFormat: 'y/m/d H:i',
       minDate: humanizePointDueDate(new Date()).allDate,
       locale: {
-        firstDayOfWeek: 1,
+        firstDayOfWeek: BasicValues.ONE,
       },
       onClose: this.#handlerDateFromChange,
     });
@@ -315,7 +315,7 @@ export default class EditForm extends AbstractStatefulView {
       dateFormat: 'y/m/d H:i',
       minDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
-        firstDayOfWeek: 1,
+        firstDayOfWeek: BasicValues.ONE,
       },
       onClose: this.#handlerDateToChange,
     });

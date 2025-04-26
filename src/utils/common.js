@@ -2,8 +2,8 @@ import {BasicValues} from './../const.js';
 
 const isEscapeKey = (evt) => evt.keyCode === BasicValues.ESCAPE_KEY;
 const capitalize = (word) => {
-  const firstChar = word.charAt(0).toUpperCase();
-  const remainingChar = word.slice(1);
+  const firstChar = word.charAt(BasicValues.ZERO).toUpperCase();
+  const remainingChar = word.slice(BasicValues.ONE);
   return `${firstChar}${remainingChar}`;
 };
 

@@ -3,7 +3,7 @@ import NoPoints from './../view/no-points.js';
 import LoadingView from './../view/loading-view.js';
 import {render, RenderPosition, remove} from './../framework/render.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import {SortType, UserAction, UpdateType, FilterType, TimeLimit} from './../const.js';
+import {BasicValues, SortType, UserAction, UpdateType, FilterType, TimeLimit} from './../const.js';
 import {sortPointPrice, sortPointTime, sortPointDate} from './../utils/points.js';
 import PointPresenter from './point-presenter.js';
 import RoutesPresenter from './routes-presenter.js';
@@ -90,7 +90,7 @@ export default class Presenter extends Observable {
   }
 
   renderBoard() {
-    for (let i = 0; i < this.points.length; i++) {
+    for (let i = BasicValues.ZERO; i < this.points.length; i++) {
       this.#renderPoints(this.points[i]);
     }
 
@@ -101,11 +101,11 @@ export default class Presenter extends Observable {
       return;
     }
 
-    if (this.points.length === 0) {
+    if (this.points.length === BasicValues.ZERO) {
       this.#renderNoPoints();
     }
 
-    if (this.points.length > 0) {
+    if (this.points.length > BasicValues.ZERO) {
       this.renderRoutes();
     }
   }

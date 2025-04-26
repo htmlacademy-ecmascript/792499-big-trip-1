@@ -3,6 +3,7 @@ const BasicValues = {
   ESCAPE_KEY: 27,
   CHECKED: 'checked',
   UNCHECKED: ' ',
+  MINUS_ONE: -1,
   ZERO: 0,
   ONE: 1,
   TWO: 2,
@@ -61,6 +62,7 @@ const FilterType = {
   PAST: 'past',
   PRESENT: 'present',
   FUTURE: 'future',
+  FIRST_PART_NAME: 7,
 };
 
 const Mode = {

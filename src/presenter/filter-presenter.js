@@ -1,6 +1,6 @@
 import {render, replace, remove} from './../framework/render.js';
 import Filters from './../view/filters.js';
-import {UpdateType} from './../const.js';
+import {UpdateType, FilterType} from './../const.js';
 import {filters} from './../utils/filters-utils.js';
 
 export default class FilterPresenter {
@@ -47,7 +47,7 @@ export default class FilterPresenter {
   }
 
   #handlerFilters = (filterType) => {
-    const currentFilter = filterType.slice(7);
+    const currentFilter = filterType.slice(FilterType.FIRST_PART_NAME);
     if (this.#filtersModel.filters === currentFilter) {
       return;
     }

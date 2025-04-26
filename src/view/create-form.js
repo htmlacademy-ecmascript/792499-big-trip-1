@@ -73,7 +73,7 @@ const createForm = (point, cities) => {
       <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ' '}>Cancel</button>
     </header>
     <section class="event__details">
-      ${(isOffers.length > 0 ? `
+      ${(isOffers.length > BasicValues.ZERO ? `
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
@@ -358,7 +358,7 @@ export default class NewForm extends AbstractStatefulView {
       dateFormat: 'y/m/d H:i',
       minDate: humanizePointDueDate(new Date()).allDate,
       locale: {
-        firstDayOfWeek: 1,
+        firstDayOfWeek: BasicValues.ONE,
       },
       onValueUpdate: this.#handlerDateFromChange,
       onClose: this.#handlerDateOptions,
@@ -370,7 +370,7 @@ export default class NewForm extends AbstractStatefulView {
       dateFormat: 'y/m/d H:i',
       minDate: humanizePointDueDate(new Date()).allDate,
       locale: {
-        firstDayOfWeek: 1,
+        firstDayOfWeek: BasicValues.ONE,
       },
       onValueUpdate: this.#handlerDateToChange,
     });

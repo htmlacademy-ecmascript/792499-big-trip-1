@@ -1,5 +1,5 @@
 import Observable from './../framework/observable.js';
-import {UpdateType} from './../const.js';
+import {BasicValues, UpdateType} from './../const.js';
 
 export default class PointModel extends Observable {
   #pointsApiService = null;
@@ -44,7 +44,7 @@ export default class PointModel extends Observable {
     try {
       const points = await this.#pointsApiService.points;
       this.#points = points.map((el) => {
-        if (this.#destinations.length === 0) {
+        if (this.#destinations.length === BasicValues.ZERO) {
           throw new SyntaxError('Не удалось загрузить часть данных');
         }
         return this.#adaptToClient(el);
@@ -59,7 +59,7 @@ export default class PointModel extends Observable {
   async updatePoint(updateType, update) {
     const index = this.#points.findIndex((point) => point.id === update.id);
 
-    if (index === -1) {
+    if (index === BasicValues.MINUS_ONE) {
       throw new Error('Can\'t update unexisting point');
     }
 
@@ -67,9 +67,9 @@ export default class PointModel extends Observable {
       const response = await this.#pointsApiService.updatePoint(update);
       const updatedPoint = this.#adaptToClient(response);
       this.#points = [
-        ...this.#points.slice(0, index),
+        ...this.#points.slice(BasicValues.ZERO, index),
         update,
-        ...this.#points.slice(index + 1)
+        ...this.#points.slice(index + BasicValues.ONE)
       ];
 
       this._notify(updateType, updatedPoint);
@@ -92,15 +92,15 @@ export default class PointModel extends Observable {
   async deletePoint(updateType, update) {
     const index = this.#points.findIndex((point) => point.id === update.id);
 
-    if (index === -1) {
+    if (index === BasicValues.MINUS_ONE) {
       throw new Error('Can\'t delete unexisting point');
     }
 
     try {
       await this.#pointsApiService.deletePoint(update);
       this.#points = [
-        ...this.#points.slice(0, index),
-        ...this.#points.slice(index + 1)
+        ...this.#points.slice(BasicValues.ZERO, index),
+        ...this.#points.slice(index + BasicValues.ONE)
       ];
 
       this._notify(updateType);

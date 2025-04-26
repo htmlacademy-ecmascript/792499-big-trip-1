@@ -6,11 +6,11 @@ import {firstElement, secondElement, lastElement} from './../utils/common.js';
 const createRoutes = (points) => {
 
   const totalBasePrice = () => {
-    let sum = 0;
-    let offersSum = 0;
+    let sum = BasicValues.ZERO;
+    let offersSum = BasicValues.ZERO;
 
     points.forEach((el) => {
-      if (el.offer.length > 0) {
+      if (el.offer.length > BasicValues.ZERO) {
         const [{price}] = el.offer;
         offersSum += price;
       }

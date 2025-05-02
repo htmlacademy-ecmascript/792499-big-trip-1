@@ -11,9 +11,6 @@ export default class PointModel extends Observable {
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-    this.#pointsApiService.offers.then((offers) => offers.map((el) => el.offers.forEach((elem) => {
-      this.#offers.push(elem);
-    })));
   }
 
   get points() {
@@ -35,7 +32,11 @@ export default class PointModel extends Observable {
   async init() {
     try {
       const points = await this.#pointsApiService.points;
+      const offers = await this.#pointsApiService.offers;
       const destinations = await this.#pointsApiService.destinations;
+      offers.map((el) => el.offers.forEach((elem) => {
+        this.#offers.push(elem);
+      }))
       destinations.map((el) => {
         this.#destinations.push(el);
         this.#cities.push(el.name);

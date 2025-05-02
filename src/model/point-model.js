@@ -14,14 +14,6 @@ export default class PointModel extends Observable {
     this.#pointsApiService.offers.then((offers) => offers.map((el) => el.offers.forEach((elem) => {
       this.#offers.push(elem);
     })));
-    this.#pointsApiService.points.then((points) => {
-      points.map((point) => this.#points.push(this.#adaptToClient(point)));
-    });
-
-    this.#pointsApiService.destinations.then((destination) => destination.map((el) => {
-      this.#destinations.push(el);
-      this.#cities.push(el.name);
-    }));
   }
 
   get points() {
@@ -43,6 +35,11 @@ export default class PointModel extends Observable {
   async init() {
     try {
       const points = await this.#pointsApiService.points;
+      const destinations = await this.#pointsApiService.destinations;
+      destinations.map((el) => {
+        this.#destinations.push(el);
+        this.#cities.push(el.name);
+      });
       this.#points = points.map((el) => {
         if (this.#destinations.length === BasicValues.ZERO) {
           throw new SyntaxError('Не удалось загрузить часть данных');

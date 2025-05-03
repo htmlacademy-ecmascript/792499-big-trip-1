@@ -66,7 +66,7 @@ const createEditPoint = (point, cities) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" maxlength="6" ${isDisabled ? 'disabled' : ' '} required>
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" maxlength="6" ${isDisabled ? 'disabled' : ' '}>
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ' '}>${isSaving ? 'Saving' : 'Save'}</button>
@@ -176,7 +176,6 @@ export default class EditForm extends AbstractStatefulView {
     this.deleteBtn.addEventListener('click', this.#handlerDeletePoint);
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.city.addEventListener('change', this.#handlerDestinationPoint);
-    this.price.addEventListener('change', this.#handlerPriceInput);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingActualOffers);
       offer.addEventListener('change', this.#handlerCurrentOffers);
@@ -188,9 +187,21 @@ export default class EditForm extends AbstractStatefulView {
     document.removeEventListener('keydown', this._handlerEscResetForm);
   };
 
-  #handlerBtnSubmit = () => {
+  #handlerBtnSubmit = (evt) => {
+    evt.preventDefault();
+    if (!Number(this.price.value)) {
+      checkingForms.styleError(this.price, this.price.parentElement);
+      return this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
+    }
+
+    if (Number(this.price.value) > BasicValues.MAX_PRICE) {
+      checkingForms.styleError(this.price, this.price.parentElement);
+      return this.#handlerErrorForm(this.price.parentElement, TooltipLabel.MAX_NUMBER);
+    }
+
     this.updateElement({
       isOffers: this.#creatingActualOffers(),
+      isPrice: Math.floor(this.price.value),
     });
     this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
   };
@@ -259,18 +270,6 @@ export default class EditForm extends AbstractStatefulView {
     this.#currentAttribute = BasicValues.CHECKED + evt.target.id;
     this.#currentOffersValue = evt.target.checked;
     this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
-  };
-
-  #handlerPriceInput = (evt) => {
-    if (!Number(evt.target.value)) {
-      checkingForms.styleError(this.price, this.price.parentElement);
-      this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
-    } else {
-      this.price.value = Math.floor(evt.target.value);
-      this.updateElement({
-        isPrice: Number(evt.target.value),
-      });
-    }
   };
 
   #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).

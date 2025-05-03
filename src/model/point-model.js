@@ -36,7 +36,7 @@ export default class PointModel extends Observable {
       const destinations = await this.#pointsApiService.destinations;
       offers.map((el) => el.offers.forEach((elem) => {
         this.#offers.push(elem);
-      }))
+      }));
       destinations.map((el) => {
         this.#destinations.push(el);
         this.#cities.push(el.name);

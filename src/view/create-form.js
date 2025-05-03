@@ -197,7 +197,7 @@ export default class NewForm extends AbstractStatefulView {
     this.resetBtn.addEventListener('click', this._handlerResetForm);
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.city.addEventListener('change', this.#handlerDestinationPoint);
-    this.price.addEventListener('change', this.#handlerPriceInput);
+    /*this.price.addEventListener('change', this.#handlerPriceInput);*/
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingActualOffers);
       offer.addEventListener('change', this.#handlerCurrentOffers);
@@ -223,8 +223,19 @@ export default class NewForm extends AbstractStatefulView {
       return;
     }
 
+    if (!Number(this.price.value)) {
+      checkingForms.styleError(this.price, this.price.parentElement);
+      return this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
+    }
+
+    if (Number(this.price.value) > BasicValues.MAX_PRICE) {
+      checkingForms.styleError(this.price, this.price.parentElement);
+      return this.#handlerErrorForm(this.price.parentElement, TooltipLabel.MAX_NUMBER);
+    }
+
     this.updateElement({
       isOffers: this.#creatingActualOffers(),
+      isPrice: Math.floor(this.price.value),
     });
 
     this.#handlerFormClick(NewForm.parseStateToPoint(this._state));
@@ -309,17 +320,16 @@ export default class NewForm extends AbstractStatefulView {
     this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
   };
 
-  #handlerPriceInput = (evt) => {
+  /*#handlerPriceInput = (evt) => {
     if (!Number(evt.target.value)) {
       checkingForms.styleError(this.price, this.price.parentElement);
       this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
-    } else {
-      this.price.value = Math.floor(evt.target.value);
-      checkingForms.priceInputCorrect(this.price, evt.target.value);
-      this._state.isPrice = Number(evt.target.value);
-      this.#handlerRemoveErrorForm();
     }
-  };
+    this.price.value = Math.floor(evt.target.value);
+    checkingForms.priceInputCorrect(this.price, evt.target.value);
+    this._state.isPrice = Number(evt.target.value);
+    this.#handlerRemoveErrorForm();
+  };*/
 
   #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
     filter((item) => item.checked).

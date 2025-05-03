@@ -266,7 +266,6 @@ export default class Presenter extends Observable {
     this.#btnNewPoint._handlerFormClose();
   };
 
-
   #handlerErrorForm = (container, thisTextContent) => {
     this.#tooltip = new Tooltip({
       textContent: thisTextContent,

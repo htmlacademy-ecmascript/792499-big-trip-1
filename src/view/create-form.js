@@ -320,17 +320,6 @@ export default class NewForm extends AbstractStatefulView {
     this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
   };
 
-  /*#handlerPriceInput = (evt) => {
-    if (!Number(evt.target.value)) {
-      checkingForms.styleError(this.price, this.price.parentElement);
-      this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
-    }
-    this.price.value = Math.floor(evt.target.value);
-    checkingForms.priceInputCorrect(this.price, evt.target.value);
-    this._state.isPrice = Number(evt.target.value);
-    this.#handlerRemoveErrorForm();
-  };*/
-
   #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
     filter((item) => item.checked).
     map((item) => item.getAttribute('id'));
@@ -365,8 +354,7 @@ export default class NewForm extends AbstractStatefulView {
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,
       'time_24hr': true,
-      dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(new Date()).allDate,
+      dateFormat: 'd/m/y H:i',
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
@@ -377,8 +365,7 @@ export default class NewForm extends AbstractStatefulView {
     this.#datepickerEnd = flatpickr(inputEndTime, {
       enableTime: true,
       'time_24hr': true,
-      dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(new Date()).allDate,
+      dateFormat: 'd/m/y H:i',
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },

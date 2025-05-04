@@ -300,8 +300,8 @@ export default class EditForm extends AbstractStatefulView {
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,
       'time_24hr': true,
-      dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(new Date()).allDate,
+      dateFormat: 'd/m/y H:i',
+      /*minDate: humanizePointDueDate(new Date()).allDate,*/
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
@@ -311,8 +311,7 @@ export default class EditForm extends AbstractStatefulView {
     this.#datepickerEnd = flatpickr(inputEndTime, {
       enableTime: true,
       'time_24hr': true,
-      dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(this._state.dateTo).allDate,
+      dateFormat: 'd/m/y H:i',
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },

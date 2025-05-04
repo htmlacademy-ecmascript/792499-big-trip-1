@@ -58,8 +58,8 @@ const sortPointDate = (a, b) => dayjs(a.dateFrom) - dayjs(b.dateFrom);
 const handlerOffers = (thisOffers, currentPoint, isChecked) => {
   const offers = Object.entries(thisOffers).map(([, value]) => value.id);
 
-  offers.forEach((el) => {
-    currentPoint[BasicValues.CHECKED + el] = isChecked;
+  offers.forEach((element) => {
+    currentPoint[BasicValues.CHECKED + element] = isChecked;
   });
 };
 

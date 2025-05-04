@@ -229,9 +229,9 @@ export default class EditForm extends AbstractStatefulView {
   #handlerEventType = (evt) => {
     this.removeDatepicker();
     const currentOffers = [];
-    this.#offers.forEach((el) => {
-      if (el.type === evt.target.value) {
-        currentOffers.push(el);
+    this.#offers.forEach((element) => {
+      if (element.type === evt.target.value) {
+        currentOffers.push(element);
       }
     });
 
@@ -282,8 +282,8 @@ export default class EditForm extends AbstractStatefulView {
 
   #creatingActualOffers = () => {
     const currentOffers = [];
-    this.#handlerOfferChecked('.event__offer-checkbox').forEach((el) => {
-      currentOffers.push(this._state.isOffers.find((item) => item.id === el));
+    this.#handlerOfferChecked('.event__offer-checkbox').forEach((element) => {
+      currentOffers.push(this._state.isOffers.find((item) => item.id === element));
     });
 
     return currentOffers;

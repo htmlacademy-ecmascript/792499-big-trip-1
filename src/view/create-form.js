@@ -117,9 +117,9 @@ export default class NewForm extends AbstractStatefulView {
     this.#destinations = destinations;
 
     const currentOffers = [];
-    this.#offers.forEach((el) => {
-      if (el.type === this.#point.event) {
-        currentOffers.push(el);
+    this.#offers.forEach((element) => {
+      if (element.type === this.#point.event) {
+        currentOffers.push(element);
       }
     });
 
@@ -261,9 +261,9 @@ export default class NewForm extends AbstractStatefulView {
   #handlerEventType = (evt) => {
     this.removeDatepicker();
     const currentOffers = [];
-    this.#offers.forEach((el) => {
-      if (el.type === evt.target.value) {
-        currentOffers.push(el);
+    this.#offers.forEach((element) => {
+      if (element.type === evt.target.value) {
+        currentOffers.push(element);
       }
     });
 
@@ -329,8 +329,8 @@ export default class NewForm extends AbstractStatefulView {
 
   #creatingActualOffers = () => {
     const currentOffers = [];
-    this.#handlerOfferChecked('.event__offer-checkbox').forEach((el) => {
-      currentOffers.push(el);
+    this.#handlerOfferChecked('.event__offer-checkbox').forEach((element) => {
+      currentOffers.push(element);
     });
 
     return currentOffers;

@@ -4,7 +4,6 @@ import {UserAction, UpdateType} from '../const.js';
 import Observable from './../framework/observable.js';
 
 export default class NewPointPresenter extends Observable {
-  #btnNewPoint = null;
   #newForm = null;
   #mainContainer = null;
   #handlerDataChange = null;

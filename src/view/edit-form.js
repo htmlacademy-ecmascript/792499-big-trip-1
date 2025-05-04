@@ -158,7 +158,11 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__input--price');
   }
 
-  _removeDatepicker() {
+  get restoringHandlers () {
+    return this._restoreHandlers();
+  }
+
+  removeDatepicker() {
     if (this.#datepickerStart) {
       this.#datepickerStart.destroy();
       this.#datepickerStart = null;
@@ -223,7 +227,7 @@ export default class EditForm extends AbstractStatefulView {
   };
 
   #handlerEventType = (evt) => {
-    this._removeDatepicker();
+    this.removeDatepicker();
     const currentOffers = [];
     this.#offers.forEach((el) => {
       if (el.type === evt.target.value) {
@@ -239,11 +243,11 @@ export default class EditForm extends AbstractStatefulView {
         isOffers: currentOffers,
       });
     }
-    this._setDatepicker();
+    this.setDatepicker();
   };
 
   #handlerDestinationPoint = (evt) => {
-    this._removeDatepicker();
+    this.removeDatepicker();
 
     let currentValue;
 
@@ -263,7 +267,7 @@ export default class EditForm extends AbstractStatefulView {
       this.#handlerErrorForm(this.city.parentElement, TooltipLabel.CITY);
     }
 
-    this._setDatepicker();
+    this.setDatepicker();
   };
 
   #handlerCurrentOffers = (evt) => {
@@ -295,7 +299,7 @@ export default class EditForm extends AbstractStatefulView {
     this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
   };
 
-  _setDatepicker() {
+  setDatepicker() {
     const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,

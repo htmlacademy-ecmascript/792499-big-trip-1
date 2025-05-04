@@ -43,8 +43,8 @@ export default class NewPointPresenter extends Observable {
     });
 
     render(this.#newForm, this.#mainContainer, RenderPosition.AFTERBEGIN);
-    this.#newForm._restoreHandlers();
-    this.#newForm._setDatepicker();
+    this.#newForm.restoringHandlers;
+    this.#newForm.setDatepicker();
     this.#newForm.isOpen = true;
     document.addEventListener('keydown', this.#newForm._handlerEscResetForm);
   }
@@ -90,7 +90,7 @@ export default class NewPointPresenter extends Observable {
 
   #handlerDeleteClick = () => {
     this.#newForm.isOpen = false;
-    this.#newForm._removeDatepicker();
+    this.#newForm.removeDatepicker();
     this.destroy();
   };
 

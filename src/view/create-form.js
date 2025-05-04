@@ -177,7 +177,11 @@ export default class NewForm extends AbstractStatefulView {
     return this.element.querySelector('#event-end-time-1');
   }
 
-  _removeDatepicker() {
+  get restoringHandlers () {
+    return this._restoreHandlers();
+  }
+
+  removeDatepicker() {
     if (this.#datepickerStart) {
       this.#datepickerStart.destroy();
       this.#datepickerStart = null;
@@ -197,7 +201,6 @@ export default class NewForm extends AbstractStatefulView {
     this.resetBtn.addEventListener('click', this._handlerResetForm);
     this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
     this.city.addEventListener('change', this.#handlerDestinationPoint);
-    /*this.price.addEventListener('change', this.#handlerPriceInput);*/
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingActualOffers);
       offer.addEventListener('change', this.#handlerCurrentOffers);
@@ -239,7 +242,7 @@ export default class NewForm extends AbstractStatefulView {
     });
 
     this.#handlerFormClick(NewForm.parseStateToPoint(this._state));
-    this._removeDatepicker();
+    this.removeDatepicker();
     document.removeEventListener('keydown', this._handlerEscResetForm);
   };
 
@@ -256,7 +259,7 @@ export default class NewForm extends AbstractStatefulView {
   };
 
   #handlerEventType = (evt) => {
-    this._removeDatepicker();
+    this.removeDatepicker();
     const currentOffers = [];
     this.#offers.forEach((el) => {
       if (el.type === evt.target.value) {
@@ -276,11 +279,11 @@ export default class NewForm extends AbstractStatefulView {
       this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
     }
 
-    this._setDatepicker();
+    this.setDatepicker();
   };
 
   #handlerDestinationPoint = (evt) => {
-    this._removeDatepicker();
+    this.removeDatepicker();
     evt.preventDefault();
 
     let currentValue;
@@ -311,7 +314,7 @@ export default class NewForm extends AbstractStatefulView {
       this.#handlerErrorForm(this.city.parentElement, TooltipLabel.CITY);
     }
 
-    this._setDatepicker();
+    this.setDatepicker();
   };
 
   #handlerCurrentOffers = (evt) => {
@@ -349,7 +352,7 @@ export default class NewForm extends AbstractStatefulView {
     this.eventEndTime.value = ' ';
   };
 
-  _setDatepicker() {
+  setDatepicker() {
     const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,

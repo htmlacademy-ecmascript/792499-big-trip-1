@@ -7,7 +7,7 @@ const createNoPoints = (filterType) => `<section class="trip-events">
     <p class="trip-events__msg">${FilterMessage[filterType]}</p>
   </section>`;
 
-export default class noPoints extends AbstractView {
+export default class NoPoints extends AbstractView {
   #filterType = null;
 
   constructor({filterType}) {

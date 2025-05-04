@@ -23,7 +23,7 @@ export default class Presenter extends Observable {
   #filtersModel = null;
   #currentSortType = SortType.DAY;
   #pointsCollection = new Map();
-  #noPoints = null;
+  #NoPoints = null;
   #filterType = null;
   #newPointPresenter = null;
   #btnNewPoint = null;
@@ -157,8 +157,8 @@ export default class Presenter extends Observable {
     this.#pointsCollection.clear();
     remove(this.#loadingComponent);
 
-    if (this.#noPoints) {
-      remove(this.#noPoints);
+    if (this.#NoPoints) {
+      remove(this.#NoPoints);
     }
   }
 
@@ -184,8 +184,8 @@ export default class Presenter extends Observable {
   }
 
   #renderNoPoints() {
-    this.#noPoints = new NoPoints({filterType: this.#filterType});
-    render(this.#noPoints, this.#mainContainer);
+    this.#NoPoints = new NoPoints({filterType: this.#filterType});
+    render(this.#NoPoints, this.#mainContainer);
   }
 
   #handlerModeChange = () => {

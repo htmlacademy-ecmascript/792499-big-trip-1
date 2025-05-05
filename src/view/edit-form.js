@@ -158,7 +158,7 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__input--price');
   }
 
-  get restoringHandlers () {
+  getRestoringHandlers () {
     return this._restoreHandlers();
   }
 

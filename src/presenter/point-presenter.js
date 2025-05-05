@@ -129,7 +129,7 @@ export default class PointPresenter extends Observable {
   #rollupClickHandler = () => {
     this.#replacePointToForm();
     this.#currentForm.isOpen = true;
-    this.#currentForm.restoringHandlers;
+    this.#currentForm.getRestoringHandlers();
     this.#currentForm.setDatepicker();
     document.addEventListener('keydown', this.#currentForm.escResetFormHandler);
   };

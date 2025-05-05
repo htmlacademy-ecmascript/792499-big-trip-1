@@ -43,7 +43,7 @@ export default class NewPointPresenter extends Observable {
     });
 
     render(this.#newForm, this.#mainContainer, RenderPosition.AFTERBEGIN);
-    this.#newForm.restoringHandlers;
+    this.#newForm.getRestoringHandlers();
     this.#newForm.setDatepicker();
     this.#newForm.isOpen = true;
     document.addEventListener('keydown', this.#newForm.escResetFormHandler);

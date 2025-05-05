@@ -8,6 +8,7 @@ const BasicValues = {
   ONE: 1,
   TWO: 2,
   THREE: 3,
+  MAX_PRICE: 100000,
 };
 
 const Method = {
@@ -37,7 +38,7 @@ const TimeNames = {
 };
 
 const TimeFormat = {
-  ALL: 'YY/MM/DD HH:mm',
+  ALL: 'DD/MM/YY HH:mm',
   DATE: 'DD MMM',
   DAY: 'DD',
   HOUR_MINUTE: 'HH:mm',
@@ -105,12 +106,14 @@ const TooltipLabel = {
   CITY: 'CITY',
   NUMBER: 'NUMBER',
   DATE: 'DATE',
+  MAX_NUMBER: 'MAX_NUMBER',
 };
 
 const TooltipText = {
   CITY: 'Please, select a city from the suggested list',
   NUMBER: 'Please, enter a number',
   DATE: 'Please, enter a date',
+  MAX_NUMBER: 'The maximum amount is one hundred thousand one',
 };
 
 export {BasicValues, EVENT_TYPES, TimeNames, TimeFormat, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel, Method, AUTHORIZATION, END_POINT, TimeLimit};

@@ -23,7 +23,7 @@ export default class Presenter extends Observable {
   #filtersModel = null;
   #currentSortType = SortType.DAY;
   #pointsCollection = new Map();
-  #noPoints = null;
+  #NoPoints = null;
   #filterType = null;
   #newPointPresenter = null;
   #btnNewPoint = null;
@@ -48,8 +48,8 @@ export default class Presenter extends Observable {
     this.#headerMain = headerMain;
     this.#filtersContainer = filtersContainer;
 
-    this.#pointModels.addObserver(this.#handlerModelEvent);
-    this.#filtersModel.addObserver(this.#handlerModelEvent);
+    this.#pointModels.addObserver(this.#modelEventHandler);
+    this.#filtersModel.addObserver(this.#modelEventHandler);
 
     this.#destinations = this.#pointModels.destinations;
     this.#offers = this.#pointModels.offers;
@@ -57,14 +57,14 @@ export default class Presenter extends Observable {
 
     this.#newPointPresenter = new NewPointPresenter({
       mainContainer: this.#mainContainer,
-      onDataChange: this.#handlerViewAction,
-      onDestroy: this.#handlerNewFormClose,
-      onErrorForm: this.#handlerErrorForm,
-      onRemoveErrorForm: this.#handlerRemoveErrorForm,
+      onDataChange: this.#viewActionHandler,
+      onDestroy: this.#newFormCloseHandler,
+      onErrorForm: this.#errorFormHandler,
+      onRemoveErrorForm: this.#removeErrorFormHandler,
     });
 
     this.#btnNewPoint = new BtnNewPoint({
-      onClick: this.#handlerBtnNewPoint,
+      onClick: this.#btnNewPointHandler,
       headerMain: this.#headerMain,
     });
 
@@ -112,7 +112,7 @@ export default class Presenter extends Observable {
 
   renderSorting() {
     this.#sorting = new Sorting({
-      onSortTypeChange: this.#handlerSortTypeChange,
+      onSortTypeChange: this.#sortTypeChangeHandler,
     });
 
     render(this.#sorting, this.#mainContainer, RenderPosition.AFTERBEGIN);
@@ -157,8 +157,8 @@ export default class Presenter extends Observable {
     this.#pointsCollection.clear();
     remove(this.#loadingComponent);
 
-    if (this.#noPoints) {
-      remove(this.#noPoints);
+    if (this.#NoPoints) {
+      remove(this.#NoPoints);
     }
   }
 
@@ -170,9 +170,9 @@ export default class Presenter extends Observable {
   #renderPoints(point) {
     const pointPresenter = new PointPresenter({
       container: this.#mainContainer,
-      onDataChange: this.#handlerViewAction,
-      onModeChange: this.#handlerModeChange,
-      onCurrentErrorForm: this.#handlerErrorForm,
+      onDataChange: this.#viewActionHandler,
+      onModeChange: this.#modeChangeHandler,
+      onCurrentErrorForm: this.#errorFormHandler,
     });
 
     pointPresenter.init(point, this.#destinations, this.#offers, this.#cities);
@@ -184,18 +184,18 @@ export default class Presenter extends Observable {
   }
 
   #renderNoPoints() {
-    this.#noPoints = new NoPoints({filterType: this.#filterType});
-    render(this.#noPoints, this.#mainContainer);
+    this.#NoPoints = new NoPoints({filterType: this.#filterType});
+    render(this.#NoPoints, this.#mainContainer);
   }
 
-  #handlerModeChange = () => {
+  #modeChangeHandler = () => {
     this.#newPointPresenter.destroy();
     this.#pointsCollection.forEach((point) => {
       point.resetView();
     });
   };
 
-  #handlerViewAction = async (actionType, updateType, update) => {
+  #viewActionHandler = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
 
     switch (actionType) {
@@ -228,7 +228,7 @@ export default class Presenter extends Observable {
     this.#uiBlocker.unblock();
   };
 
-  #handlerModelEvent = (updateType, data) => {
+  #modelEventHandler = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#pointsCollection.get(data.id).init(data);
@@ -249,25 +249,24 @@ export default class Presenter extends Observable {
     }
   };
 
-  #handlerSortTypeChange = (sortType) => {
+  #sortTypeChangeHandler = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
 
     this.#currentSortType = sortType;
-    this.#handlerModelEvent(UpdateType.MINOR);
+    this.#modelEventHandler(UpdateType.MINOR);
   };
 
-  #handlerBtnNewPoint = () => {
+  #btnNewPointHandler = () => {
     this.createTask();
   };
 
-  #handlerNewFormClose = () => {
-    this.#btnNewPoint._handlerFormClose();
+  #newFormCloseHandler = () => {
+    this.#btnNewPoint.formCloseHandler();
   };
 
-
-  #handlerErrorForm = (container, thisTextContent) => {
+  #errorFormHandler = (container, thisTextContent) => {
     this.#tooltip = new Tooltip({
       textContent: thisTextContent,
     });
@@ -275,7 +274,7 @@ export default class Presenter extends Observable {
     render(this.#tooltip, container);
   };
 
-  #handlerRemoveErrorForm = () => {
+  #removeErrorFormHandler = () => {
     remove(this.#tooltip);
   };
 }

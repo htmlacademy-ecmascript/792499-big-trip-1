@@ -4,13 +4,12 @@ import {UserAction, UpdateType} from '../const.js';
 import Observable from './../framework/observable.js';
 
 export default class NewPointPresenter extends Observable {
-  #btnNewPoint = null;
   #newForm = null;
   #mainContainer = null;
-  #handlerDataChange = null;
-  #handlerDestroy = null;
-  #handlerErroNewForm = null;
-  #handlerRemoveCurrentError = null;
+  #dataChangeHandler = null;
+  #destroyHandler = null;
+  #erroNewFormHandler = null;
+  #removeCurrentErrorHandler = null;
   #cities = null;
   #destinations = null;
   #offers = null;
@@ -18,10 +17,10 @@ export default class NewPointPresenter extends Observable {
   constructor({mainContainer, onDataChange, onDestroy, onErrorForm, onRemoveErrorForm}) {
     super();
     this.#mainContainer = mainContainer;
-    this.#handlerDataChange = onDataChange;
-    this.#handlerDestroy = onDestroy;
-    this.#handlerErroNewForm = onErrorForm;
-    this.#handlerRemoveCurrentError = onRemoveErrorForm;
+    this.#dataChangeHandler = onDataChange;
+    this.#destroyHandler = onDestroy;
+    this.#erroNewFormHandler = onErrorForm;
+    this.#removeCurrentErrorHandler = onRemoveErrorForm;
   }
 
   init(cities, destinations, offers) {
@@ -34,20 +33,20 @@ export default class NewPointPresenter extends Observable {
     }
 
     this.#newForm = new NewForm({
-      onFormSubmit: this.#handlerFormSubmit,
-      onFormReset: this.#handlerDeleteClick,
-      onErrorForm: this.#handlerErrorForm,
-      onRemoveErrorForm: this.#handlerRemoveErrorForm,
+      onFormSubmit: this.#formSubmitHandler,
+      onFormReset: this.#deleteClickHandler,
+      onErrorForm: this.#errorFormHandler,
+      onRemoveErrorForm: this.#removeErrorFormHandler,
       cities: this.#cities,
       destinations: this.#destinations,
       offers: this.#offers,
     });
 
     render(this.#newForm, this.#mainContainer, RenderPosition.AFTERBEGIN);
-    this.#newForm._restoreHandlers();
-    this.#newForm._setDatepicker();
+    this.#newForm.getRestoringHandlers();
+    this.#newForm.setDatepicker();
     this.#newForm.isOpen = true;
-    document.addEventListener('keydown', this.#newForm._handlerEscResetForm);
+    document.addEventListener('keydown', this.#newForm.escResetFormHandler);
   }
 
   destroy() {
@@ -55,7 +54,7 @@ export default class NewPointPresenter extends Observable {
       return;
     }
 
-    this.#handlerDestroy();
+    this.#destroyHandler();
 
     remove(this.#newForm);
     this.#newForm = null;
@@ -80,8 +79,8 @@ export default class NewPointPresenter extends Observable {
     this.#newForm.shake(resetFormState);
   }
 
-  #handlerFormSubmit = (evt) => {
-    this.#handlerDataChange(
+  #formSubmitHandler = (evt) => {
+    this.#dataChangeHandler(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
       evt,
@@ -89,17 +88,17 @@ export default class NewPointPresenter extends Observable {
     this.destroy();
   };
 
-  #handlerDeleteClick = () => {
+  #deleteClickHandler = () => {
     this.#newForm.isOpen = false;
-    this.#newForm._removeDatepicker();
+    this.#newForm.removeDatepicker();
     this.destroy();
   };
 
-  #handlerErrorForm = (container, thisTextContent) => {
-    this.#handlerErroNewForm(container, thisTextContent);
+  #errorFormHandler = (container, thisTextContent) => {
+    this.#erroNewFormHandler(container, thisTextContent);
   };
 
-  #handlerRemoveErrorForm = () => {
-    this.#handlerRemoveCurrentError();
+  #removeErrorFormHandler = () => {
+    this.#removeCurrentErrorHandler();
   };
 }

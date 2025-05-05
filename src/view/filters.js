@@ -17,24 +17,24 @@ const createFilters = (filter, currentFilter) => {
 export default class Filters extends AbstractView {
   #filters = null;
   #currentFilter = null;
-  #handlerFilters = null;
+  #filtersHandler = null;
 
   constructor({filters, currentFilter, onChangeFilters}) {
     super();
     this.#filters = filters;
     this.#currentFilter = currentFilter;
-    this.#handlerFilters = onChangeFilters;
-    this.element.addEventListener('click', this.#handlerFiltersChange);
+    this.#filtersHandler = onChangeFilters;
+    this.element.addEventListener('click', this.#filtersChangeHandler);
   }
 
   get template() {
     return createFilters(this.#filters, this.#currentFilter);
   }
 
-  #handlerFiltersChange = (evt) => {
+  #filtersChangeHandler = (evt) => {
     const currentInput = evt.target;
     if (currentInput.classList.contains('trip-filters__filter-input')) {
-      this.#handlerFilters(currentInput.id);
+      this.#filtersHandler(currentInput.id);
     }
   };
 }

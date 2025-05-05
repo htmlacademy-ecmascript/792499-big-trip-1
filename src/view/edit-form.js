@@ -1,4 +1,4 @@
-import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
+import {humanizePointDueDate, offersHandler} from './../utils/points.js';
 import {EVENT_TYPES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
@@ -66,7 +66,7 @@ const createEditPoint = (point, cities) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" maxlength="6" ${isDisabled ? 'disabled' : ' '} required>
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${isPrice}" autocomplete="off" maxlength="6" ${isDisabled ? 'disabled' : ' '}>
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ' '}>${isSaving ? 'Saving' : 'Save'}</button>
@@ -100,10 +100,10 @@ const createEditPoint = (point, cities) => {
 };
 
 export default class EditForm extends AbstractStatefulView {
-  #handlerFormClick = null;
-  #handlerFormReset = null;
-  #handlerDeleteThisPoint = null;
-  #handlerErrorForm = null;
+  #formClickHandler = null;
+  #formResetHandler = null;
+  #deleteThisPointHandler = null;
+  #errorFormHandler = null;
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
@@ -120,10 +120,10 @@ export default class EditForm extends AbstractStatefulView {
     this.#offers = offers;
     this.#cities = cities;
     this._setState(EditForm.parsePointToState(point, destinations));
-    this.#handlerFormClick = onFormSubmit;
-    this.#handlerFormReset = onFormReset;
-    this.#handlerDeleteThisPoint = onFormDelete;
-    this.#handlerErrorForm = onErrorForm;
+    this.#formClickHandler = onFormSubmit;
+    this.#formResetHandler = onFormReset;
+    this.#deleteThisPointHandler = onFormDelete;
+    this.#errorFormHandler = onErrorForm;
   }
 
   get rollupBtn() {
@@ -158,7 +158,11 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__input--price');
   }
 
-  _removeDatepicker() {
+  getRestoringHandlers () {
+    return this._restoreHandlers();
+  }
+
+  removeDatepicker() {
     if (this.#datepickerStart) {
       this.#datepickerStart.destroy();
       this.#datepickerStart = null;
@@ -171,68 +175,79 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.currentForm.addEventListener('submit', this.#handlerBtnSubmit);
-    this.rollupBtn.addEventListener('click', this.#handlerResetForm);
-    this.deleteBtn.addEventListener('click', this.#handlerDeletePoint);
-    this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
-    this.city.addEventListener('change', this.#handlerDestinationPoint);
-    this.price.addEventListener('change', this.#handlerPriceInput);
+    this.currentForm.addEventListener('submit', this.#btnSubmitHandler);
+    this.rollupBtn.addEventListener('click', this.#resetFormHandler);
+    this.deleteBtn.addEventListener('click', this.#deletePointHandler);
+    this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
+    this.city.addEventListener('change', this.#destinationPointHandler);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingActualOffers);
-      offer.addEventListener('change', this.#handlerCurrentOffers);
+      offer.addEventListener('change', this.#createCurrentOffers);
     });
   }
 
-  #handlerRemoveElements = () => {
-    this.#handlerFormReset();
-    document.removeEventListener('keydown', this._handlerEscResetForm);
+  #removeElementsHandler = () => {
+    this.#formResetHandler();
+    document.removeEventListener('keydown', this.escResetFormHandler);
   };
 
-  #handlerBtnSubmit = () => {
+  #btnSubmitHandler = (evt) => {
+    evt.preventDefault();
+    if (!Number(this.price.value)) {
+      checkingForms.styleError(this.price, this.price.parentElement);
+      return this.#errorFormHandler(this.price.parentElement, TooltipLabel.NUMBER);
+    }
+
+    if (Number(this.price.value) > BasicValues.MAX_PRICE) {
+      checkingForms.styleError(this.price, this.price.parentElement);
+      return this.#errorFormHandler(this.price.parentElement, TooltipLabel.MAX_NUMBER);
+    }
+
     this.updateElement({
       isOffers: this.#creatingActualOffers(),
+      isPrice: Math.floor(this.price.value),
     });
-    this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
+    this.#formClickHandler(EditForm.parseStateToPoint(this._state));
   };
 
-  _handlerEscResetForm = (evt) => {
+  escResetFormHandler = (evt) => {
     if (isEscapeKey(evt) && this.isOpen && !evt.target.classList.contains('event__input--time')) {
       evt.preventDefault();
-      this.#handlerResetForm();
+      this.#resetFormHandler();
     }
   };
 
-  #handlerResetForm = () => {
+  #resetFormHandler = () => {
     this.updateElement(EditForm.parsePointToState(this.#point, this.#destinations));
-    this.#handlerRemoveElements();
+    this.#removeElementsHandler();
   };
 
-  #handlerDeletePoint = () => {
-    this.#handlerDeleteThisPoint(this.#point);
+  #deletePointHandler = () => {
+    this.#deleteThisPointHandler(this.#point);
   };
 
-  #handlerEventType = (evt) => {
-    this._removeDatepicker();
+  #eventTypeHandler = (evt) => {
+    this.removeDatepicker();
     const currentOffers = [];
-    this.#offers.forEach((el) => {
-      if (el.type === evt.target.value) {
-        currentOffers.push(el);
+    this.#offers.forEach((element) => {
+      if (element.type === evt.target.value) {
+        currentOffers.push(element);
       }
     });
 
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
-      handlerOffers(currentOffers, this._state, BasicValues.UNCHECKED);
+      offersHandler(currentOffers, this._state, BasicValues.UNCHECKED);
       this.updateElement({
         isEventType: evt.target.value,
         isOffers: currentOffers,
       });
     }
-    this._setDatepicker();
+    this.setDatepicker();
   };
 
-  #handlerDestinationPoint = (evt) => {
-    this._removeDatepicker();
+  #destinationPointHandler = (evt) => {
+    this.removeDatepicker();
 
     let currentValue;
 
@@ -249,75 +264,62 @@ export default class EditForm extends AbstractStatefulView {
 
     if (evt.target.value !== currentValue) {
       checkingForms.styleError(this.city, this.city.parentElement);
-      this.#handlerErrorForm(this.city.parentElement, TooltipLabel.CITY);
+      this.#errorFormHandler(this.city.parentElement, TooltipLabel.CITY);
     }
 
-    this._setDatepicker();
+    this.setDatepicker();
   };
 
-  #handlerCurrentOffers = (evt) => {
+  #createCurrentOffers = (evt) => {
     this.#currentAttribute = BasicValues.CHECKED + evt.target.id;
     this.#currentOffersValue = evt.target.checked;
     this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
   };
 
-  #handlerPriceInput = (evt) => {
-    if (!Number(evt.target.value)) {
-      checkingForms.styleError(this.price, this.price.parentElement);
-      this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
-    } else {
-      this.price.value = Math.floor(evt.target.value);
-      this.updateElement({
-        isPrice: Number(evt.target.value),
-      });
-    }
-  };
-
-  #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
+  #offerCheckedHandler = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
     filter((item) => item.checked).
     map((item) => item.getAttribute('id'));
 
   #creatingActualOffers = () => {
     const currentOffers = [];
-    this.#handlerOfferChecked('.event__offer-checkbox').forEach((el) => {
-      currentOffers.push(this._state.isOffers.find((item) => item.id === el));
+    this.#offerCheckedHandler('.event__offer-checkbox').forEach((element) => {
+      currentOffers.push(this._state.isOffers.find((item) => item.id === element));
     });
 
     return currentOffers;
   };
 
-  #handlerDateFromChange = ([selectedDate]) => {
+  #dateFromChangeHandler = ([selectedDate]) => {
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
     this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
   };
 
-  #handlerDateToChange = ([selectedDate]) => {
+  #dateToChangeHandler = ([selectedDate]) => {
     this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
     this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
   };
 
-  _setDatepicker() {
+  setDatepicker() {
     const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,
       'time_24hr': true,
-      dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(new Date()).allDate,
+      dateFormat: 'd/m/y H:i',
+      /*minDate: humanizePointDueDate(new Date()).allDate,*/
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onClose: this.#handlerDateFromChange,
+      onClose: this.#dateFromChangeHandler,
     });
 
     this.#datepickerEnd = flatpickr(inputEndTime, {
       enableTime: true,
       'time_24hr': true,
-      dateFormat: 'y/m/d H:i',
-      minDate: humanizePointDueDate(this._state.dateTo).allDate,
+      dateFormat: 'd/m/y H:i',
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onClose: this.#handlerDateToChange,
+      onClose: this.#dateToChangeHandler,
     });
   }
 
@@ -336,7 +338,7 @@ export default class EditForm extends AbstractStatefulView {
       isDeleting: false,
     };
 
-    handlerOffers(point.offer, currentForm, BasicValues.CHECKED);
+    offersHandler(point.offer, currentForm, BasicValues.CHECKED);
 
     return currentForm;
   }

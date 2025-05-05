@@ -11,17 +11,6 @@ export default class PointModel extends Observable {
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
-    this.#pointsApiService.offers.then((offers) => offers.map((el) => el.offers.forEach((elem) => {
-      this.#offers.push(elem);
-    })));
-    this.#pointsApiService.points.then((points) => {
-      points.map((point) => this.#points.push(this.#adaptToClient(point)));
-    });
-
-    this.#pointsApiService.destinations.then((destination) => destination.map((el) => {
-      this.#destinations.push(el);
-      this.#cities.push(el.name);
-    }));
   }
 
   get points() {
@@ -43,11 +32,20 @@ export default class PointModel extends Observable {
   async init() {
     try {
       const points = await this.#pointsApiService.points;
-      this.#points = points.map((el) => {
+      const offers = await this.#pointsApiService.offers;
+      const destinations = await this.#pointsApiService.destinations;
+      offers.map((element) => element.offers.forEach((item) => {
+        this.#offers.push(item);
+      }));
+      destinations.map((element) => {
+        this.#destinations.push(element);
+        this.#cities.push(element.name);
+      });
+      this.#points = points.map((element) => {
         if (this.#destinations.length === BasicValues.ZERO) {
           throw new SyntaxError('Не удалось загрузить часть данных');
         }
-        return this.#adaptToClient(el);
+        return this.#adaptToClient(element);
       });
     } catch(err) {
       this.#points = [];
@@ -112,11 +110,11 @@ export default class PointModel extends Observable {
   #getCurrentOffers = (point) => {
 
     const selectOffers = [];
-    this.#offers.forEach((el) => {
-      point.offers.forEach((elem) => {
-        if (el.id === elem) {
-          el.type = point.type;
-          selectOffers.push(el);
+    this.#offers.forEach((element) => {
+      point.offers.forEach((item) => {
+        if (element.id === item) {
+          element.type = point.type;
+          selectOffers.push(element);
         }
       });
     });
@@ -126,9 +124,9 @@ export default class PointModel extends Observable {
 
   #getCurrentDestination = (id) => {
     let selectDestination;
-    this.#destinations.forEach((el) => {
-      if (id === el.id) {
-        selectDestination = el;
+    this.#destinations.forEach((element) => {
+      if (id === element.id) {
+        selectDestination = element;
       }
     });
     return selectDestination;

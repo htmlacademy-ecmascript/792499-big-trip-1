@@ -9,12 +9,12 @@ const createRoutes = (points) => {
     let sum = BasicValues.ZERO;
     let offersSum = BasicValues.ZERO;
 
-    points.forEach((el) => {
-      if (el.offer.length > BasicValues.ZERO) {
-        const [{price}] = el.offer;
+    points.forEach((element) => {
+      if (element.offer.length > BasicValues.ZERO) {
+        const [{price}] = element.offer;
         offersSum += price;
       }
-      sum += el.basePrice;
+      sum += element.basePrice;
     });
 
     sum += offersSum;

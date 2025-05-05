@@ -8,21 +8,21 @@ export default class PointPresenter extends Observable {
   #currentPoint = null;
   #currentForm = null;
   #mainContainer = null;
-  #handlerDataChange = null;
-  #handlerModeChange = null;
+  #dataChangeHandler = null;
+  #modeChangeHandler = null;
   #point = null;
   #destinations = null;
   #offers = null;
   #cities = null;
   #mode = Mode.DEFAULT;
-  #handlerCurrentErrorForm = null;
+  #currentErrorFormHandler = null;
 
   constructor({container, onDataChange, onModeChange, onCurrentErrorForm}) {
     super();
     this.#mainContainer = container;
-    this.#handlerDataChange = onDataChange;
-    this.#handlerModeChange = onModeChange;
-    this.#handlerCurrentErrorForm = onCurrentErrorForm;
+    this.#dataChangeHandler = onDataChange;
+    this.#modeChangeHandler = onModeChange;
+    this.#currentErrorFormHandler = onCurrentErrorForm;
   }
 
   init(point, destinations, offers, cities) {
@@ -36,8 +36,8 @@ export default class PointPresenter extends Observable {
 
     this.#currentPoint = new Point({
       point: this.#point,
-      onRollupClick: this.#handlerRollupClick,
-      onFavoriteClick: this.#handlerFavoriteClick,
+      onRollupClick: this.#rollupClickHandler,
+      onFavoriteClick: this.#favoriteClickHandler,
     });
 
     this.#currentForm = new EditForm({
@@ -45,10 +45,10 @@ export default class PointPresenter extends Observable {
       destinations: this.#destinations,
       offers: this.#offers,
       cities: this.#cities,
-      onFormSubmit: this.#handlerFormSubmit,
-      onFormReset: this.#handlerFormReset,
-      onFormDelete: this.#handlerDeletePoint,
-      onErrorForm: this.#handlerErrorForm,
+      onFormSubmit: this.#formSubmitHandler,
+      onFormReset: this.#formResetHandler,
+      onFormDelete: this.#deletePointHandler,
+      onErrorForm: this.#errorFormHandler,
     });
 
     if (prevCurrentPoint === null || prevCurrentForm === null) {
@@ -117,7 +117,7 @@ export default class PointPresenter extends Observable {
 
   #replacePointToForm() {
     replace(this.#currentForm, this.#currentPoint);
-    this.#handlerModeChange();
+    this.#modeChangeHandler();
     this.#mode = Mode.EDITING;
   }
 
@@ -126,42 +126,42 @@ export default class PointPresenter extends Observable {
     this.#mode = Mode.DEFAULT;
   }
 
-  #handlerRollupClick = () => {
+  #rollupClickHandler = () => {
     this.#replacePointToForm();
     this.#currentForm.isOpen = true;
-    this.#currentForm._restoreHandlers();
-    this.#currentForm._setDatepicker();
-    document.addEventListener('keydown', this.#currentForm._handlerEscResetForm);
+    this.#currentForm.getRestoringHandlers();
+    this.#currentForm.setDatepicker();
+    document.addEventListener('keydown', this.#currentForm.escResetFormHandler);
   };
 
-  #handlerFavoriteClick = () => {
-    this.#handlerDataChange(
+  #favoriteClickHandler = () => {
+    this.#dataChangeHandler(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       {...this.#point, isFavorite: !this.#point.isFavorite},
     );
   };
 
-  #handlerFormReset = () => {
+  #formResetHandler = () => {
     this.#currentForm.isOpen = false;
     this.#replaceFormToPoint();
-    this.#currentForm._removeDatepicker();
+    this.#currentForm.removeDatepicker();
   };
 
-  #handlerFormSubmit = (evt) => {
-    this.#handlerDataChange(
+  #formSubmitHandler = (evt) => {
+    this.#dataChangeHandler(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       evt,
     );
   };
 
-  #handlerErrorForm = (container, thisTextContent) => {
-    this.#handlerCurrentErrorForm(container, thisTextContent);
+  #errorFormHandler = (container, thisTextContent) => {
+    this.#currentErrorFormHandler(container, thisTextContent);
   };
 
-  #handlerDeletePoint = (evt) => {
-    this.#handlerDataChange(
+  #deletePointHandler = (evt) => {
+    this.#dataChangeHandler(
       UserAction.DELETE_POINT,
       UpdateType.MINOR,
       evt,

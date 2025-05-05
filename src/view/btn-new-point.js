@@ -1,27 +1,27 @@
 import AbstractView from './../framework/view/abstract-view.js';
 
 export default class BtnNewPoint extends AbstractView {
-  #handlerNewEventBtn = null;
+  #newEventBtnHandler = null;
   #headerMain = null;
 
   constructor({onClick, headerMain}) {
     super();
-    this.#handlerNewEventBtn = onClick;
+    this.#newEventBtnHandler = onClick;
     this.#headerMain = headerMain;
-    this.buttonNewEvent.addEventListener('click', this.#handlerBtnClick);
+    this.buttonNewEvent.addEventListener('click', this.#btnClickHandler);
   }
 
   get buttonNewEvent() {
     return this.#headerMain.querySelector('.trip-main__event-add-btn');
   }
 
-  #handlerBtnClick = (evt) => {
+  #btnClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handlerNewEventBtn();
+    this.#newEventBtnHandler();
     this.buttonNewEvent.disabled = true;
   };
 
-  _handlerFormClose() {
+  formCloseHandler() {
     this.buttonNewEvent.disabled = false;
   }
 }

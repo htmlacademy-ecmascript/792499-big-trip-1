@@ -55,7 +55,7 @@ const sortPointPrice = (a, b) => b.basePrice - a.basePrice;
 
 const sortPointDate = (a, b) => dayjs(a.dateFrom) - dayjs(b.dateFrom);
 
-const handlerOffers = (thisOffers, currentPoint, isChecked) => {
+const offersHandler = (thisOffers, currentPoint, isChecked) => {
   const offers = Object.entries(thisOffers).map(([, value]) => value.id);
 
   offers.forEach((element) => {
@@ -63,4 +63,4 @@ const handlerOffers = (thisOffers, currentPoint, isChecked) => {
   });
 };
 
-export {humanizePointDueDate, isFuture, isPresent, isPast, sortPointPrice, sortPointTime, sortPointDate, handlerOffers};
+export {humanizePointDueDate, isFuture, isPresent, isPast, sortPointPrice, sortPointTime, sortPointDate, offersHandler};

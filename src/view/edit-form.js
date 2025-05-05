@@ -1,4 +1,4 @@
-import {humanizePointDueDate, handlerOffers} from './../utils/points.js';
+import {humanizePointDueDate, offersHandler} from './../utils/points.js';
 import {EVENT_TYPES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
@@ -100,10 +100,10 @@ const createEditPoint = (point, cities) => {
 };
 
 export default class EditForm extends AbstractStatefulView {
-  #handlerFormClick = null;
-  #handlerFormReset = null;
-  #handlerDeleteThisPoint = null;
-  #handlerErrorForm = null;
+  #formClickHandler = null;
+  #formResetHandler = null;
+  #deleteThisPointHandler = null;
+  #errorFormHandler = null;
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
@@ -120,10 +120,10 @@ export default class EditForm extends AbstractStatefulView {
     this.#offers = offers;
     this.#cities = cities;
     this._setState(EditForm.parsePointToState(point, destinations));
-    this.#handlerFormClick = onFormSubmit;
-    this.#handlerFormReset = onFormReset;
-    this.#handlerDeleteThisPoint = onFormDelete;
-    this.#handlerErrorForm = onErrorForm;
+    this.#formClickHandler = onFormSubmit;
+    this.#formResetHandler = onFormReset;
+    this.#deleteThisPointHandler = onFormDelete;
+    this.#errorFormHandler = onErrorForm;
   }
 
   get rollupBtn() {
@@ -175,58 +175,58 @@ export default class EditForm extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.currentForm.addEventListener('submit', this.#handlerBtnSubmit);
-    this.rollupBtn.addEventListener('click', this.#handlerResetForm);
-    this.deleteBtn.addEventListener('click', this.#handlerDeletePoint);
-    this.eventTypeGroup.addEventListener('change', this.#handlerEventType);
-    this.city.addEventListener('change', this.#handlerDestinationPoint);
+    this.currentForm.addEventListener('submit', this.#btnSubmitHandler);
+    this.rollupBtn.addEventListener('click', this.#resetFormHandler);
+    this.deleteBtn.addEventListener('click', this.#deletePointHandler);
+    this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
+    this.city.addEventListener('change', this.#destinationPointHandler);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingActualOffers);
-      offer.addEventListener('change', this.#handlerCurrentOffers);
+      offer.addEventListener('change', this.#createCurrentOffers);
     });
   }
 
-  #handlerRemoveElements = () => {
-    this.#handlerFormReset();
-    document.removeEventListener('keydown', this._handlerEscResetForm);
+  #removeElementsHandler = () => {
+    this.#formResetHandler();
+    document.removeEventListener('keydown', this.escResetFormHandler);
   };
 
-  #handlerBtnSubmit = (evt) => {
+  #btnSubmitHandler = (evt) => {
     evt.preventDefault();
     if (!Number(this.price.value)) {
       checkingForms.styleError(this.price, this.price.parentElement);
-      return this.#handlerErrorForm(this.price.parentElement, TooltipLabel.NUMBER);
+      return this.#errorFormHandler(this.price.parentElement, TooltipLabel.NUMBER);
     }
 
     if (Number(this.price.value) > BasicValues.MAX_PRICE) {
       checkingForms.styleError(this.price, this.price.parentElement);
-      return this.#handlerErrorForm(this.price.parentElement, TooltipLabel.MAX_NUMBER);
+      return this.#errorFormHandler(this.price.parentElement, TooltipLabel.MAX_NUMBER);
     }
 
     this.updateElement({
       isOffers: this.#creatingActualOffers(),
       isPrice: Math.floor(this.price.value),
     });
-    this.#handlerFormClick(EditForm.parseStateToPoint(this._state));
+    this.#formClickHandler(EditForm.parseStateToPoint(this._state));
   };
 
-  _handlerEscResetForm = (evt) => {
+  escResetFormHandler = (evt) => {
     if (isEscapeKey(evt) && this.isOpen && !evt.target.classList.contains('event__input--time')) {
       evt.preventDefault();
-      this.#handlerResetForm();
+      this.#resetFormHandler();
     }
   };
 
-  #handlerResetForm = () => {
+  #resetFormHandler = () => {
     this.updateElement(EditForm.parsePointToState(this.#point, this.#destinations));
-    this.#handlerRemoveElements();
+    this.#removeElementsHandler();
   };
 
-  #handlerDeletePoint = () => {
-    this.#handlerDeleteThisPoint(this.#point);
+  #deletePointHandler = () => {
+    this.#deleteThisPointHandler(this.#point);
   };
 
-  #handlerEventType = (evt) => {
+  #eventTypeHandler = (evt) => {
     this.removeDatepicker();
     const currentOffers = [];
     this.#offers.forEach((element) => {
@@ -237,7 +237,7 @@ export default class EditForm extends AbstractStatefulView {
 
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
-      handlerOffers(currentOffers, this._state, BasicValues.UNCHECKED);
+      offersHandler(currentOffers, this._state, BasicValues.UNCHECKED);
       this.updateElement({
         isEventType: evt.target.value,
         isOffers: currentOffers,
@@ -246,7 +246,7 @@ export default class EditForm extends AbstractStatefulView {
     this.setDatepicker();
   };
 
-  #handlerDestinationPoint = (evt) => {
+  #destinationPointHandler = (evt) => {
     this.removeDatepicker();
 
     let currentValue;
@@ -264,37 +264,37 @@ export default class EditForm extends AbstractStatefulView {
 
     if (evt.target.value !== currentValue) {
       checkingForms.styleError(this.city, this.city.parentElement);
-      this.#handlerErrorForm(this.city.parentElement, TooltipLabel.CITY);
+      this.#errorFormHandler(this.city.parentElement, TooltipLabel.CITY);
     }
 
     this.setDatepicker();
   };
 
-  #handlerCurrentOffers = (evt) => {
+  #createCurrentOffers = (evt) => {
     this.#currentAttribute = BasicValues.CHECKED + evt.target.id;
     this.#currentOffersValue = evt.target.checked;
     this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
   };
 
-  #handlerOfferChecked = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
+  #offerCheckedHandler = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
     filter((item) => item.checked).
     map((item) => item.getAttribute('id'));
 
   #creatingActualOffers = () => {
     const currentOffers = [];
-    this.#handlerOfferChecked('.event__offer-checkbox').forEach((element) => {
+    this.#offerCheckedHandler('.event__offer-checkbox').forEach((element) => {
       currentOffers.push(this._state.isOffers.find((item) => item.id === element));
     });
 
     return currentOffers;
   };
 
-  #handlerDateFromChange = ([selectedDate]) => {
+  #dateFromChangeHandler = ([selectedDate]) => {
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
     this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
   };
 
-  #handlerDateToChange = ([selectedDate]) => {
+  #dateToChangeHandler = ([selectedDate]) => {
     this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
     this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
   };
@@ -309,7 +309,7 @@ export default class EditForm extends AbstractStatefulView {
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onClose: this.#handlerDateFromChange,
+      onClose: this.#dateFromChangeHandler,
     });
 
     this.#datepickerEnd = flatpickr(inputEndTime, {
@@ -319,7 +319,7 @@ export default class EditForm extends AbstractStatefulView {
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onClose: this.#handlerDateToChange,
+      onClose: this.#dateToChangeHandler,
     });
   }
 
@@ -338,7 +338,7 @@ export default class EditForm extends AbstractStatefulView {
       isDeleting: false,
     };
 
-    handlerOffers(point.offer, currentForm, BasicValues.CHECKED);
+    offersHandler(point.offer, currentForm, BasicValues.CHECKED);
 
     return currentForm;
   }

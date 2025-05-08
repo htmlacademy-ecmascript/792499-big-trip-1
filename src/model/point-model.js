@@ -35,6 +35,7 @@ export default class PointModel extends Observable {
       const offers = await this.#pointsApiService.offers;
       const destinations = await this.#pointsApiService.destinations;
       offers.map((element) => element.offers.forEach((item) => {
+        item.type = element.type;
         this.#offers.push(item);
       }));
       destinations.map((element) => {
@@ -80,6 +81,7 @@ export default class PointModel extends Observable {
     try {
       const response = await this.#pointsApiService.addPoint(update);
       const newPoint = this.#adaptToClient(response);
+      console.log(response)
       this.#points = [newPoint, ...this.#points];
       this._notify(updateType, newPoint);
     } catch(err) {
@@ -113,10 +115,12 @@ export default class PointModel extends Observable {
     this.#offers.forEach((element) => {
       point.offers.forEach((item) => {
         if (element.id === item) {
-          element.type = point.type;
-          selectOffers.push(element);
+          element.checked = 'true';
         }
       });
+      if (element.type === point.type) {
+        selectOffers.push(element);
+      }
     });
 
     return selectOffers;

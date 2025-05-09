@@ -255,7 +255,10 @@ export default class NewForm extends AbstractStatefulView {
   #createCurrentOffers = (evt) => {
     this.#currentOffersValue = evt.target.checked;
     this._state.isOffers.find((item) => item.id === evt.target.id ? item.checked = this.#currentOffersValue : '');
-    this.#creatingActualOffers = () => this._state.isOffers;
+    this.#creatingActualOffers = () => {
+      return this._state.isOffers.map((item) => item.checked === 'true' ? item.id : '').filter((item) => item.length !== 0);
+    };
+    this.#creatingActualOffers();
   };
 
   escResetFormHandler = (evt) => {
@@ -393,7 +396,6 @@ export default class NewForm extends AbstractStatefulView {
 
   static parseStateToPoint(state) {
     const point = {...state};
-
     point.basePrice = state.isPrice;
     point.type = state.isEventType;
     point.offer = state.isOffers;

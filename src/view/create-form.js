@@ -8,11 +8,11 @@ import 'flatpickr/dist/flatpickr.min.css';
 const createForm = (point, cities) => {
 
   const {isPrice, isEventType, isOffers, isCity, isDescription, isPictures, isDisabled, isSaving} = point;
-  /*console.log(point)*/
+
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${value.checked ? BasicValues.CHECKED : BasicValues.UNCHECKED} ${isDisabled ? 'disabled' : ' '}>
+        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${value.isChecked ? BasicValues.CHECKED : BasicValues.UNCHECKED} ${isDisabled ? 'disabled' : ' '}>
         <label class="event__offer-label" for="${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
@@ -116,7 +116,6 @@ export default class NewForm extends AbstractStatefulView {
     this.#point = NewPoint;
     this.#offers = offers.map((item) => item);
     this.#destinations = destinations;
-    /*console.log(this.#offers === offers)*/
     const currentOffers = [];
 
     this.#offers.forEach((element) => {
@@ -127,7 +126,6 @@ export default class NewForm extends AbstractStatefulView {
     });
 
     this.#point.offer = currentOffers;
-    /*this.#removeChecked(this.#point.offer);*/
 
     this._setState(NewForm.parsePointToState(this.#point));
     this.#formClickHandler = onFormSubmit;
@@ -212,12 +210,6 @@ export default class NewForm extends AbstractStatefulView {
     document.removeEventListener('keydown', this.escResetFormHandler);
   };
 
-  /*#removeChecked = (offersList) => {
-    offersList.map((element) => {
-      element.checked = '';
-    })
-  };*/
-
   #btnSubmitHandler = () => {
 
     if (!this._state.dateFrom) {
@@ -254,10 +246,9 @@ export default class NewForm extends AbstractStatefulView {
 
   #createCurrentOffers = (evt) => {
     this.#currentOffersValue = evt.target.checked;
-    this._state.isOffers.find((item) => item.id === evt.target.id ? item.checked = this.#currentOffersValue : '');
-    this.#creatingActualOffers = () => {
-      return this._state.isOffers.map((item) => item.checked === 'true' ? item.id : '').filter((item) => item.length !== 0);
-    };
+    this._state.isOffers.find((item) => item.id === evt.target.id ? item.isChecked === this.#currentOffersValue : '');
+    this.#creatingActualOffers = () => this._state.isOffers.map((item) => item.isChecked === true ? item.id : '')
+      .filter((item) => item.length !== 0);
     this.#creatingActualOffers();
   };
 
@@ -281,9 +272,6 @@ export default class NewForm extends AbstractStatefulView {
         currentOffers.push(element);
       }
     });
-
-    /*this.#removeChecked(currentOffers);*/
-    /*this._state.isOffers = currentOffers;*/
 
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
@@ -386,11 +374,12 @@ export default class NewForm extends AbstractStatefulView {
       isPictures: point.destinations.pictures,
       isDestination: point.destinations,
       isDestinationId: point.destinations.id,
+      isChecked: '',
       isDisabled: false,
       isSaving: false,
       isDeleting: false,
     };
-
+    delete point.checked;
     return currentForm;
   }
 
@@ -418,13 +407,7 @@ export default class NewForm extends AbstractStatefulView {
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;
-
-    /*for (const key in point) {
-      console.log(key)
-      if (point[key] === ' ' || point[key] === 'checked') {
-        delete point[key];
-      }
-    }*/
+    delete point.isChecked;
 
     return point;
   }

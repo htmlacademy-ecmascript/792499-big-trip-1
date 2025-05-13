@@ -211,7 +211,7 @@ export default class EditForm extends AbstractStatefulView {
 
   #createCurrentOffers = (evt) => {
     this.#currentOffersValue = evt.target.checked;
-    this._state.isOffers.find((item) => item.id === evt.target.id ? item.checked = this.#currentOffersValue : '');
+    this._state.isOffers.find((item) => item.id === evt.target.id ? item.checked === this.#currentOffersValue : '');
     this.#creatingActualOffers = () => this._state.isOffers;
   };
 
@@ -349,12 +349,6 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;
-
-    /*for (const key in point) {
-      if (point[key] === ' ' || point[key] === 'checked') {
-        delete point[key];
-      }
-    }*/
 
     return point;
   }

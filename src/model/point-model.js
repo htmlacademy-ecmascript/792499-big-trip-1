@@ -34,6 +34,7 @@ export default class PointModel extends Observable {
       const points = await this.#pointsApiService.points;
       const offers = await this.#pointsApiService.offers;
       const destinations = await this.#pointsApiService.destinations;
+
       offers.map((element) => element.offers.forEach((item) => {
         item.type = element.type;
         this.#offers.push(item);
@@ -82,7 +83,7 @@ export default class PointModel extends Observable {
     try {
       const response = await this.#pointsApiService.addPoint(update);
       const newPoint = this.#adaptToClient(response);
-      console.log(response)
+
       this.#points = [newPoint, ...this.#points];
       this._notify(updateType, newPoint);
     } catch(err) {
@@ -112,19 +113,18 @@ export default class PointModel extends Observable {
 
   #getCurrentOffers = (point) => {
 
-    const selectOffers = [];
-    this.#offers.forEach((element) => {
-      point.offers.forEach((item) => {
-        if (element.id === item) {
-          element.checked = 'true';
+    const clonedOffers = this.#offers.filter((item) => item.type === point.type)
+      .map((item) => Object.assign({}, item));
+
+    point.offers.forEach((element) => {
+      clonedOffers.filter((item) => {
+        if (item.id === element) {
+          item.checked = true;
         }
       });
-      if (element.type === point.type) {
-        selectOffers.push(element);
-      }
     });
 
-    return selectOffers;
+    return clonedOffers;
   };
 
   #getCurrentDestination = (id) => {
@@ -138,7 +138,6 @@ export default class PointModel extends Observable {
   };
 
   #adaptToClient(point) {
-
     const adaptedPoint = {
       ...point,
       isFavorite: point['is_favorite'],

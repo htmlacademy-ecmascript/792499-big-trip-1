@@ -10,10 +10,11 @@ const createNewPoint = (point) => {
             <span class="event__offer-title">${value.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${value.price}</span>
-          </li>`} else {
-            return '';
-          }
-        }).join('');
+          </li>`;
+    } else {
+      return '';
+    }
+  }).join('');
 
   return `<div class="event">
             <time class="event__date" datetime="2019-03-18">${humanizePointDueDate(dateFrom).date}</time>

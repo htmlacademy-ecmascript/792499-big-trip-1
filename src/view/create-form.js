@@ -235,7 +235,8 @@ export default class NewForm extends AbstractStatefulView {
     }
 
     this.updateElement({
-      isOffers: this.#creatingActualOffers(),
+      isOffers: this._state.isOffers.map((item) => item.isChecked === true ? item.id : '')
+        .filter((item) => item.length !== 0),
       isPrice: Math.floor(this.price.value),
     });
 
@@ -246,10 +247,11 @@ export default class NewForm extends AbstractStatefulView {
 
   #createCurrentOffers = (evt) => {
     this.#currentOffersValue = evt.target.checked;
-    this._state.isOffers.find((item) => item.id === evt.target.id ? item.isChecked === this.#currentOffersValue : '');
-    this.#creatingActualOffers = () => this._state.isOffers.map((item) => item.isChecked === true ? item.id : '')
-      .filter((item) => item.length !== 0);
-    this.#creatingActualOffers();
+    this._state.isOffers.find((item) => {
+      if (item.id === evt.target.id) {
+        item.isChecked = this.#currentOffersValue;
+      }
+    });
   };
 
   escResetFormHandler = (evt) => {
@@ -355,6 +357,7 @@ export default class NewForm extends AbstractStatefulView {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'd/m/y H:i',
+      minDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },

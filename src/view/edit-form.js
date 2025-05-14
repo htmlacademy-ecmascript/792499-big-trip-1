@@ -203,7 +203,7 @@ export default class EditForm extends AbstractStatefulView {
     }
 
     this.updateElement({
-      isOffers: this.#creatingActualOffers(),
+      isOffers: this._state.isOffers,
       isPrice: Math.floor(this.price.value),
     });
     this.#formClickHandler(EditForm.parseStateToPoint(this._state));
@@ -211,8 +211,12 @@ export default class EditForm extends AbstractStatefulView {
 
   #createCurrentOffers = (evt) => {
     this.#currentOffersValue = evt.target.checked;
-    this._state.isOffers.find((item) => item.id === evt.target.id ? item.checked === this.#currentOffersValue : '');
-    this.#creatingActualOffers = () => this._state.isOffers;
+    this._state.isOffers.find((item) => {
+      if (item.id === evt.target.id) {
+        item.checked = this.#currentOffersValue;
+      }
+    });
+    /*this.#creatingActualOffers = () => this._state.isOffers;*/
   };
 
   escResetFormHandler = (evt) => {

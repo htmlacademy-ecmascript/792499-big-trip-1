@@ -204,6 +204,7 @@ export default class NewForm extends AbstractStatefulView {
     this.currentForm.addEventListener('submit', this.#btnSubmitHandler);
     this.resetBtn.addEventListener('click', this._handlerResetForm);
     this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
+    this.price.addEventListener('change', this.#handlerPriceInput);
     this.city.addEventListener('change', this.#destinationPointHandler);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#createCurrentOffers);
@@ -217,8 +218,8 @@ export default class NewForm extends AbstractStatefulView {
 
   #btnSubmitHandler = (evt) => {
     evt.preventDefault();
-     const datesDifferent = dayjs(this._state.dateTo).diff(dayjs(this._state.dateFrom));
-    
+    const datesDifferent = dayjs(this._state.dateTo).diff(dayjs(this._state.dateFrom));
+
     if (!this._state.dateFrom) {
       checkingForms.styleError(this.eventStartTime, this.eventStartTime.parentElement);
       this.#errorFormHandler(this.eventStartTime.parentElement, TooltipLabel.DATE);
@@ -309,21 +310,25 @@ export default class NewForm extends AbstractStatefulView {
     this.#destinations.find((item) => {
       if (item.name === evt.target.value) {
         currentValue = item.name;
-
         this.updateElement({
           isCity: item.name,
           isDescription: item.description,
           isPictures: item.pictures,
           isDestinationId: item.id,
+          isPrice: this._state.isPrice,
         });
       }
 
       if (this._state.dateFrom) {
+        this.setDatepicker();
         this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
+        this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
       }
 
       if (this._state.dateTo) {
+        this.setDatepicker();
         this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
+        this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
       }
 
     });
@@ -333,7 +338,14 @@ export default class NewForm extends AbstractStatefulView {
       this.#errorFormHandler(this.city.parentElement, TooltipLabel.CITY);
     }
 
-    this.setDatepicker();
+    if(!this._state.dateTo && !this._state.dateFrom) {
+      this.setDatepicker();
+    }
+
+  };
+
+  #handlerPriceInput = (evt) => {
+    this._state.isPrice = evt.target.value;
   };
 
   #dateFromChangeHandler = ([selectedDate]) => {

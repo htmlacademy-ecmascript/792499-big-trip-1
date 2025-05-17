@@ -188,6 +188,7 @@ export default class EditForm extends AbstractStatefulView {
     this.deleteBtn.addEventListener('click', this.#deletePointHandler);
     this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
     this.city.addEventListener('change', this.#destinationPointHandler);
+    this.price.addEventListener('change', this.#handlerPriceInput);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#createCurrentOffers);
     });
@@ -201,7 +202,7 @@ export default class EditForm extends AbstractStatefulView {
   #btnSubmitHandler = (evt) => {
     evt.preventDefault();
     const datesDifferent = dayjs(this._state.dateTo).diff(dayjs(this._state.dateFrom));
-    
+
     if (!Number(this.price.value)) {
       checkingForms.styleError(this.price, this.price.parentElement);
       return this.#errorFormHandler(this.price.parentElement, TooltipLabel.NUMBER);
@@ -216,7 +217,7 @@ export default class EditForm extends AbstractStatefulView {
       checkingForms.styleErrorDate(this.time.parentElement);
       return this.#errorFormHandler(this.time.parentElement, TooltipLabel.DATES_DIFF);
     }
- 
+
     this.updateElement({
       isOffers: this._state.isOffers,
       isPrice: Math.floor(this.price.value),
@@ -281,6 +282,7 @@ export default class EditForm extends AbstractStatefulView {
           isCity: item.name,
           isDescription: item.description,
           isPictures: item.pictures,
+          isPrice: this._state.isPrice,
         });
       }
     });
@@ -291,6 +293,10 @@ export default class EditForm extends AbstractStatefulView {
     }
 
     this.setDatepicker();
+  };
+
+  #handlerPriceInput = (evt) => {
+    this._state.isPrice = evt.target.value;
   };
 
   #dateFromChangeHandler = ([selectedDate]) => {
@@ -312,7 +318,7 @@ export default class EditForm extends AbstractStatefulView {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'd/m/y H:i',
-       maxDate: humanizePointDueDate(this._state.dateTo).allDate,
+      maxDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },

@@ -190,7 +190,7 @@ export default class EditForm extends AbstractStatefulView {
     this.city.addEventListener('change', this.#destinationPointHandler);
     this.price.addEventListener('change', this.#handlerPriceInput);
     this.offers.forEach((offer) => {
-      offer.addEventListener('change', this.#createCurrentOffers);
+      offer.addEventListener('change', this.#creatingCurrentOffers);
     });
   }
 
@@ -225,7 +225,7 @@ export default class EditForm extends AbstractStatefulView {
     this.#formClickHandler(EditForm.parseStateToPoint(this._state));
   };
 
-  #createCurrentOffers = (evt) => {
+  #creatingCurrentOffers = (evt) => {
     this.#currentOffersValue = evt.target.checked;
     this._state.isOffers.find((item) => {
       if (item.id === evt.target.id) {

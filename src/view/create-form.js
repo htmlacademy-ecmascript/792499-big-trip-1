@@ -207,7 +207,7 @@ export default class NewForm extends AbstractStatefulView {
     this.price.addEventListener('change', this.#handlerPriceInput);
     this.city.addEventListener('change', this.#destinationPointHandler);
     this.offers.forEach((offer) => {
-      offer.addEventListener('change', this.#createCurrentOffers);
+      offer.addEventListener('change', this.#creatingCurrentOffers);
     });
   }
 
@@ -258,7 +258,7 @@ export default class NewForm extends AbstractStatefulView {
     document.removeEventListener('keydown', this.escResetFormHandler);
   };
 
-  #createCurrentOffers = (evt) => {
+  #creatingCurrentOffers = (evt) => {
     this.#currentOffersValue = evt.target.checked;
     this._state.isOffers.find((item) => {
       if (item.id === evt.target.id) {

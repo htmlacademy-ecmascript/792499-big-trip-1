@@ -16,13 +16,15 @@ export default class PointPresenter extends Observable {
   #cities = null;
   #mode = Mode.DEFAULT;
   #currentErrorFormHandler = null;
+  #removeErrorForm = null;
 
-  constructor({container, onDataChange, onModeChange, onCurrentErrorForm}) {
+  constructor({container, onDataChange, onModeChange, onCurrentErrorForm, onRemoveErrorForm}) {
     super();
     this.#mainContainer = container;
     this.#dataChangeHandler = onDataChange;
     this.#modeChangeHandler = onModeChange;
     this.#currentErrorFormHandler = onCurrentErrorForm;
+    this.#removeErrorForm = onRemoveErrorForm;
   }
 
   init(point, destinations, offers, cities) {
@@ -49,6 +51,7 @@ export default class PointPresenter extends Observable {
       onFormReset: this.#formResetHandler,
       onFormDelete: this.#deletePointHandler,
       onErrorForm: this.#errorFormHandler,
+      onRemoveErrorForm: this.#removeErrorFormHandler,
     });
 
     if (prevCurrentPoint === null || prevCurrentForm === null) {
@@ -158,6 +161,10 @@ export default class PointPresenter extends Observable {
 
   #errorFormHandler = (container, thisTextContent) => {
     this.#currentErrorFormHandler(container, thisTextContent);
+  };
+
+  #removeErrorFormHandler = () => {
+    this.#removeErrorForm();
   };
 
   #deletePointHandler = (evt) => {

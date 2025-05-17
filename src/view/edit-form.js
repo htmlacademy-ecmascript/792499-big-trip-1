@@ -4,6 +4,7 @@ import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import dayjs from 'dayjs';
 
 const createEditPoint = (point, cities) => {
   const currentCities = Array.from(new Set(cities));
@@ -104,6 +105,8 @@ export default class EditForm extends AbstractStatefulView {
   #formResetHandler = null;
   #deleteThisPointHandler = null;
   #errorFormHandler = null;
+  #removeErrorForm = null;
+  #removeErrorFormHandler = null;
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
@@ -113,7 +116,7 @@ export default class EditForm extends AbstractStatefulView {
   #creatingActualOffers = null;
   #currentOffersValue = null;
 
-  constructor({point, destinations, offers, cities, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
+  constructor({point, destinations, offers, cities, onFormSubmit, onFormReset, onFormDelete, onErrorForm, onRemoveErrorForm}) {
     super();
     this.#point = point;
     this.#destinations = destinations;
@@ -124,6 +127,7 @@ export default class EditForm extends AbstractStatefulView {
     this.#formResetHandler = onFormReset;
     this.#deleteThisPointHandler = onFormDelete;
     this.#errorFormHandler = onErrorForm;
+    this.#removeErrorFormHandler = onRemoveErrorForm;
   }
 
   get rollupBtn() {
@@ -156,6 +160,10 @@ export default class EditForm extends AbstractStatefulView {
 
   get price() {
     return this.element.querySelector('.event__input--price');
+  }
+
+  get time() {
+    return this.element.querySelector('.event__input--time');
   }
 
   getRestoringHandlers () {
@@ -192,6 +200,8 @@ export default class EditForm extends AbstractStatefulView {
 
   #btnSubmitHandler = (evt) => {
     evt.preventDefault();
+    const datesDifferent = dayjs(this._state.dateTo).diff(dayjs(this._state.dateFrom));
+    
     if (!Number(this.price.value)) {
       checkingForms.styleError(this.price, this.price.parentElement);
       return this.#errorFormHandler(this.price.parentElement, TooltipLabel.NUMBER);
@@ -202,6 +212,11 @@ export default class EditForm extends AbstractStatefulView {
       return this.#errorFormHandler(this.price.parentElement, TooltipLabel.MAX_NUMBER);
     }
 
+    if (datesDifferent === 0) {
+      checkingForms.styleErrorDate(this.time.parentElement);
+      return this.#errorFormHandler(this.time.parentElement, TooltipLabel.DATES_DIFF);
+    }
+ 
     this.updateElement({
       isOffers: this._state.isOffers,
       isPrice: Math.floor(this.price.value),
@@ -216,7 +231,6 @@ export default class EditForm extends AbstractStatefulView {
         item.checked = this.#currentOffersValue;
       }
     });
-    /*this.#creatingActualOffers = () => this._state.isOffers;*/
   };
 
   escResetFormHandler = (evt) => {
@@ -281,20 +295,24 @@ export default class EditForm extends AbstractStatefulView {
 
   #dateFromChangeHandler = ([selectedDate]) => {
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
-    this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
+    this.#datepickerEnd.set('minDate', humanizePointDueDate(selectedDate).allDate);
+    this.#removeErrorFormHandler();
   };
 
   #dateToChangeHandler = ([selectedDate]) => {
     this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
-    this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
+    this.#datepickerStart.set('maxDate', humanizePointDueDate(selectedDate).allDate);
+    this.#removeErrorFormHandler();
   };
 
   setDatepicker() {
     const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
+
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'd/m/y H:i',
+       maxDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
@@ -305,6 +323,7 @@ export default class EditForm extends AbstractStatefulView {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'd/m/y H:i',
+      minDate: humanizePointDueDate(this._state.dateFrom).allDate,
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },

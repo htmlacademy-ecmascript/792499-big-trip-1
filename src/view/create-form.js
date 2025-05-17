@@ -4,6 +4,7 @@ import {EVENT_TYPES, BasicValues, NewPoint, TooltipLabel} from './../const.js';
 import {isEscapeKey, checkingForms, capitalize} from './../utils/common.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import dayjs from 'dayjs';
 
 const createForm = (point, cities) => {
 
@@ -179,6 +180,10 @@ export default class NewForm extends AbstractStatefulView {
     return this.element.querySelector('#event-end-time-1');
   }
 
+  get time() {
+    return this.element.querySelector('.event__input--time');
+  }
+
   getRestoringHandlers () {
     return this._restoreHandlers();
   }
@@ -210,8 +215,10 @@ export default class NewForm extends AbstractStatefulView {
     document.removeEventListener('keydown', this.escResetFormHandler);
   };
 
-  #btnSubmitHandler = () => {
-
+  #btnSubmitHandler = (evt) => {
+    evt.preventDefault();
+     const datesDifferent = dayjs(this._state.dateTo).diff(dayjs(this._state.dateFrom));
+    
     if (!this._state.dateFrom) {
       checkingForms.styleError(this.eventStartTime, this.eventStartTime.parentElement);
       this.#errorFormHandler(this.eventStartTime.parentElement, TooltipLabel.DATE);
@@ -232,6 +239,11 @@ export default class NewForm extends AbstractStatefulView {
     if (Number(this.price.value) > BasicValues.MAX_PRICE) {
       checkingForms.styleError(this.price, this.price.parentElement);
       return this.#errorFormHandler(this.price.parentElement, TooltipLabel.MAX_NUMBER);
+    }
+
+    if (datesDifferent === 0) {
+      checkingForms.styleErrorDate(this.time.parentElement);
+      return this.#errorFormHandler(this.time.parentElement, TooltipLabel.DATES_DIFF);
     }
 
     this.updateElement({
@@ -327,17 +339,15 @@ export default class NewForm extends AbstractStatefulView {
   #dateFromChangeHandler = ([selectedDate]) => {
     this.eventStartTime.value = humanizePointDueDate(selectedDate).allDate;
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
+    this.#datepickerEnd.set('minDate', humanizePointDueDate(selectedDate).allDate);
+    this.#removeErrorFormHandler();
   };
 
   #dateToChangeHandler = ([selectedDate]) => {
     this.eventEndTime.value = humanizePointDueDate(selectedDate).allDate;
     this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
+    this.#datepickerStart.set('maxDate', humanizePointDueDate(selectedDate).allDate);
     this.#removeErrorFormHandler();
-  };
-
-  #dateOptionsHandler = () => {
-    this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
-    this.eventEndTime.value = ' ';
   };
 
   setDatepicker() {
@@ -349,19 +359,17 @@ export default class NewForm extends AbstractStatefulView {
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onValueUpdate: this.#dateFromChangeHandler,
-      onClose: this.#dateOptionsHandler,
+      onClose: this.#dateFromChangeHandler,
     });
 
     this.#datepickerEnd = flatpickr(inputEndTime, {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'd/m/y H:i',
-      minDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onValueUpdate: this.#dateToChangeHandler,
+      onClose: this.#dateToChangeHandler,
     });
   }
 

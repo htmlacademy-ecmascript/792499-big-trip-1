@@ -13,6 +13,9 @@ const checkingForms = {
     input.value = '';
     container.style.setProperty('position', 'relative');
   },
+  styleErrorDate: (container) => {
+    container.style.setProperty('position', 'relative');
+  },
   priceInputCorrect: (input, price) => {
     input.value = Math.floor(price);
     input.style = '';

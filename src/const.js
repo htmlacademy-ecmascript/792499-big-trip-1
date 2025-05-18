@@ -107,6 +107,7 @@ const TooltipLabel = {
   NUMBER: 'NUMBER',
   DATE: 'DATE',
   MAX_NUMBER: 'MAX_NUMBER',
+  DATES_DIFF: 'DATES_DIFF',
 };
 
 const TooltipText = {
@@ -114,6 +115,7 @@ const TooltipText = {
   NUMBER: 'Please, enter a number',
   DATE: 'Please, enter a date',
   MAX_NUMBER: 'The maximum amount is one hundred thousand one',
+  DATES_DIFF: 'Departure date must be less than Arrival date'
 };
 
 export {BasicValues, EVENT_TYPES, TimeNames, TimeFormat, FilterType, FilterMessage, Mode, SortType, UserAction, UpdateType, NewPoint, TooltipText, TooltipLabel, Method, AUTHORIZATION, END_POINT, TimeLimit};

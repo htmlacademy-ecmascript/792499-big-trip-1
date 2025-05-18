@@ -1,18 +1,19 @@
-import {humanizePointDueDate, offersHandler} from './../utils/points.js';
+import {humanizePointDueDate} from './../utils/points.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import {EVENT_TYPES, BasicValues, NewPoint, TooltipLabel} from './../const.js';
 import {isEscapeKey, checkingForms, capitalize} from './../utils/common.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import dayjs from 'dayjs';
 
 const createForm = (point, cities) => {
 
-  const {isPrice, isEventType, isOffers, isCity, isDescription, isPictures, isDisabled, isSaving, ...rest} = point;
+  const {isPrice, isEventType, isOffers, isCity, isDescription, isPictures, isDisabled, isSaving} = point;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]} ${isDisabled ? 'disabled' : ' '}>
+        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${value.isChecked ? BasicValues.CHECKED : BasicValues.UNCHECKED} ${isDisabled ? 'disabled' : ' '}>
         <label class="event__offer-label" for="${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
@@ -109,17 +110,19 @@ export default class NewForm extends AbstractStatefulView {
   #cities = null;
   #destinations = null;
   #offers = null;
+  #creatingActualOffers = null;
 
   constructor({onFormSubmit, onFormReset, onErrorForm, onRemoveErrorForm, cities, destinations, offers}) {
     super();
     this.#point = NewPoint;
-    this.#offers = offers;
+    this.#offers = offers.map((item) => item);
     this.#destinations = destinations;
-
     const currentOffers = [];
+
     this.#offers.forEach((element) => {
       if (element.type === this.#point.event) {
         currentOffers.push(element);
+        return currentOffers;
       }
     });
 
@@ -177,6 +180,10 @@ export default class NewForm extends AbstractStatefulView {
     return this.element.querySelector('#event-end-time-1');
   }
 
+  get time() {
+    return this.element.querySelector('.event__input--time');
+  }
+
   getRestoringHandlers () {
     return this._restoreHandlers();
   }
@@ -194,15 +201,12 @@ export default class NewForm extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.currentForm.addEventListener('submit', (evt) => {
-      evt.preventDefault();
-      this.#btnSubmitHandler();
-    });
+    this.currentForm.addEventListener('submit', this.#btnSubmitHandler);
     this.resetBtn.addEventListener('click', this._handlerResetForm);
     this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
+    this.price.addEventListener('change', this.#handlerPriceInput);
     this.city.addEventListener('change', this.#destinationPointHandler);
     this.offers.forEach((offer) => {
-      offer.addEventListener('change', this.#creatingActualOffers);
       offer.addEventListener('change', this.#creatingCurrentOffers);
     });
   }
@@ -212,7 +216,9 @@ export default class NewForm extends AbstractStatefulView {
     document.removeEventListener('keydown', this.escResetFormHandler);
   };
 
-  #btnSubmitHandler = () => {
+  #btnSubmitHandler = (evt) => {
+    evt.preventDefault();
+    const datesDifferent = dayjs(this._state.dateTo).diff(dayjs(this._state.dateFrom));
 
     if (!this._state.dateFrom) {
       checkingForms.styleError(this.eventStartTime, this.eventStartTime.parentElement);
@@ -236,14 +242,29 @@ export default class NewForm extends AbstractStatefulView {
       return this.#errorFormHandler(this.price.parentElement, TooltipLabel.MAX_NUMBER);
     }
 
+    if (datesDifferent === 0) {
+      checkingForms.styleErrorDate(this.time.parentElement);
+      return this.#errorFormHandler(this.time.parentElement, TooltipLabel.DATES_DIFF);
+    }
+
     this.updateElement({
-      isOffers: this.#creatingActualOffers(),
+      isOffers: this._state.isOffers.map((item) => item.isChecked === true ? item.id : '')
+        .filter((item) => item.length !== 0),
       isPrice: Math.floor(this.price.value),
     });
 
     this.#formClickHandler(NewForm.parseStateToPoint(this._state));
     this.removeDatepicker();
     document.removeEventListener('keydown', this.escResetFormHandler);
+  };
+
+  #creatingCurrentOffers = (evt) => {
+    this.#currentOffersValue = evt.target.checked;
+    this._state.isOffers.find((item) => {
+      if (item.id === evt.target.id) {
+        item.isChecked = this.#currentOffersValue;
+      }
+    });
   };
 
   escResetFormHandler = (evt) => {
@@ -269,17 +290,18 @@ export default class NewForm extends AbstractStatefulView {
 
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
-      offersHandler(currentOffers, this._state, BasicValues.UNCHECKED);
+
       this.updateElement({
         isEventType: evt.target.value,
         isOffers: currentOffers,
       });
 
-      this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
-      this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
+      this.#checksPickerFields();
     }
 
-    this.setDatepicker();
+    if(!this._state.dateTo && !this._state.dateFrom) {
+      this.setDatepicker();
+    }
   };
 
   #destinationPointHandler = (evt) => {
@@ -290,22 +312,16 @@ export default class NewForm extends AbstractStatefulView {
     this.#destinations.find((item) => {
       if (item.name === evt.target.value) {
         currentValue = item.name;
-
         this.updateElement({
           isCity: item.name,
           isDescription: item.description,
           isPictures: item.pictures,
           isDestinationId: item.id,
+          isPrice: this._state.isPrice,
         });
       }
 
-      if (this._state.dateFrom) {
-        this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
-      }
-
-      if (this._state.dateTo) {
-        this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
-      }
+      this.#checksPickerFields();
 
     });
 
@@ -314,42 +330,42 @@ export default class NewForm extends AbstractStatefulView {
       this.#errorFormHandler(this.city.parentElement, TooltipLabel.CITY);
     }
 
-    this.setDatepicker();
+    if(!this._state.dateTo && !this._state.dateFrom) {
+      this.setDatepicker();
+    }
+
   };
 
-  #creatingCurrentOffers = (evt) => {
-    this.#currentAttribute = BasicValues.CHECKED + evt.target.id;
-    this.#currentOffersValue = evt.target.checked;
-    this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
-  };
-
-  #offerCheckedHandler = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
-    filter((item) => item.checked).
-    map((item) => item.getAttribute('id'));
-
-  #creatingActualOffers = () => {
-    const currentOffers = [];
-    this.#offerCheckedHandler('.event__offer-checkbox').forEach((element) => {
-      currentOffers.push(element);
-    });
-
-    return currentOffers;
+  #handlerPriceInput = (evt) => {
+    this._state.isPrice = evt.target.value;
   };
 
   #dateFromChangeHandler = ([selectedDate]) => {
     this.eventStartTime.value = humanizePointDueDate(selectedDate).allDate;
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
+    this.#datepickerEnd.set('minDate', humanizePointDueDate(selectedDate).allDate);
+    this.#removeErrorFormHandler();
   };
 
   #dateToChangeHandler = ([selectedDate]) => {
     this.eventEndTime.value = humanizePointDueDate(selectedDate).allDate;
     this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
+    this.#datepickerStart.set('maxDate', humanizePointDueDate(selectedDate).allDate);
     this.#removeErrorFormHandler();
   };
 
-  #dateOptionsHandler = () => {
-    this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
-    this.eventEndTime.value = ' ';
+  #checksPickerFields = () => {
+    if (this._state.dateFrom) {
+      this.setDatepicker();
+      this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
+      this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
+    }
+
+    if (this._state.dateTo) {
+      this.setDatepicker();
+      this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
+      this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
+    }
   };
 
   setDatepicker() {
@@ -361,8 +377,7 @@ export default class NewForm extends AbstractStatefulView {
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onValueUpdate: this.#dateFromChangeHandler,
-      onClose: this.#dateOptionsHandler,
+      onClose: this.#dateFromChangeHandler,
     });
 
     this.#datepickerEnd = flatpickr(inputEndTime, {
@@ -372,11 +387,12 @@ export default class NewForm extends AbstractStatefulView {
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
-      onValueUpdate: this.#dateToChangeHandler,
+      onClose: this.#dateToChangeHandler,
     });
   }
 
   static parsePointToState(point) {
+
     const currentForm = {
       ...point,
       isPrice: point.basePrice,
@@ -387,19 +403,17 @@ export default class NewForm extends AbstractStatefulView {
       isPictures: point.destinations.pictures,
       isDestination: point.destinations,
       isDestinationId: point.destinations.id,
+      isChecked: '',
       isDisabled: false,
       isSaving: false,
       isDeleting: false,
     };
-
-    offersHandler(point.offer, currentForm, BasicValues.UNCHECKED);
-
+    delete point.checked;
     return currentForm;
   }
 
   static parseStateToPoint(state) {
     const point = {...state};
-
     point.basePrice = state.isPrice;
     point.type = state.isEventType;
     point.offer = state.isOffers;
@@ -422,12 +436,7 @@ export default class NewForm extends AbstractStatefulView {
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;
-
-    for (const key in point) {
-      if (point[key] === ' ' || point[key] === 'checked') {
-        delete point[key];
-      }
-    }
+    delete point.isChecked;
 
     return point;
   }

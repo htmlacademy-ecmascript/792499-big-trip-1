@@ -1,18 +1,19 @@
-import {humanizePointDueDate, offersHandler} from './../utils/points.js';
+import {humanizePointDueDate} from './../utils/points.js';
 import {EVENT_TYPES, TooltipLabel, BasicValues} from './../const.js';
 import {isEscapeKey, capitalize, checkingForms} from './../utils/common.js';
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import dayjs from 'dayjs';
 
 const createEditPoint = (point, cities) => {
   const currentCities = Array.from(new Set(cities));
-  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, isDisabled, isSaving, isDeleting, ...rest} = point;
+  const {isPrice, dateFrom, dateTo, isEventType, isOffers, isCity, isDescription, isPictures, isDisabled, isSaving, isDeleting} = point;
 
   const createImgMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `<img class="event__photo" src="${value.src}" alt="${value.description}">`).join('');
   const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" name="${value.title}" ${rest[BasicValues.CHECKED + value.id]} ${isDisabled ? 'disabled' : ' '}>
+        <input class="event__offer-checkbox  visually-hidden" id="${value.id}" type="checkbox" ${value.checked ? BasicValues.CHECKED : BasicValues.UNCHECKED} name="${value.title}" ${isDisabled ? 'disabled' : ' '}>
         <label class="event__offer-label" for="${value.id}">
           <span class="event__offer-title">${value.title}</span>
           &plus;&euro;&nbsp;
@@ -104,16 +105,18 @@ export default class EditForm extends AbstractStatefulView {
   #formResetHandler = null;
   #deleteThisPointHandler = null;
   #errorFormHandler = null;
+  #removeErrorForm = null;
+  #removeErrorFormHandler = null;
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
   #destinations = null;
   #offers = null;
   #cities = null;
-  #currentAttribute = null;
+  #creatingActualOffers = null;
   #currentOffersValue = null;
 
-  constructor({point, destinations, offers, cities, onFormSubmit, onFormReset, onFormDelete, onErrorForm}) {
+  constructor({point, destinations, offers, cities, onFormSubmit, onFormReset, onFormDelete, onErrorForm, onRemoveErrorForm}) {
     super();
     this.#point = point;
     this.#destinations = destinations;
@@ -124,6 +127,7 @@ export default class EditForm extends AbstractStatefulView {
     this.#formResetHandler = onFormReset;
     this.#deleteThisPointHandler = onFormDelete;
     this.#errorFormHandler = onErrorForm;
+    this.#removeErrorFormHandler = onRemoveErrorForm;
   }
 
   get rollupBtn() {
@@ -158,6 +162,10 @@ export default class EditForm extends AbstractStatefulView {
     return this.element.querySelector('.event__input--price');
   }
 
+  get time() {
+    return this.element.querySelector('.event__input--time');
+  }
+
   getRestoringHandlers () {
     return this._restoreHandlers();
   }
@@ -180,9 +188,9 @@ export default class EditForm extends AbstractStatefulView {
     this.deleteBtn.addEventListener('click', this.#deletePointHandler);
     this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
     this.city.addEventListener('change', this.#destinationPointHandler);
+    this.price.addEventListener('change', this.#handlerPriceInput);
     this.offers.forEach((offer) => {
-      offer.addEventListener('change', this.#creatingActualOffers);
-      offer.addEventListener('change', this.#createCurrentOffers);
+      offer.addEventListener('change', this.#creatingCurrentOffers);
     });
   }
 
@@ -193,6 +201,8 @@ export default class EditForm extends AbstractStatefulView {
 
   #btnSubmitHandler = (evt) => {
     evt.preventDefault();
+    const datesDifferent = dayjs(this._state.dateTo).diff(dayjs(this._state.dateFrom));
+
     if (!Number(this.price.value)) {
       checkingForms.styleError(this.price, this.price.parentElement);
       return this.#errorFormHandler(this.price.parentElement, TooltipLabel.NUMBER);
@@ -203,11 +213,26 @@ export default class EditForm extends AbstractStatefulView {
       return this.#errorFormHandler(this.price.parentElement, TooltipLabel.MAX_NUMBER);
     }
 
+    if (datesDifferent === 0) {
+      checkingForms.styleErrorDate(this.time.parentElement);
+      return this.#errorFormHandler(this.time.parentElement, TooltipLabel.DATES_DIFF);
+    }
+
     this.updateElement({
-      isOffers: this.#creatingActualOffers(),
+      isOffers: this._state.isOffers.map((item) => item.checked === true ? item.id : '')
+        .filter((item) => item.length !== 0),
       isPrice: Math.floor(this.price.value),
     });
     this.#formClickHandler(EditForm.parseStateToPoint(this._state));
+  };
+
+  #creatingCurrentOffers = (evt) => {
+    this.#currentOffersValue = evt.target.checked;
+    this._state.isOffers.find((item) => {
+      if (item.id === evt.target.id) {
+        item.checked = this.#currentOffersValue;
+      }
+    });
   };
 
   escResetFormHandler = (evt) => {
@@ -230,6 +255,7 @@ export default class EditForm extends AbstractStatefulView {
     this.removeDatepicker();
     const currentOffers = [];
     this.#offers.forEach((element) => {
+
       if (element.type === evt.target.value) {
         currentOffers.push(element);
       }
@@ -237,7 +263,6 @@ export default class EditForm extends AbstractStatefulView {
 
     if (evt.target.classList.contains('event__type-input')) {
       evt.preventDefault();
-      offersHandler(currentOffers, this._state, BasicValues.UNCHECKED);
       this.updateElement({
         isEventType: evt.target.value,
         isOffers: currentOffers,
@@ -258,6 +283,8 @@ export default class EditForm extends AbstractStatefulView {
           isCity: item.name,
           isDescription: item.description,
           isPictures: item.pictures,
+          isDestinationId: item.id,
+          isPrice: this._state.isPrice,
         });
       }
     });
@@ -270,42 +297,30 @@ export default class EditForm extends AbstractStatefulView {
     this.setDatepicker();
   };
 
-  #createCurrentOffers = (evt) => {
-    this.#currentAttribute = BasicValues.CHECKED + evt.target.id;
-    this.#currentOffersValue = evt.target.checked;
-    this._state[this.#currentAttribute] = this.#currentOffersValue ? BasicValues.CHECKED : BasicValues.UNCHECKED;
-  };
-
-  #offerCheckedHandler = (currentClass) => Array.from(this.element.querySelectorAll(currentClass)).
-    filter((item) => item.checked).
-    map((item) => item.getAttribute('id'));
-
-  #creatingActualOffers = () => {
-    const currentOffers = [];
-    this.#offerCheckedHandler('.event__offer-checkbox').forEach((element) => {
-      currentOffers.push(this._state.isOffers.find((item) => item.id === element));
-    });
-
-    return currentOffers;
+  #handlerPriceInput = (evt) => {
+    this._state.isPrice = evt.target.value;
   };
 
   #dateFromChangeHandler = ([selectedDate]) => {
     this._state.dateFrom = humanizePointDueDate(selectedDate).datepicker;
-    this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
+    this.#datepickerEnd.set('minDate', humanizePointDueDate(selectedDate).allDate);
+    this.#removeErrorFormHandler();
   };
 
   #dateToChangeHandler = ([selectedDate]) => {
     this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
-    this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
+    this.#datepickerStart.set('maxDate', humanizePointDueDate(selectedDate).allDate);
+    this.#removeErrorFormHandler();
   };
 
   setDatepicker() {
     const [inputStartTime, inputEndTime] = this.element.querySelectorAll('.event__input--time');
+
     this.#datepickerStart = flatpickr(inputStartTime, {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'd/m/y H:i',
-      /*minDate: humanizePointDueDate(new Date()).allDate,*/
+      maxDate: humanizePointDueDate(this._state.dateTo).allDate,
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
@@ -316,6 +331,7 @@ export default class EditForm extends AbstractStatefulView {
       enableTime: true,
       'time_24hr': true,
       dateFormat: 'd/m/y H:i',
+      minDate: humanizePointDueDate(this._state.dateFrom).allDate,
       locale: {
         firstDayOfWeek: BasicValues.ONE,
       },
@@ -333,23 +349,21 @@ export default class EditForm extends AbstractStatefulView {
       isDescription: point.destinations.description,
       isPictures: point.destinations.pictures,
       isDestination: point.destinations,
+      isDestinationId: point.destinations.id,
       isDisabled: false,
       isSaving: false,
       isDeleting: false,
     };
-
-    offersHandler(point.offer, currentForm, BasicValues.CHECKED);
 
     return currentForm;
   }
 
   static parseStateToPoint(state) {
     const point = {...state};
-
     point.basePrice = state.isPrice;
     point.type = state.isEventType;
     point.offer = state.isOffers;
-    point.destinations = state.isDestination;
+    point.destinations.id = state.isDestinationId;
     point.destinations.name = state.isCity;
     point.destinations.description = state.isDescription;
     point.destinations.pictures = state.isPictures;
@@ -363,15 +377,10 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isPictures;
     delete point.isPrice;
     delete point.isDestination;
+    delete point.isDestinationId;
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;
-
-    for (const key in point) {
-      if (point[key] === ' ' || point[key] === 'checked') {
-        delete point[key];
-      }
-    }
 
     return point;
   }

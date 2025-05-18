@@ -173,6 +173,7 @@ export default class Presenter extends Observable {
       onDataChange: this.#viewActionHandler,
       onModeChange: this.#modeChangeHandler,
       onCurrentErrorForm: this.#errorFormHandler,
+      onRemoveErrorForm: this.#removeErrorFormHandler,
     });
 
     pointPresenter.init(point, this.#destinations, this.#offers, this.#cities);

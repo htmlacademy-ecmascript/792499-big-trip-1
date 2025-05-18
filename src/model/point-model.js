@@ -34,7 +34,9 @@ export default class PointModel extends Observable {
       const points = await this.#pointsApiService.points;
       const offers = await this.#pointsApiService.offers;
       const destinations = await this.#pointsApiService.destinations;
+
       offers.map((element) => element.offers.forEach((item) => {
+        item.type = element.type;
         this.#offers.push(item);
       }));
       destinations.map((element) => {
@@ -66,7 +68,7 @@ export default class PointModel extends Observable {
       const updatedPoint = this.#adaptToClient(response);
       this.#points = [
         ...this.#points.slice(BasicValues.ZERO, index),
-        update,
+        updatedPoint,
         ...this.#points.slice(index + BasicValues.ONE)
       ];
 
@@ -77,9 +79,11 @@ export default class PointModel extends Observable {
   }
 
   async addPoint(updateType, update) {
+
     try {
       const response = await this.#pointsApiService.addPoint(update);
       const newPoint = this.#adaptToClient(response);
+
       this.#points = [newPoint, ...this.#points];
       this._notify(updateType, newPoint);
     } catch(err) {
@@ -109,17 +113,18 @@ export default class PointModel extends Observable {
 
   #getCurrentOffers = (point) => {
 
-    const selectOffers = [];
-    this.#offers.forEach((element) => {
-      point.offers.forEach((item) => {
-        if (element.id === item) {
-          element.type = point.type;
-          selectOffers.push(element);
+    const clonedOffers = this.#offers.filter((item) => item.type === point.type)
+      .map((item) => Object.assign({}, item));
+
+    point.offers.forEach((element) => {
+      clonedOffers.filter((item) => {
+        if (item.id === element) {
+          item.checked = true;
         }
       });
     });
 
-    return selectOffers;
+    return clonedOffers;
   };
 
   #getCurrentDestination = (id) => {
@@ -133,7 +138,6 @@ export default class PointModel extends Observable {
   };
 
   #adaptToClient(point) {
-
     const adaptedPoint = {
       ...point,
       isFavorite: point['is_favorite'],

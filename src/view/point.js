@@ -4,12 +4,17 @@ import AbstractView from './../framework/view/abstract-view.js';
 const createNewPoint = (point) => {
   const {isFavorite, basePrice, type, destinations, offer, dateFrom, dateTo} = point;
 
-  const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => `
-      <li class="event__offer">
-        <span class="event__offer-title">${value.title}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${value.price}</span>
-      </li>`).join('');
+  const createMarkup = (dataMarkup) => Object.entries(dataMarkup).map(([, value]) => {
+    if (value.checked) {
+      return `<li class="event__offer">
+            <span class="event__offer-title">${value.title}</span>
+            &plus;&euro;&nbsp;
+            <span class="event__offer-price">${value.price}</span>
+          </li>`;
+    } else {
+      return '';
+    }
+  }).join('');
 
   return `<div class="event">
             <time class="event__date" datetime="2019-03-18">${humanizePointDueDate(dateFrom).date}</time>

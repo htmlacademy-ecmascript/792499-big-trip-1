@@ -4,16 +4,18 @@ import {BasicValues} from './../const.js';
 import {firstElement, secondElement, lastElement} from './../utils/common.js';
 
 const createRoutes = (points) => {
-
   const totalBasePrice = () => {
     let sum = BasicValues.ZERO;
     let offersSum = BasicValues.ZERO;
 
     points.forEach((element) => {
-      if (element.offer.length > BasicValues.ZERO) {
-        const [{price}] = element.offer;
-        offersSum += price;
-      }
+      const {offer} = element;
+      offer.forEach((item) => {
+        if (item.checked) {
+          const {price} = item;
+          offersSum += price;
+        }
+      });
       sum += element.basePrice;
     });
 
@@ -23,7 +25,6 @@ const createRoutes = (points) => {
 
   const dateFrom = firstElement(points).dateFrom;
   const dateTo = lastElement(points).dateTo;
-
   const listRoutes = () => {
     if (points.length <= BasicValues.TWO) {
       return `${firstElement(points).destinations.name} &mdash; ${lastElement(points).destinations.name}`;

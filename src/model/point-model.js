@@ -68,7 +68,7 @@ export default class PointModel extends Observable {
       const updatedPoint = this.#adaptToClient(response);
       this.#points = [
         ...this.#points.slice(BasicValues.ZERO, index),
-        update,
+        updatedPoint,
         ...this.#points.slice(index + BasicValues.ONE)
       ];
 

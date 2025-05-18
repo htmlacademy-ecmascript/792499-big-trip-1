@@ -219,7 +219,8 @@ export default class EditForm extends AbstractStatefulView {
     }
 
     this.updateElement({
-      isOffers: this._state.isOffers,
+      isOffers: this._state.isOffers.map((item) => item.checked === true ? item.id : '')
+        .filter((item) => item.length !== 0),
       isPrice: Math.floor(this.price.value),
     });
     this.#formClickHandler(EditForm.parseStateToPoint(this._state));
@@ -282,6 +283,7 @@ export default class EditForm extends AbstractStatefulView {
           isCity: item.name,
           isDescription: item.description,
           isPictures: item.pictures,
+          isDestinationId: item.id,
           isPrice: this._state.isPrice,
         });
       }
@@ -347,6 +349,7 @@ export default class EditForm extends AbstractStatefulView {
       isDescription: point.destinations.description,
       isPictures: point.destinations.pictures,
       isDestination: point.destinations,
+      isDestinationId: point.destinations.id,
       isDisabled: false,
       isSaving: false,
       isDeleting: false,
@@ -357,11 +360,10 @@ export default class EditForm extends AbstractStatefulView {
 
   static parseStateToPoint(state) {
     const point = {...state};
-
     point.basePrice = state.isPrice;
     point.type = state.isEventType;
     point.offer = state.isOffers;
-    point.destinations = state.isDestination;
+    point.destinations.id = state.isDestinationId;
     point.destinations.name = state.isCity;
     point.destinations.description = state.isDescription;
     point.destinations.pictures = state.isPictures;
@@ -375,6 +377,7 @@ export default class EditForm extends AbstractStatefulView {
     delete point.isPictures;
     delete point.isPrice;
     delete point.isDestination;
+    delete point.isDestinationId;
     delete point.isDisabled;
     delete point.isSaving;
     delete point.isDeleting;

@@ -296,17 +296,7 @@ export default class NewForm extends AbstractStatefulView {
         isOffers: currentOffers,
       });
 
-      if (this._state.dateFrom) {
-        this.setDatepicker();
-        this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
-        this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
-      }
-
-      if (this._state.dateTo) {
-        this.setDatepicker();
-        this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
-        this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
-      }
+      this.#checksPickerFields();
     }
 
     if(!this._state.dateTo && !this._state.dateFrom) {
@@ -331,17 +321,7 @@ export default class NewForm extends AbstractStatefulView {
         });
       }
 
-      if (this._state.dateFrom) {
-        this.setDatepicker();
-        this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
-        this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
-      }
-
-      if (this._state.dateTo) {
-        this.setDatepicker();
-        this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
-        this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
-      }
+      this.#checksPickerFields();
 
     });
 
@@ -372,6 +352,20 @@ export default class NewForm extends AbstractStatefulView {
     this._state.dateTo = humanizePointDueDate(selectedDate).datepicker;
     this.#datepickerStart.set('maxDate', humanizePointDueDate(selectedDate).allDate);
     this.#removeErrorFormHandler();
+  };
+
+  #checksPickerFields = () => {
+    if (this._state.dateFrom) {
+      this.setDatepicker();
+      this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
+      this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
+    }
+
+    if (this._state.dateTo) {
+      this.setDatepicker();
+      this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
+      this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
+    }
   };
 
   setDatepicker() {

@@ -296,10 +296,22 @@ export default class NewForm extends AbstractStatefulView {
         isOffers: currentOffers,
       });
 
-      this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
-      this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
+      if (this._state.dateFrom) {
+        this.setDatepicker();
+        this.eventStartTime.value = humanizePointDueDate(this._state.dateFrom).allDate;
+        this.#datepickerEnd.set('minDate', humanizePointDueDate(this._state.dateFrom).allDate);
+      }
+
+      if (this._state.dateTo) {
+        this.setDatepicker();
+        this.eventEndTime.value = humanizePointDueDate(this._state.dateTo).allDate;
+        this.#datepickerStart.set('maxDate', humanizePointDueDate(this._state.dateTo).allDate);
+      }
     }
-    this.setDatepicker();
+
+    if(!this._state.dateTo && !this._state.dateFrom) {
+      this.setDatepicker();
+    }
   };
 
   #destinationPointHandler = (evt) => {

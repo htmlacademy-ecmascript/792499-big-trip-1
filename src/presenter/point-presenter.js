@@ -141,7 +141,12 @@ export default class PointPresenter extends Observable {
     this.#dataChangeHandler(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
-      {...this.#point, isFavorite: !this.#point.isFavorite},
+      {
+        ...this.#point,
+         isFavorite: !this.#point.isFavorite,
+        offer: this.#point.offer.map((item) => item.checked === true ? item.id : '')
+          .filter((item) => item.length !== 0),
+      },
     );
   };
 

@@ -4,7 +4,6 @@ import Routes from './../view/routes.js';
 export default class RoutesPresenter {
   #mainContainer = null;
   #routes = null;
-  #cities = null;
   #points = null;
 
   constructor({mainContainer, points}) {

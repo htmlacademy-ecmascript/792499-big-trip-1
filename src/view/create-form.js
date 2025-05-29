@@ -105,12 +105,10 @@ export default class NewForm extends AbstractStatefulView {
   #datepickerStart = null;
   #datepickerEnd = null;
   #point = null;
-  #currentAttribute = null;
   #currentOffersValue = null;
   #cities = null;
   #destinations = null;
   #offers = null;
-  #creatingActualOffers = null;
 
   constructor({onFormSubmit, onFormReset, onErrorForm, onRemoveErrorForm, cities, destinations, offers}) {
     super();

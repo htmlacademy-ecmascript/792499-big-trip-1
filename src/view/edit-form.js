@@ -105,7 +105,6 @@ export default class EditForm extends AbstractStatefulView {
   #formResetHandler = null;
   #deleteThisPointHandler = null;
   #errorFormHandler = null;
-  #removeErrorForm = null;
   #removeErrorFormHandler = null;
   #datepickerStart = null;
   #datepickerEnd = null;
@@ -113,7 +112,6 @@ export default class EditForm extends AbstractStatefulView {
   #destinations = null;
   #offers = null;
   #cities = null;
-  #creatingActualOffers = null;
   #currentOffersValue = null;
 
   constructor({point, destinations, offers, cities, onFormSubmit, onFormReset, onFormDelete, onErrorForm, onRemoveErrorForm}) {

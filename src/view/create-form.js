@@ -202,7 +202,7 @@ export default class NewForm extends AbstractStatefulView {
     this.currentForm.addEventListener('submit', this.#btnSubmitHandler);
     this.resetBtn.addEventListener('click', this._handlerResetForm);
     this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
-    this.price.addEventListener('change', this.#handlerPriceInput);
+    this.price.addEventListener('change', this.#priceInputHandler);
     this.city.addEventListener('change', this.#destinationPointHandler);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingCurrentOffers);
@@ -334,7 +334,7 @@ export default class NewForm extends AbstractStatefulView {
 
   };
 
-  #handlerPriceInput = (evt) => {
+  #priceInputHandler = (evt) => {
     this._state.isPrice = evt.target.value;
   };
 

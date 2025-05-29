@@ -186,7 +186,7 @@ export default class EditForm extends AbstractStatefulView {
     this.deleteBtn.addEventListener('click', this.#deletePointHandler);
     this.eventTypeGroup.addEventListener('change', this.#eventTypeHandler);
     this.city.addEventListener('change', this.#destinationPointHandler);
-    this.price.addEventListener('change', this.#handlerPriceInput);
+    this.price.addEventListener('change', this.#priceInputHandler);
     this.offers.forEach((offer) => {
       offer.addEventListener('change', this.#creatingCurrentOffers);
     });
@@ -295,7 +295,7 @@ export default class EditForm extends AbstractStatefulView {
     this.setDatepicker();
   };
 
-  #handlerPriceInput = (evt) => {
+  #priceInputHandler = (evt) => {
     this._state.isPrice = evt.target.value;
   };
 
